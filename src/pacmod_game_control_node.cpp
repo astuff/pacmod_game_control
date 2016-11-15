@@ -24,27 +24,13 @@
 #include "std_msgs/Float64.h"
 
 #include "pacmod/pacmod_cmd.h"
-#include "globe_epas/steering_position_with_speed.h"
 #include "pacmod_defines.h"
 
-ros::Publisher steering_set_command_mode_pub;
-ros::Publisher steering_set_current_pub;
-ros::Publisher steering_set_speed_pub;
-ros::Publisher steering_set_position_pub;
-ros::Publisher steering_set_position_with_speed_limit_pub;
-ros::Publisher steering_set_inc_encoder_value_pub;
-
-ros::Publisher brake_globe_set_command_mode_pub;
-ros::Publisher brake_globe_set_current_pub;
-ros::Publisher brake_globe_set_speed_pub;
-ros::Publisher brake_globe_set_position_pub;
-ros::Publisher brake_globe_set_position_with_speed_limit_pub;
-ros::Publisher brake_globe_set_inc_encoder_value_pub;
-
-ros::Publisher accelerator_cmd_pub;
-ros::Publisher brake_globe_cmd_pub;
 ros::Publisher turn_signal_cmd_pub;
 ros::Publisher shift_cmd_pub;
+ros::Publisher accelerator_cmd_pub;
+ros::Publisher steering_set_position_with_speed_limit_pub;
+ros::Publisher brake_globe_set_position_with_speed_limit_pub;
 ros::Publisher override_pub;
 
 bool pacmod_override;
@@ -80,23 +66,23 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     if(msg->axes[3]!=last_axes_3) { 
         last_axes_3=msg->axes[3];    
         if(!pacmod_override) { 
-            globe_epas::steering_position_with_speed pub_msg1;
-            pub_msg1.angular_position=-720.0*msg->axes[3];
-            pub_msg1.speed_limit=180.0;//fabs(STEERING_SPEED_LIMIT*(msg->axes[3]));  // to help smooth the steering
+            pacmod::pacmod_cmd pub_msg1;
+            pub_msg1.f64_cmd=-720.0*msg->axes[3];
+            //pub_msg1.speed_limit=180.0;//fabs(STEERING_SPEED_LIMIT*(msg->axes[3]));  // to help smooth the steering
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
     }
       
     // Brake -- Globe EPAS motor
-    if(msg->axes[2]!=last_axes_2) { 
-        last_axes_2=msg->axes[2];
+ //   if(msg->axes[2]!=last_axes_2) { 
+ //       last_axes_2=msg->axes[2];
         if(!pacmod_override) {
-            globe_epas::steering_position_with_speed pub_msg1;
-            pub_msg1.angular_position=(-65.0*(msg->axes[2]-1.0)/2.0);
-            pub_msg1.speed_limit=90.0;//fabs(BRAKE_GLOBE_SPEED_LIMIT*(msg->axes[2]));  // to help smooth the motion
+            pacmod::pacmod_cmd pub_msg1;
+            pub_msg1.f64_cmd=(-65.0*(msg->axes[2]-1.0)/2.0);
+            //pub_msg1.speed_limit=90.0;//fabs(BRAKE_GLOBE_SPEED_LIMIT*(msg->axes[2]));  // to help smooth the motion
             brake_globe_set_position_with_speed_limit_pub.publish(pub_msg1);    
         }
-    }
+ //   }
 
     // Turn signal
     if(msg->axes[6]!=last_axes_6) {  
@@ -111,11 +97,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             } else {
                 turn_signal_cmd_pub_msg.ui16_cmd=1;    
             } 
-            
-            turn_signal_cmd_pub_msg.enable=true;
-            turn_signal_cmd_pub_msg.clear=true;
-            turn_signal_cmd_pub_msg.ignore=false;  
-            
             turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         }
     }
@@ -125,9 +106,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(!pacmod_override) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd=0;        
-            shift_cmd_pub_msg.enable=true;
-            shift_cmd_pub_msg.clear=true;
-            shift_cmd_pub_msg.ignore=false;  
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
     }
@@ -137,9 +115,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(!pacmod_override) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd=1;        
-            shift_cmd_pub_msg.enable=true;
-            shift_cmd_pub_msg.clear=true;
-            shift_cmd_pub_msg.ignore=false;  
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
     }  
@@ -149,9 +124,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(!pacmod_override) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd=2;        
-            shift_cmd_pub_msg.enable=true;
-            shift_cmd_pub_msg.clear=true;
-            shift_cmd_pub_msg.ignore=false;  
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
     }
@@ -169,9 +141,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(!pacmod_override) {
             pacmod::pacmod_cmd accelerator_cmd_pub_msg;
             accelerator_cmd_pub_msg.f64_cmd=(-0.5*(msg->axes[5]-1.0))*0.6+0.21;
-            accelerator_cmd_pub_msg.enable=true;
-            accelerator_cmd_pub_msg.clear=true;
-            accelerator_cmd_pub_msg.ignore=false;    
             accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
         }
    // }
@@ -180,31 +149,19 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 int main(int argc, char *argv[]) { 
     ros::init(argc, argv, "pacmod_gamepad_control");
     ros::NodeHandle n;
-    
+    ros::Rate loop_rate(20);
+        
     ros::Subscriber joy_sub = n.subscribe("/pacmod/joy", 1000, callback_joy);
-    
-    turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("turn_signal/as_rx/set_cmd", 1000);
-    shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("shift/as_rx/set_cmd", 1000);
-    accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("accelerator/as_rx/set_cmd", 1);
-      
-    override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 1000, true);
     ros::Subscriber override_sub = n.subscribe("as_tx/override", 20, callback_pacmod_override);
     
-    steering_set_current_pub = n.advertise<std_msgs::Float64>("steering/as_rx/set_current", 1000);
-    steering_set_speed_pub = n.advertise<std_msgs::Float64>("steering/as_rx/set_speed", 1000);
-    steering_set_position_pub = n.advertise<std_msgs::Float64>("steering/as_rx/set_position", 1000);
-    steering_set_position_with_speed_limit_pub = n.advertise<globe_epas::steering_position_with_speed>("steering/as_rx/set_position_with_speed_limit", 1000);
-    steering_set_inc_encoder_value_pub = n.advertise<std_msgs::Float64>("steering/as_rx/set_inc_encoder_value", 1000);
-
-    brake_globe_set_current_pub = n.advertise<std_msgs::Float64>("brake/as_rx/set_current", 1000);
-    brake_globe_set_speed_pub = n.advertise<std_msgs::Float64>("brake/as_rx/set_speed", 1000);
-    brake_globe_set_position_pub = n.advertise<std_msgs::Float64>("brake/as_rx/set_position", 1000);
-    brake_globe_set_position_with_speed_limit_pub = n.advertise<globe_epas::steering_position_with_speed>("brake/as_rx/set_position_with_speed_limit", 1000);
-    brake_globe_set_inc_encoder_value_pub = n.advertise<std_msgs::Float64>("brake/as_rx/set_inc_encoder_value", 1000);
-              
-    ros::Rate loop_rate(20);
-    while (ros::ok()) {   
-        // Wait for next loop
+    turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("turn_signal/as_rx/set_cmd", 20);
+    shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("shift/as_rx/set_cmd", 20);
+    accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("accelerator/as_rx/set_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::pacmod_cmd>("steering/as_rx/set_cmd", 20);
+    brake_globe_set_position_with_speed_limit_pub = n.advertise<pacmod::pacmod_cmd>("brake/as_rx/set_cmd", 20);
+    override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 20, true);
+                  
+    while(ros::ok()) {   
         loop_rate.sleep();
         ros::spinOnce(); 
     }
