@@ -63,15 +63,15 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     }   
     
     // Steering -- Globe EPAS motor
-    if(msg->axes[3]!=last_axes_3) { 
-        last_axes_3=msg->axes[3];    
+ //   if(msg->axes[3]!=last_axes_3) { 
+ //       last_axes_3=msg->axes[3];    
         if(!pacmod_override) { 
             globe_epas::position_with_speed pub_msg1;
             pub_msg1.angular_position=-720.0*msg->axes[3];
-            pub_msg1.speed_limit=180.0;//fabs(STEERING_SPEED_LIMIT*(msg->axes[3]));  // to help smooth the steering
+            pub_msg1.speed_limit=90.0+fabs(STEERING_SPEED_LIMIT*(msg->axes[3]));  // to help smooth the steering
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
-    }
+  //  }
       
     // Brake -- Globe EPAS motor
     if(msg->axes[2]!=last_axes_2) { 
