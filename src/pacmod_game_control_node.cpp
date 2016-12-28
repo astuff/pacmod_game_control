@@ -16,15 +16,15 @@
 */
 
 #include <stdio.h>
-#include "ros/ros.h"
-#include "sensor_msgs/Joy.h"
-#include "std_msgs/Bool.h"
-#include "std_msgs/UInt8.h"
-#include "std_msgs/Int16.h"
-#include "std_msgs/Float64.h"
-#include "pacmod/position_with_speed.h"
-#include "pacmod/pacmod_cmd.h"
-#include "pacmod_defines.h"
+#include <ros/ros.h>
+#include <sensor_msgs/Joy.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/UInt8.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/Float64.h>
+#include <pacmod/position_with_speed.h>
+#include <pacmod/pacmod_cmd.h>
+#include <pacmod_defines.h>
 
 ros::Publisher turn_signal_cmd_pub;
 ros::Publisher shift_cmd_pub;
@@ -34,10 +34,8 @@ ros::Publisher brake_set_position_with_speed_limit_pub;
 ros::Publisher override_pub;
 
 bool pacmod_override;
-double last_axes_2=-999;
-double last_axes_3=-999;
-double last_axes_5=-999;
-double last_axes_6=-999;
+std::vector<float> last_axes;
+std::vector<int> last_buttons;
 
 void callback_pacmod_override(const std_msgs::Bool::ConstPtr& msg) {
     pacmod_override = msg->data;
@@ -47,103 +45,101 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     std_msgs::Bool bool_pub_msg;
     std_msgs::Int16 int16_pub_msg;
     std_msgs::Float64 float64_pub_msg;
+    bool axes_empty = last_axes.empty();
+    bool buttons_empty = last_buttons.empty();
+
+    if (!axes_empty && !buttons_empty &&
+            std::equal(last_axes.begin(), last_axes.end(), msg->axes.begin()) &&
+            std::equal(last_buttons.begin(), last_buttons.end(), msg->buttons.begin()))
+    {
+        return;
+    }
   
-    // Enable        
-    if(msg->buttons[5]==1) {    
+    // Enable
+    if(msg->buttons[5] == 1 && (buttons_empty || (last_buttons[5] != msg->buttons[5]))) {
         std_msgs::Bool bool_pub_msg;
         bool_pub_msg.data=false;
         override_pub.publish(bool_pub_msg);
     }
   
     // Disable
-    if(msg->buttons[4]==1) { 
+    if(msg->buttons[4] == 1 && (buttons_empty || (last_buttons[4] != msg->buttons[4]))) { 
         std_msgs::Bool bool_pub_msg;
         bool_pub_msg.data=true;
         override_pub.publish(bool_pub_msg);
-    }   
-    
-    // Steering -- Globe EPAS motor
- //   if(msg->axes[3]!=last_axes_3) { 
- //       last_axes_3=msg->axes[3];    
-        if(!pacmod_override) { 
+    }
+
+    if (!pacmod_override)
+    {
+        // Steering -- Globe EPAS motor
+        if(axes_empty || (last_axes[3] != msg->axes[3])) { 
             pacmod::position_with_speed pub_msg1;
             pub_msg1.angular_position=-720.0*msg->axes[3];
             pub_msg1.speed_limit=90.0+fabs(STEERING_SPEED_LIMIT*(msg->axes[3]));  // to help smooth the steering
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
-  //  }
-      
-    // Brake -- Globe EPAS motor
-    if(msg->axes[2]!=last_axes_2) { 
-        last_axes_2=msg->axes[2];
-        if(!pacmod_override) {
+        
+        // Brake -- Globe EPAS motor
+        if(axes_empty || (last_axes[2] != msg->axes[2])) {
             pacmod::position_with_speed pub_msg1;
             pub_msg1.angular_position=(-65.0*(msg->axes[2]-1.0)/2.0);
             pub_msg1.speed_limit=90.0;//fabs(BRAKE_GLOBE_SPEED_LIMIT*(msg->axes[2]));  // to help smooth the motion
             brake_set_position_with_speed_limit_pub.publish(pub_msg1);    
         }
-    }
 
-    // Turn signal
-    if(msg->axes[6]!=last_axes_6) {  
-        last_axes_6=msg->axes[6];
-        if(!pacmod_override) {
+        // Turn signal
+        if(axes_empty || (last_axes[6] != msg->axes[6])) {
             pacmod::pacmod_cmd turn_signal_cmd_pub_msg;
             
-            if((msg->axes[6])==1.0) {
-                turn_signal_cmd_pub_msg.ui16_cmd=2;
-            } else if((msg->axes[6])==(-1.0)) {
-                turn_signal_cmd_pub_msg.ui16_cmd=0;
+            if(msg->axes[6] == 1.0) {
+                turn_signal_cmd_pub_msg.ui16_cmd = 2;
+            } else if(msg->axes[6] == -1.0) {
+                turn_signal_cmd_pub_msg.ui16_cmd = 0;
             } else {
-                turn_signal_cmd_pub_msg.ui16_cmd=1;    
-            } 
+                turn_signal_cmd_pub_msg.ui16_cmd = 1;    
+            }
+
             turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         }
-    }
-        
-    // Shifting: forward
-    if(msg->buttons[0]==1) {
-        if(!pacmod_override) {
+            
+        // Shifting: forward
+        if(msg->buttons[0] == 1 && (buttons_empty || (last_buttons[0] != msg->buttons[0]))) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd=0;        
+            shift_cmd_pub_msg.ui16_cmd = 0;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
-    }
 
-    // Shifting: neutral
-    if(msg->buttons[2]==1) {
-        if(!pacmod_override) {
+        // Shifting: neutral
+        if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd=1;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
-    }  
-    
-    // Shifting: reverse
-    if(msg->buttons[1]==1) {
-        if(!pacmod_override) {
+        
+        // Shifting: reverse
+        if(msg->buttons[1] == 1 && (buttons_empty || (last_buttons[1] != msg->buttons[1]))) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd=2;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
-    }
-      
-    // Shifting: park
-    if(msg->buttons[3]==1) {
-        if(!pacmod_override) {
+          
+        // Shifting: park
+        if(msg->buttons[3] == 1 && (buttons_empty || (last_buttons[3] != msg->buttons[3]))) {
             // TODO
         }
-    }
 
-    // Accelerator  
-   // if(msg->axes[5]!=last_axes_5) { 
-     //   last_axes_5=msg->axes[5];
-        if(!pacmod_override) {
+        // Accelerator  
+        if(axes_empty || (last_axes[5] != msg->axes[5])) { 
             pacmod::pacmod_cmd accelerator_cmd_pub_msg;
             accelerator_cmd_pub_msg.f64_cmd=(-0.5*(msg->axes[5]-1.0))*0.6+0.21;
             accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
         }
-   // }
+    }
+
+    last_axes.clear();
+    last_buttons.clear();
+    last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
+    last_buttons.insert(last_buttons.end(), msg->buttons.begin(), msg->buttons.end());
 }  
 
 int main(int argc, char *argv[]) { 
