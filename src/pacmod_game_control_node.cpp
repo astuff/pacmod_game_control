@@ -112,14 +112,14 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         // Shifting: neutral
         if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd=1;        
+            shift_cmd_pub_msg.ui16_cmd = 1;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
         
         // Shifting: reverse
         if(msg->buttons[1] == 1 && (buttons_empty || (last_buttons[1] != msg->buttons[1]))) {
             pacmod::pacmod_cmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd=2;        
+            shift_cmd_pub_msg.ui16_cmd = 2;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
           
@@ -131,7 +131,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         // Accelerator  
         if(axes_empty || (last_axes[5] != msg->axes[5])) { 
             pacmod::pacmod_cmd accelerator_cmd_pub_msg;
-            accelerator_cmd_pub_msg.f64_cmd=(-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+            ROS_INFO("Raw value: %f", msg->axes[5]);
+            accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+            ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
             accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
         }
     }
