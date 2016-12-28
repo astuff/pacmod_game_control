@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
     ros::Subscriber override_sub = n.subscribe("as_tx/override", 20, callback_pacmod_override);
     
     // Advertise published messages
-    override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 20, true);
+    override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 20);
     turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("turn_signal/as_rx/set_cmd", 20);
     shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("shift/as_rx/set_cmd", 20);
     accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("accelerator/as_rx/set_cmd", 20);
