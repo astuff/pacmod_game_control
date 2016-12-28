@@ -10,7 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   pacmod
-  globe_epas
 )
 
 ## System dependencies are found with CMake's conventions

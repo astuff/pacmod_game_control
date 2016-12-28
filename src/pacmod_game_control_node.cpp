@@ -22,7 +22,7 @@
 #include "std_msgs/UInt8.h"
 #include "std_msgs/Int16.h"
 #include "std_msgs/Float64.h"
-#include "globe_epas/position_with_speed.h"
+#include "pacmod/position_with_speed.h"
 #include "pacmod/pacmod_cmd.h"
 #include "pacmod_defines.h"
 
@@ -30,7 +30,7 @@ ros::Publisher turn_signal_cmd_pub;
 ros::Publisher shift_cmd_pub;
 ros::Publisher accelerator_cmd_pub;
 ros::Publisher steering_set_position_with_speed_limit_pub;
-ros::Publisher brake_globe_set_position_with_speed_limit_pub;
+ros::Publisher brake_set_position_with_speed_limit_pub;
 ros::Publisher override_pub;
 
 bool pacmod_override;
@@ -66,7 +66,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
  //   if(msg->axes[3]!=last_axes_3) { 
  //       last_axes_3=msg->axes[3];    
         if(!pacmod_override) { 
-            globe_epas::position_with_speed pub_msg1;
+            pacmod::position_with_speed pub_msg1;
             pub_msg1.angular_position=-720.0*msg->axes[3];
             pub_msg1.speed_limit=90.0+fabs(STEERING_SPEED_LIMIT*(msg->axes[3]));  // to help smooth the steering
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
@@ -77,10 +77,10 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     if(msg->axes[2]!=last_axes_2) { 
         last_axes_2=msg->axes[2];
         if(!pacmod_override) {
-            globe_epas::position_with_speed pub_msg1;
+            pacmod::position_with_speed pub_msg1;
             pub_msg1.angular_position=(-65.0*(msg->axes[2]-1.0)/2.0);
             pub_msg1.speed_limit=90.0;//fabs(BRAKE_GLOBE_SPEED_LIMIT*(msg->axes[2]));  // to help smooth the motion
-            brake_globe_set_position_with_speed_limit_pub.publish(pub_msg1);    
+            brake_set_position_with_speed_limit_pub.publish(pub_msg1);    
         }
     }
 
@@ -160,8 +160,8 @@ int main(int argc, char *argv[]) {
     turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("turn_signal/as_rx/set_cmd", 20);
     shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("shift/as_rx/set_cmd", 20);
     accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("accelerator/as_rx/set_cmd", 20);
-    steering_set_position_with_speed_limit_pub = n.advertise<globe_epas::position_with_speed>("steering/as_rx/set_cmd", 20);
-    brake_globe_set_position_with_speed_limit_pub = n.advertise<globe_epas::position_with_speed>("brake/as_rx/set_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::position_with_speed>("steering/as_rx/set_cmd", 20);
+    brake_set_position_with_speed_limit_pub = n.advertise<pacmod::position_with_speed>("brake/as_rx/set_cmd", 20);
                   
     while(ros::ok()) {   
         // Wait for next loop
