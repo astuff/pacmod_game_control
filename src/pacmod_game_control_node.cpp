@@ -33,6 +33,9 @@ ros::Publisher steering_set_position_with_speed_limit_pub;
 ros::Publisher brake_set_position_pub;
 ros::Publisher override_pub;
 
+const float MAX_ROT_DEG = 630.0;
+const float ROT_RANGE_SCALER_LB = 0.05;
+
 bool pacmod_override;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
@@ -74,8 +77,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         // Steering -- Globe EPAS motor
         if(axes_empty || (last_axes[3] != msg->axes[3])) { 
             pacmod::position_with_speed pub_msg1;
-            pub_msg1.angular_position=-720.0*msg->axes[3];
-            pub_msg1.speed_limit=90.0+fabs(STEERING_SPEED_LIMIT*(msg->axes[3]));  // to help smooth the steering
+            float range_scale = (fabs(msg->axes[3]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
+            pub_msg1.angular_position = -(range_scale * MAX_ROT_DEG) * msg->axes[3];
+            pub_msg1.speed_limit = 270.0;
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
         
