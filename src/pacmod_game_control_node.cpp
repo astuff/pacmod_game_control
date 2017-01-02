@@ -33,7 +33,7 @@ ros::Publisher steering_set_position_with_speed_limit_pub;
 ros::Publisher brake_set_position_pub;
 ros::Publisher override_pub;
 
-const float MAX_ROT_DEG = 630.0;
+const float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
 
 bool pacmod_override;
@@ -78,8 +78,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(axes_empty || (last_axes[3] != msg->axes[3])) { 
             pacmod::position_with_speed pub_msg1;
             float range_scale = (fabs(msg->axes[3]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
-            pub_msg1.angular_position = -(range_scale * MAX_ROT_DEG) * msg->axes[3];
-            pub_msg1.speed_limit = 270.0;
+            pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[3];
+            pub_msg1.speed_limit.angular.z = 4.71239;
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
         
@@ -160,8 +160,8 @@ int main(int argc, char *argv[]) {
     override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 20);
     turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/turn_cmd", 20);
     shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/shift_cmd", 20);
-    accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/accelerator_cmd", 20);
-    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::position_with_speed>("as_rx/steering_cmd", 20);
+    accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/accel_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::position_with_speed>("as_rx/steer_cmd", 20);
     brake_set_position_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/brake_cmd", 20);
                   
     while(ros::ok()) {   
