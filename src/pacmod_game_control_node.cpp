@@ -74,7 +74,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
     if (!pacmod_override)
     {
-        // Steering -- Globe EPAS motor
+        // Steering
         if(axes_empty || (last_axes[3] != msg->axes[3])) { 
             pacmod::position_with_speed pub_msg1;
             float range_scale = (fabs(msg->axes[3]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
@@ -83,7 +83,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
         
-        // Brake -- Globe EPAS motor
+        // Brake
         if(axes_empty || (last_axes[2] != msg->axes[2])) {
             pacmod::pacmod_cmd pub_msg1;
             pub_msg1.f64_cmd = ((msg->axes[2] - 1.0) / 2.0);

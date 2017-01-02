@@ -103,7 +103,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES globe_epas
+#  LIBRARIES
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime pacmod
 #  DEPENDS system_lib
 )
