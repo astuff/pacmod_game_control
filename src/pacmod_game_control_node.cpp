@@ -158,11 +158,11 @@ int main(int argc, char *argv[]) {
     
     // Advertise published messages
     override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 20);
-    turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("turn_signal/as_rx/set_cmd", 20);
-    shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("shift/as_rx/set_cmd", 20);
-    accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("accelerator/as_rx/set_cmd", 20);
-    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::position_with_speed>("steering/as_rx/set_cmd", 20);
-    brake_set_position_pub = n.advertise<pacmod::pacmod_cmd>("brake/as_rx/set_cmd", 20);
+    turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/turn_cmd", 20);
+    shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/shift_cmd", 20);
+    accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/accelerator_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::position_with_speed>("as_rx/steering_cmd", 20);
+    brake_set_position_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/brake_cmd", 20);
                   
     while(ros::ok()) {   
         // Wait for next loop
