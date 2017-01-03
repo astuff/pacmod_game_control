@@ -79,7 +79,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             pacmod::position_with_speed pub_msg1;
             float range_scale = (fabs(msg->axes[3]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
             pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[3];
-            pub_msg1.speed_limit.angular.z = 4.71239;
+            pub_msg1.angular_velocity_limit = 4.71239;
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
         
