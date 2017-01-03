@@ -22,8 +22,8 @@
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float64.h>
-#include <pacmod/position_with_speed.h>
-#include <pacmod/pacmod_cmd.h>
+#include <pacmod/PositionWithSpeed.h>
+#include <pacmod/PacmodCmd.h>
 #include <pacmod_defines.h>
 
 ros::Publisher turn_signal_cmd_pub;
@@ -76,7 +76,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     {
         // Steering
         if(axes_empty || (last_axes[3] != msg->axes[3])) { 
-            pacmod::position_with_speed pub_msg1;
+            pacmod::PositionWithSpeed pub_msg1;
             float range_scale = (fabs(msg->axes[3]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
             pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[3];
             pub_msg1.angular_velocity_limit = 4.71239;
@@ -85,14 +85,14 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         
         // Brake
         if(axes_empty || (last_axes[2] != msg->axes[2])) {
-            pacmod::pacmod_cmd pub_msg1;
+            pacmod::PacmodCmd pub_msg1;
             pub_msg1.f64_cmd = ((msg->axes[2] - 1.0) / 2.0);
             brake_set_position_pub.publish(pub_msg1);    
         }
 
         // Turn signal
         if(axes_empty || (last_axes[6] != msg->axes[6])) {
-            pacmod::pacmod_cmd turn_signal_cmd_pub_msg;
+            pacmod::PacmodCmd turn_signal_cmd_pub_msg;
             
             if(msg->axes[6] == 1.0) {
                 turn_signal_cmd_pub_msg.ui16_cmd = 2;
@@ -107,21 +107,21 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             
         // Shifting: forward
         if(msg->buttons[0] == 1 && (buttons_empty || (last_buttons[0] != msg->buttons[0]))) {
-            pacmod::pacmod_cmd shift_cmd_pub_msg;
+            pacmod::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = 0;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
 
         // Shifting: neutral
         if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
-            pacmod::pacmod_cmd shift_cmd_pub_msg;
+            pacmod::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = 1;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
         
         // Shifting: reverse
         if(msg->buttons[1] == 1 && (buttons_empty || (last_buttons[1] != msg->buttons[1]))) {
-            pacmod::pacmod_cmd shift_cmd_pub_msg;
+            pacmod::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = 2;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
@@ -133,7 +133,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
         // Accelerator  
         if(axes_empty || (last_axes[5] != msg->axes[5])) { 
-            pacmod::pacmod_cmd accelerator_cmd_pub_msg;
+            pacmod::PacmodCmd accelerator_cmd_pub_msg;
             ROS_INFO("Raw value: %f", msg->axes[5]);
             accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
             ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
@@ -158,11 +158,11 @@ int main(int argc, char *argv[]) {
     
     // Advertise published messages
     override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 20);
-    turn_signal_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/turn_cmd", 20);
-    shift_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/shift_cmd", 20);
-    accelerator_cmd_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/accel_cmd", 20);
-    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::position_with_speed>("as_rx/steer_cmd", 20);
-    brake_set_position_pub = n.advertise<pacmod::pacmod_cmd>("as_rx/brake_cmd", 20);
+    turn_signal_cmd_pub = n.advertise<pacmod::PacmodCmd>("as_rx/turn_cmd", 20);
+    shift_cmd_pub = n.advertise<pacmod::PacmodCmd>("as_rx/shift_cmd", 20);
+    accelerator_cmd_pub = n.advertise<pacmod::PacmodCmd>("as_rx/accel_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::PositionWithSpeed>("as_rx/steer_cmd", 20);
+    brake_set_position_pub = n.advertise<pacmod::PacmodCmd>("as_rx/brake_cmd", 20);
                   
     while(ros::ok()) {   
         // Wait for next loop
