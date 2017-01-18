@@ -104,7 +104,20 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
             turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         }
+
+        // Hazard lights (both left and right turn signals)
+        if(axes_empty || (last_axes[7] != msg->axes[7])) {
+            pacmod::PacmodCmd turn_signal_cmd_pub_msg;
             
+            if(msg->axes[7] == -1.0) {
+                turn_signal_cmd_pub_msg.ui16_cmd = 3;
+            } else {
+                turn_signal_cmd_pub_msg.ui16_cmd = 1;    
+            }
+
+            turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+        }
+                    
         // Shifting: forward
         if(msg->buttons[0] == 1 && (buttons_empty || (last_buttons[0] != msg->buttons[0]))) {
             pacmod::PacmodCmd shift_cmd_pub_msg;
