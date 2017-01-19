@@ -149,8 +149,11 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
 int main(int argc, char *argv[]) { 
     ros::init(argc, argv, "pacmod_gamepad_control");
+    ros::AsyncSpinner spinner(1);
     ros::NodeHandle n;
-    ros::Rate loop_rate(1.0/0.01);
+    ros::Rate loop_rate(25.0);
+
+    while (ros::Time::now().nsec == 0);
         
     // Subscribe to messages
     ros::Subscriber joy_sub = n.subscribe("/pacmod/joy", 1000, callback_joy);
@@ -163,12 +166,16 @@ int main(int argc, char *argv[]) {
     accelerator_cmd_pub = n.advertise<pacmod::PacmodCmd>("as_rx/accel_cmd", 20);
     steering_set_position_with_speed_limit_pub = n.advertise<pacmod::PositionWithSpeed>("as_rx/steer_cmd", 20);
     brake_set_position_pub = n.advertise<pacmod::PacmodCmd>("as_rx/brake_cmd", 20);
+
+    spinner.start();
                   
     while(ros::ok()) {   
         // Wait for next loop
         loop_rate.sleep();
         ros::spinOnce(); 
     }
+
+    spinner.stop();
       
     return 0;
 }
