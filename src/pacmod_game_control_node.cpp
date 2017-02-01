@@ -24,7 +24,6 @@
 #include <std_msgs/Float64.h>
 #include <pacmod/PositionWithSpeed.h>
 #include <pacmod/PacmodCmd.h>
-#include <pacmod_defines.h>
 
 ros::Publisher turn_signal_cmd_pub;
 ros::Publisher shift_cmd_pub;
