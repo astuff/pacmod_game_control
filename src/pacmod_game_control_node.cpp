@@ -39,10 +39,17 @@ bool pacmod_override;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
 
+
+/*
+ * Called when the node receives a message from the /as_tx/override topic
+ */
 void callback_pacmod_override(const std_msgs::Bool::ConstPtr& msg) {
     pacmod_override = msg->data;
 } 
 
+/*
+ * Called when a game controller message is received on /pacmod/Joy
+ */
 void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     std_msgs::Bool bool_pub_msg;
     std_msgs::Int16 int16_pub_msg;
@@ -159,6 +166,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     last_buttons.insert(last_buttons.end(), msg->buttons.begin(), msg->buttons.end());
 }  
 
+/*
+ * Main method running the ROS Node
+ */
 int main(int argc, char *argv[]) { 
     ros::init(argc, argv, "pacmod_gamepad_control");
     ros::AsyncSpinner spinner(1);
