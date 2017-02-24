@@ -1,11 +1,11 @@
 <launch>
     <include file="$(find pacmod)/launch/pacmod.launch"/>
 
-    <group ns="pacmod">
+    <group ns="game_control">
         <node pkg="joy" type="joy_node" name="joy">
               <param name="coalesce_interval" type="double" value="0.02"/>
         </node>
 
         <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control"/>
-	  </group>
+	</group>
 </launch>
