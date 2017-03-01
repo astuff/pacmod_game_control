@@ -178,16 +178,16 @@ int main(int argc, char *argv[]) {
     while (ros::Time::now().nsec == 0);
         
     // Subscribe to messages
-    ros::Subscriber joy_sub = n.subscribe("/pacmod/joy", 1000, callback_joy);
-    ros::Subscriber override_sub = n.subscribe("as_tx/override", 20, callback_pacmod_override);
+    ros::Subscriber joy_sub = n.subscribe("joy", 1000, callback_joy);
+    ros::Subscriber override_sub = n.subscribe("/pacmod/as_tx/override", 20, callback_pacmod_override);
     
     // Advertise published messages
-    override_pub = n.advertise<std_msgs::Bool>("as_rx/override", 20);
-    turn_signal_cmd_pub = n.advertise<pacmod::PacmodCmd>("as_rx/turn_cmd", 20);
-    shift_cmd_pub = n.advertise<pacmod::PacmodCmd>("as_rx/shift_cmd", 20);
-    accelerator_cmd_pub = n.advertise<pacmod::PacmodCmd>("as_rx/accel_cmd", 20);
-    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::PositionWithSpeed>("as_rx/steer_cmd", 20);
-    brake_set_position_pub = n.advertise<pacmod::PacmodCmd>("as_rx/brake_cmd", 20);
+    override_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/override", 20);
+    turn_signal_cmd_pub = n.advertise<pacmod::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
+    shift_cmd_pub = n.advertise<pacmod::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
+    accelerator_cmd_pub = n.advertise<pacmod::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
+    brake_set_position_pub = n.advertise<pacmod::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
 
     spinner.start();
                   

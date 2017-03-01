@@ -4,6 +4,7 @@
     <group ns="game_control">
         <node pkg="joy" type="joy_node" name="joy">
               <param name="coalesce_interval" type="double" value="0.02"/>
+              <param name="dev" value="/dev/input/js1"/>
         </node>
 
         <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control"/>
