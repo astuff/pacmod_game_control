@@ -30,25 +30,25 @@ ros::Publisher shift_cmd_pub;
 ros::Publisher accelerator_cmd_pub;
 ros::Publisher steering_set_position_with_speed_limit_pub;
 ros::Publisher brake_set_position_pub;
-ros::Publisher override_pub;
+ros::Publisher enable_pub;
 
 const float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
 
-bool pacmod_override;
+bool pacmod_enable;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
 
 
 /*
- * Called when the node receives a message from the /as_tx/override topic
+ * Called when the node receives a message from the enable topic
  */
-void callback_pacmod_override(const std_msgs::Bool::ConstPtr& msg) {
-    pacmod_override = msg->data;
+void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg) {
+    pacmod_enable = msg->data;
 } 
 
 /*
- * Called when a game controller message is received on /pacmod/Joy
+ * Called when a game controller message is received
  */
 void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     std_msgs::Bool bool_pub_msg;
@@ -67,18 +67,18 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     // Enable
     if(msg->buttons[5] == 1 && (buttons_empty || (last_buttons[5] != msg->buttons[5]))) {
         std_msgs::Bool bool_pub_msg;
-        bool_pub_msg.data=false;
-        override_pub.publish(bool_pub_msg);
+        bool_pub_msg.data=true;
+        enable_pub.publish(bool_pub_msg);
     }
   
     // Disable
     if(msg->buttons[4] == 1 && (buttons_empty || (last_buttons[4] != msg->buttons[4]))) { 
         std_msgs::Bool bool_pub_msg;
-        bool_pub_msg.data=true;
-        override_pub.publish(bool_pub_msg);
+        bool_pub_msg.data=false;
+        enable_pub.publish(bool_pub_msg);
     }
 
-    if (!pacmod_override)
+    if (pacmod_enable)
     {
         // Steering
         if(axes_empty || (last_axes[3] != msg->axes[3])) { 
@@ -179,10 +179,10 @@ int main(int argc, char *argv[]) {
         
     // Subscribe to messages
     ros::Subscriber joy_sub = n.subscribe("joy", 1000, callback_joy);
-    ros::Subscriber override_sub = n.subscribe("/pacmod/as_tx/override", 20, callback_pacmod_override);
+    ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, callback_pacmod_enable);
     
     // Advertise published messages
-    override_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/override", 20);
+    enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
     turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
     shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
     accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
