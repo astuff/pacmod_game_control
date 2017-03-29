@@ -35,10 +35,17 @@ ros::Publisher enable_pub;
 const float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
 
+int steering_axis = -1;
+double steering_max_speed = -1.0;
 bool pacmod_enable;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
 
+#define SHIFT_PARK 0
+#define SHIFT_REVERSE 1
+#define SHIFT_NEUTRAL 2
+#define SHIFT_LOW 3
+#define SHIFT_HIGH 4
 
 /*
  * Called when the node receives a message from the enable topic
@@ -80,12 +87,12 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
     if (pacmod_enable)
     {
-        // Steering
-        if(axes_empty || (last_axes[3] != msg->axes[3])) { 
+        // Steering: axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
+        if(axes_empty || (last_axes[steering_axis] != msg->axes[steering_axis])) { 
             pacmod_msgs::PositionWithSpeed pub_msg1;
-            float range_scale = (fabs(msg->axes[3]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
+            float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
             pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[3];
-            pub_msg1.angular_velocity_limit = 4.71239;
+            pub_msg1.angular_velocity_limit = steering_max_speed;
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
         
@@ -123,33 +130,42 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
             turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         }
-                    
-        // Shifting: forward
-        if(msg->buttons[0] == 1 && (buttons_empty || (last_buttons[0] != msg->buttons[0]))) {
+
+        // Shifting: park
+        if(msg->buttons[3] == 1 && (buttons_empty || (last_buttons[3] != msg->buttons[3]))) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd = 0;        
+            shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
 
-        // Shifting: neutral
-        if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
-            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd = 1;        
-            shift_cmd_pub.publish(shift_cmd_pub_msg);
-        }
-        
         // Shifting: reverse
         if(msg->buttons[1] == 1 && (buttons_empty || (last_buttons[1] != msg->buttons[1]))) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd = 2;        
+            shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
-          
-        // Shifting: park
-        if(msg->buttons[3] == 1 && (buttons_empty || (last_buttons[3] != msg->buttons[3]))) {
-            // TODO
+        
+        // Shifting: neutral
+        if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
+            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+            shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
+            shift_cmd_pub.publish(shift_cmd_pub_msg);
+        }
+                                    
+        // Shifting: drive/high
+        if(msg->buttons[0] == 1 && (buttons_empty || (last_buttons[0] != msg->buttons[0]))) {
+            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+            shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;        
+            shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
 
+        // Shifting: low
+        if(msg->buttons[6] == 1 && (buttons_empty || (last_buttons[6] != msg->buttons[6]))) {
+            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+            shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;        
+            shift_cmd_pub.publish(shift_cmd_pub_msg);
+        }
+                          
         // Accelerator  
         if(axes_empty || (last_axes[5] != msg->axes[5])) { 
             pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
@@ -170,13 +186,40 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
  * Main method running the ROS Node
  */
 int main(int argc, char *argv[]) { 
+    bool willExit = false;
     ros::init(argc, argv, "pacmod_gamepad_control");
     ros::AsyncSpinner spinner(1);
     ros::NodeHandle n;
+    ros::NodeHandle priv("~");
     ros::Rate loop_rate(25.0);
 
+    // Wait for time to be valid
     while (ros::Time::now().nsec == 0);
-        
+    
+    // Get and validate parameters
+    if (priv.getParam("steering_axis", steering_axis))
+    {
+        ROS_INFO("Got steering_axis: %d", steering_axis);
+        if (steering_axis <= 0)
+        {
+            ROS_INFO("steering_axis is invalid");
+            willExit = true;
+        }
+    }
+    
+    if (priv.getParam("steering_max_speed", steering_max_speed))
+    {
+        ROS_INFO("Got steering_max_speed: %f", steering_max_speed);
+        if (steering_max_speed <= 0)
+        {
+            ROS_INFO("steering_max_speed is invalid");
+            willExit = true;
+        }
+    }
+    
+    if (willExit)
+        return 0;
+                   
     // Subscribe to messages
     ros::Subscriber joy_sub = n.subscribe("joy", 1000, callback_joy);
     ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, callback_pacmod_enable);
