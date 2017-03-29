@@ -3,7 +3,9 @@
     
     <!-- Axis 3 is right thumbstick, 0 is left thumbstick. Speed in rad/sec. -->
     <arg name="steering_axis" default="0"/>
-    <arg name="steering_max_speed" default="4.71239"/>
+    
+    <!-- 4.71239 is fast but jerky -->
+    <arg name="steering_max_speed" default="2.356195"/>
 
     <group ns="game_control">
         <node pkg="joy" type="joy_node" name="joy">
