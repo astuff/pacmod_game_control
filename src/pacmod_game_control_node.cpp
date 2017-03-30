@@ -91,7 +91,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(axes_empty || (last_axes[steering_axis] != msg->axes[steering_axis])) { 
             pacmod_msgs::PositionWithSpeed pub_msg1;
             float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
-            pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[3];
+            pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
             pub_msg1.angular_velocity_limit = steering_max_speed;
             steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         }
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
     if (priv.getParam("steering_axis", steering_axis))
     {
         ROS_INFO("Got steering_axis: %d", steering_axis);
-        if (steering_axis <= 0)
+        if ((steering_axis!=0)&&(steering_axis!=3))
         {
             ROS_INFO("steering_axis is invalid");
             willExit = true;
