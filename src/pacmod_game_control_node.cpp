@@ -152,20 +152,20 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
                                     
-        // Shifting: drive/high
+        // Shifting: drive/low
         if(msg->buttons[0] == 1 && (buttons_empty || (last_buttons[0] != msg->buttons[0]))) {
+            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+            shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;        
+            shift_cmd_pub.publish(shift_cmd_pub_msg);
+        }
+
+        // Shifting: high
+        if(msg->buttons[6] == 1 && (buttons_empty || (last_buttons[6] != msg->buttons[6]))) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
         }
 
-        // Shifting: low
-        if(msg->buttons[6] == 1 && (buttons_empty || (last_buttons[6] != msg->buttons[6]))) {
-            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;        
-            shift_cmd_pub.publish(shift_cmd_pub_msg);
-        }
-                          
         // Accelerator  
         if(axes_empty || (last_axes[5] != msg->axes[5])) { 
             pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
