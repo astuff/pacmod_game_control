@@ -1,10 +1,13 @@
 <launch>
     <include file="$(find pacmod)/launch/pacmod.launch"/>
     
-    <!-- Axis 3 is right thumbstick, 0 is left thumbstick. Speed in rad/sec. -->
+    <!-- Axis 3 is right thumbstick, 0 is left thumbstick -->
     <arg name="steering_axis" default="0"/>
-    
-    <!-- 4.71239 is fast but jerky -->
+
+    <!-- Controller type 0 is Logitech gamepad, type 1 is HRI controller -->
+    <arg name="controller_type" default="1"/>
+        
+    <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
     <arg name="steering_max_speed" default="2.356195"/>
 
     <group ns="game_control">
@@ -15,6 +18,7 @@
 
         <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
             <param name="steering_axis" value="$(arg steering_axis)"/>
+            <param name="controller_type" value="$(arg controller_type)"/>            
             <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
         </node>
 	</group>

@@ -15,6 +15,33 @@
 * TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR SELL ANYTHING THAT IT  MAY DESCRIBE, IN WHOLE OR IN PART.
 */
 
+/*
+HRI joystick mappings as found by ROS Kinetic Joy node on Ubuntu 16.04
+Last modified 4-7-2017 by Joe Driscoll
+
+Left thumbstick:
+*Axis 0 is left (+1) to right (-1), centered=0.0
+*Axis 1 is up (+1) to down (-1), centered=0.0
+
+Triggers:
+*Axis 2 is left trigger: up=1.0, center=0.0, down=-1.0
+*Axis 5 is right trigger: up=1.0, center=0.0, down=-1.0
+
+Right thumbstick:
+*Axis 3 is left (+1) to right (-1), centered=0.0
+*Axis 4 is up (+1) to down (-1), centered=0.0
+
+Arrow buttons:
+*Axis 6 is left (+1.0) and right (-1.0) arrow buttons, not pressed = 0.0
+*Axis 7 is up (+1.0) and down (-1.0) arrow buttons, not pressed = 0.0
+
+Number buttons:
+"1" button pressed = button 0 = 1, not pressed = 0
+"2" button pressed = button 1 = 1, not pressed = 0
+"3" button pressed = button 2 = 1, not pressed = 0
+"4" button pressed = button 3 = 1, not pressed = 0
+*/
+
 #include <stdio.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
@@ -36,6 +63,7 @@ const float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
 
 int steering_axis = -1;
+int controller_type = -1;
 double steering_max_speed = -1.0;
 bool pacmod_enable;
 std::vector<float> last_axes;
@@ -72,22 +100,39 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
     }
   
     // Enable
-    if(msg->buttons[5] == 1 && (buttons_empty || (last_buttons[5] != msg->buttons[5]))) {
-        std_msgs::Bool bool_pub_msg;
-        bool_pub_msg.data=true;
-        enable_pub.publish(bool_pub_msg);
+    if(controller_type==0) {
+        if(msg->buttons[5] == 1 && (buttons_empty || (last_buttons[5] != msg->buttons[5]))) {
+            std_msgs::Bool bool_pub_msg;
+            bool_pub_msg.data=true;
+            enable_pub.publish(bool_pub_msg);
+        }
+    } else if(controller_type==1) {  
+        if((msg->axes[7] >= 0.9) && (axes_empty || (last_axes[7] != msg->axes[7]))) {
+            std_msgs::Bool bool_pub_msg;
+            bool_pub_msg.data=true;
+            enable_pub.publish(bool_pub_msg);
+        }    
     }
-  
+    
     // Disable
-    if(msg->buttons[4] == 1 && (buttons_empty || (last_buttons[4] != msg->buttons[4]))) { 
-        std_msgs::Bool bool_pub_msg;
-        bool_pub_msg.data=false;
-        enable_pub.publish(bool_pub_msg);
+    if(controller_type==0) {    
+        if(msg->buttons[4] == 1 && (buttons_empty || (last_buttons[4] != msg->buttons[4]))) { 
+            std_msgs::Bool bool_pub_msg;
+            bool_pub_msg.data=false;
+            enable_pub.publish(bool_pub_msg);
+        }
+    } else if(controller_type==1) {  
+        if((msg->axes[7] <= -0.9) && (axes_empty || (last_axes[7] != msg->axes[7]))) {
+            std_msgs::Bool bool_pub_msg;
+            bool_pub_msg.data=false;
+            enable_pub.publish(bool_pub_msg);
+        }    
     }
-
+    
     if (pacmod_enable)
     {
         // Steering: axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
+        // Same for both Logitech and HRI controllers
         if(axes_empty || (last_axes[steering_axis] != msg->axes[steering_axis])) { 
             pacmod_msgs::PositionWithSpeed pub_msg1;
             float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
@@ -97,13 +142,26 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         }
         
         // Brake
-        if(axes_empty || (last_axes[2] != msg->axes[2])) {
+        if(controller_type==0) {
+          // Logitech left trigger (axis 2): not pressed = 1.0, fully pressed = -1.0
+          if(axes_empty || (last_axes[2] != msg->axes[2])) {
             pacmod_msgs::PacmodCmd pub_msg1;
             pub_msg1.f64_cmd = ((msg->axes[2] - 1.0) / 2.0);
             brake_set_position_pub.publish(pub_msg1);    
+          }
+        } else if(controller_type==1) {
+          // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully down = -1.0
+          if(axes_empty || (last_axes[4] != msg->axes[4])) {
+            if(msg->axes[4]<=0.0) {  // only consider center-to-down range as brake motion
+              pacmod_msgs::PacmodCmd pub_msg1;
+              pub_msg1.f64_cmd = msg->axes[4];
+              brake_set_position_pub.publish(pub_msg1);    
+            }
+          }        
         }
 
         // Turn signal
+        // Same for both Logitech and HRI controllers
         if(axes_empty || (last_axes[6] != msg->axes[6])) {
             pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
             
@@ -119,26 +177,49 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         }
 
         // Hazard lights (both left and right turn signals)
-        if(axes_empty || (last_axes[7] != msg->axes[7])) {
-            pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
-            
-            if(msg->axes[7] == -1.0) {
-                turn_signal_cmd_pub_msg.ui16_cmd = 3;
-            } else {
-                turn_signal_cmd_pub_msg.ui16_cmd = 1;    
+        if(controller_type==0) {
+            if(axes_empty || (last_axes[7] != msg->axes[7])) {
+                pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
+                
+                if(msg->axes[7] == -1.0) {
+                    turn_signal_cmd_pub_msg.ui16_cmd = 3;
+                } else {
+                    turn_signal_cmd_pub_msg.ui16_cmd = 1;    
+                }
+
+                turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
             }
+        } else if(controller_type==1) {
+            if(axes_empty || (last_axes[2] != msg->axes[2])) {
+                pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
+                
+                if(msg->axes[2] < -0.5) {
+                    turn_signal_cmd_pub_msg.ui16_cmd = 3;
+                } else {
+                    turn_signal_cmd_pub_msg.ui16_cmd = 1;    
+                }
 
-            turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+                turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+            }        
         }
-
+        
         // Shifting: park
-        if(msg->buttons[3] == 1 && (buttons_empty || (last_buttons[3] != msg->buttons[3]))) {
-            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
-            shift_cmd_pub.publish(shift_cmd_pub_msg);
+        if(controller_type==0) {
+            if(msg->buttons[3] == 1 && (buttons_empty || (last_buttons[3] != msg->buttons[3]))) {
+                pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+                shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
+                shift_cmd_pub.publish(shift_cmd_pub_msg);
+            }
+        } else if(controller_type==1) {
+            if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
+                pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+                shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
+                shift_cmd_pub.publish(shift_cmd_pub_msg);
+            }
         }
 
         // Shifting: reverse
+        // Same for both Logitech and HRI controllers
         if(msg->buttons[1] == 1 && (buttons_empty || (last_buttons[1] != msg->buttons[1]))) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;        
@@ -146,13 +227,22 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         }
         
         // Shifting: neutral
-        if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
-            pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-            shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
-            shift_cmd_pub.publish(shift_cmd_pub_msg);
+        if(controller_type==0) {        
+            if(msg->buttons[2] == 1 && (buttons_empty || (last_buttons[2] != msg->buttons[2]))) {
+                pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+                shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
+                shift_cmd_pub.publish(shift_cmd_pub_msg);
+            }
+        } else if(controller_type==1) {                        
+            if(msg->buttons[3] == 1 && (buttons_empty || (last_buttons[3] != msg->buttons[3]))) {
+                pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+                shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
+                shift_cmd_pub.publish(shift_cmd_pub_msg);
+            }
         }
-                                    
+                                       
         // Shifting: drive/low
+        // Same for both Logitech and HRI controllers
         if(msg->buttons[0] == 1 && (buttons_empty || (last_buttons[0] != msg->buttons[0]))) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;        
@@ -167,13 +257,27 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         }
 
         // Accelerator  
-        if(axes_empty || (last_axes[5] != msg->axes[5])) { 
-            pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
-            ROS_INFO("Raw value: %f", msg->axes[5]);
-            accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
-            ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
-            accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
-        }
+        if(controller_type==0) {
+            // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
+            if(axes_empty || (last_axes[5] != msg->axes[5])) { 
+                pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
+                ROS_INFO("Raw value: %f", msg->axes[5]);
+                accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+                ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
+                accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+            }
+        } else if(controller_type==1) {
+            // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully up = 1.0   
+            if(axes_empty || (last_axes[4] != msg->axes[4])) { 
+                if(msg->axes[4]>=0.0) {  // only consider center-to-up range as accelerator motion
+                  pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
+                  ROS_INFO("Raw value: %f", msg->axes[4]);
+                  accelerator_cmd_pub_msg.f64_cmd = (msg->axes[4])*0.6+0.21;
+                  ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
+                  accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+                }
+            }          
+        }       
     }
 
     last_axes.clear();
@@ -197,6 +301,8 @@ int main(int argc, char *argv[]) {
     while (ros::Time::now().nsec == 0);
     
     // Get and validate parameters
+
+    // Axis 3 is right thumbstick, 0 is left thumbstick
     if (priv.getParam("steering_axis", steering_axis))
     {
         ROS_INFO("Got steering_axis: %d", steering_axis);
@@ -207,6 +313,17 @@ int main(int argc, char *argv[]) {
         }
     }
     
+    // Controller type 0 is Logitech gamepad, type 1 is HRI controller
+    if (priv.getParam("controller_type", controller_type))
+    {
+        ROS_INFO("Got controller_type: %d", controller_type);
+        if ((controller_type!=0)&&(controller_type!=1))
+        {
+            ROS_INFO("steering_axis is invalid");
+            willExit = true;
+        }
+    }
+        
     if (priv.getParam("steering_max_speed", steering_max_speed))
     {
         ROS_INFO("Got steering_max_speed: %f", steering_max_speed);
