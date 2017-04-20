@@ -5,7 +5,7 @@
     <arg name="steering_axis" default="0"/>
 
     <!-- Controller type 0 is Logitech gamepad, type 1 is HRI controller -->
-    <arg name="controller_type" default="1"/>
+    <arg name="controller_type" default="0"/>
         
     <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
     <arg name="steering_max_speed" default="2.356195"/>
