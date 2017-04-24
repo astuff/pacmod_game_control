@@ -354,7 +354,6 @@ int main(int argc, char *argv[]) {
     while(ros::ok()) {   
         // Wait for next loop
         loop_rate.sleep();
-        ros::spinOnce(); 
     }
 
     spinner.stop();
