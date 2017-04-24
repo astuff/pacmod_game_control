@@ -174,7 +174,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
           }
         }
 
-        turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+        if (last_axes.empty() || (last_axes[6] != msg->axes[6] || last_axes[2] != last_axes[2]))
+		turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         
         // Shifting: park
         if(controller_type==0) {
@@ -184,7 +185,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
             }
         } else if(controller_type==1) {
-            if(msg->buttons[2] == 1) {
+            if(msg->buttons[2] == 1 && (last_buttons.empty() || last_buttons[2] != msg->buttons[2])) {
                 pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
                 shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -193,7 +194,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
         // Shifting: reverse
         // Same for both Logitech and HRI controllers
-        if(msg->buttons[1] == 1) {
+        if(msg->buttons[1] == 1 && (last_buttons.empty() || last_buttons[1] != msg->buttons[1])) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -207,7 +208,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
             }
         } else if(controller_type == 1) {                        
-            if(msg->buttons[3] == 1) {
+            if(msg->buttons[3] == 1 && (last_buttons.empty() || last_buttons[3] != msg->buttons[3])) {
                 pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
                 shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -223,7 +224,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         }
 
         // Shifting: high
-        if(msg->buttons[6] == 1) {
+        if(msg->buttons[6] == 1 && (last_buttons.empty() || last_buttons[6] != msg->buttons[6])) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -239,7 +240,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
         } else if(controller_type == 1) {
             // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully up = 1.0   
-            if(msg->axes[4]>=0.0) {  // only consider center-to-up range as accelerator motion
+            if(msg->axes[4] >= 0.0) {  // only consider center-to-up range as accelerator motion
               pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
               ROS_INFO("Raw value: %f", msg->axes[4]);
               accelerator_cmd_pub_msg.f64_cmd = (msg->axes[4])*0.6+0.21;
@@ -248,6 +249,11 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             }
         }       
     }
+
+    last_buttons.clear();
+    last_buttons.insert(last_buttons.end(), msg->buttons.begin(), msg->buttons.end());
+    last_axes.clear();
+    last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
 }  
 
 /*
@@ -256,7 +262,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 int main(int argc, char *argv[]) { 
     bool willExit = false;
     ros::init(argc, argv, "pacmod_gamepad_control");
-    ros::AsyncSpinner spinner(1);
+    ros::AsyncSpinner spinner(2);
     ros::NodeHandle n;
     ros::NodeHandle priv("~");
     ros::Rate loop_rate(25.0);
