@@ -43,6 +43,7 @@ Number buttons:
 */
 
 #include <stdio.h>
+#include <mutex>
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
@@ -66,8 +67,12 @@ int steering_axis = -1;
 int controller_type = -1;
 double steering_max_speed = -1.0;
 bool pacmod_enable;
+std::mutex enable_mutex;
+double veh_speed;
+std::mutex speed_mutex;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
+double max_veh_speed = -1.0;
 
 #define SHIFT_PARK 0
 #define SHIFT_REVERSE 1
@@ -79,8 +84,17 @@ std::vector<int> last_buttons;
  * Called when the node receives a message from the enable topic
  */
 void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg) {
-    pacmod_enable = msg->data;
+  enable_mutex.lock();
+  pacmod_enable = msg->data;
+  enable_mutex.unlock();
 } 
+
+void callback_veh_speed(const std_msgs::Float64::ConstPtr& msg)
+{
+  speed_mutex.lock();
+  veh_speed = msg->data;
+  speed_mutex.unlock();
+}
 
 /*
  * Called when a game controller message is received
@@ -96,12 +110,18 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             std_msgs::Bool bool_pub_msg;
             bool_pub_msg.data = true;
             enable_pub.publish(bool_pub_msg);
+            enable_mutex.lock();
+            pacmod_enable = true;
+            enable_mutex.unlock();
         }
     } else if(controller_type == 1) {  
         if(msg->axes[7] >= 0.9) {
             std_msgs::Bool bool_pub_msg;
             bool_pub_msg.data = true;
             enable_pub.publish(bool_pub_msg);
+            enable_mutex.lock();
+            pacmod_enable = true;
+            enable_mutex.unlock();
         }    
     }
     
@@ -111,23 +131,35 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             std_msgs::Bool bool_pub_msg;
             bool_pub_msg.data = false;
             enable_pub.publish(bool_pub_msg);
+            enable_mutex.lock();
+            pacmod_enable = false;
+            enable_mutex.unlock();
         }
     } else if(controller_type==1) {  
         if(msg->axes[7] <= -0.9) {
             std_msgs::Bool bool_pub_msg;
-            bool_pub_msg.data=false;
+            bool_pub_msg.data = false;
             enable_pub.publish(bool_pub_msg);
+            enable_mutex.lock();
+            pacmod_enable = false;
+            enable_mutex.unlock();
         }    
     }
+
+    bool enable;
+    enable_mutex.lock();
+    enable = pacmod_enable;
+    enable_mutex.unlock();
     
-    if (pacmod_enable)
+    if (enable)
     {
         // Steering: axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
         // Same for both Logitech and HRI controllers
         pacmod_msgs::PositionWithSpeed pub_msg1;
         float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
+        float speed_scale = 1.0 - (veh_speed / (max_veh_speed * 1.2)); //Never want to reach 0 speed scale.
         pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
-        pub_msg1.angular_velocity_limit = steering_max_speed;
+        pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
         steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         
         // Brake
@@ -301,12 +333,23 @@ int main(int argc, char *argv[]) {
             willExit = true;
         }
     }
+
+    if (priv.getParam("max_veh_speed", max_veh_speed))
+    {
+      ROS_INFO("Got max_veh_speed: %f", max_veh_speed);
+      if (max_veh_speed <= 0)
+      {
+        ROS_INFO("max_veh_speed is invalid");
+        willExit = true;
+      }
+    }
     
     if (willExit)
         return 0;
                    
     // Subscribe to messages
     ros::Subscriber joy_sub = n.subscribe("joy", 1000, callback_joy);
+    ros::Subscriber speed_sub = n.subscribe("/pacmod/as_tx/vehicle_speed", 20, callback_veh_speed);
     ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, callback_pacmod_enable);
     
     // Advertise published messages
