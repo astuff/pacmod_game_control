@@ -8,7 +8,13 @@
     <arg name="controller_type" default="0"/>
         
     <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
-    <arg name="steering_max_speed" default="2.356195"/>
+    <arg name="steering_max_speed" default="3.3"/>
+
+    <!-- Scales raw joystick input -->
+    <arg name="accel_scale_val" default="1.0"/>
+
+    <!-- Scales raw joystick input -->
+    <arg name="brake_scale_val" default="1.0"/>
 
     <!-- For GEM, 11.176m/s -->
     <arg name="max_veh_speed" default="11.176" />
@@ -23,6 +29,8 @@
             <param name="steering_axis" value="$(arg steering_axis)"/>
             <param name="controller_type" value="$(arg controller_type)"/>            
             <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
+            <param name="accel_scale_val" value="$(arg accel_scale_val)"/>
+            <param name="brake_scale_val" value="$(arg brake_scale_val)"/>
             <param name="max_veh_speed" value="$(arg max_veh_speed)" />
         </node>
 	</group>

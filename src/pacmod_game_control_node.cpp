@@ -73,6 +73,8 @@ std::mutex speed_mutex;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
 double max_veh_speed = -1.0;
+double accel_scale_val = -1.0;
+double brake_scale_val = -1.0;
 
 #define SHIFT_PARK 0
 #define SHIFT_REVERSE 1
@@ -157,7 +159,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         // Same for both Logitech and HRI controllers
         pacmod_msgs::PositionWithSpeed pub_msg1;
         float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
-        float speed_scale = 1.0 - (veh_speed / (max_veh_speed * 1.2)); //Never want to reach 0 speed scale.
+        float speed_scale = 1.0 - fabs((veh_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
         pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
         pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
         steering_set_position_with_speed_limit_pub.publish(pub_msg1);
@@ -171,7 +173,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         } else if(controller_type == 1) {
           // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully down = -1.0
           pacmod_msgs::PacmodCmd pub_msg1;
-          pub_msg1.f64_cmd = (msg->axes[4] > 0.0) ? 0.0 : msg->axes[4];
+          pub_msg1.f64_cmd = (msg->axes[4] > 0.0) ? 0.0 : (brake_scale_val * msg->axes[4]);
           brake_set_position_pub.publish(pub_msg1);    
         }
 
@@ -275,7 +277,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             if(msg->axes[4] >= 0.0) {  // only consider center-to-up range as accelerator motion
               pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
               ROS_INFO("Raw value: %f", msg->axes[4]);
-              accelerator_cmd_pub_msg.f64_cmd = (msg->axes[4])*0.6+0.21;
+              accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[4])*0.6+0.21;
               ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
               accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
             }
@@ -312,6 +314,12 @@ int main(int argc, char *argv[]) {
             willExit = true;
         }
     }
+    else
+    {
+        ROS_INFO("Parameter steering_axis is missing");
+        willExit = true;
+    }
+
     
     // Controller type 0 is Logitech gamepad, type 1 is HRI controller
     if (priv.getParam("controller_type", controller_type))
@@ -323,6 +331,11 @@ int main(int argc, char *argv[]) {
             willExit = true;
         }
     }
+    else
+    {
+        ROS_INFO("Parameter controller_type is missing");
+        willExit = true;
+    }
         
     if (priv.getParam("steering_max_speed", steering_max_speed))
     {
@@ -333,6 +346,11 @@ int main(int argc, char *argv[]) {
             willExit = true;
         }
     }
+    else
+    {
+        ROS_INFO("Parameter steering_max_speed_scale_val is missing");
+        willExit = true;
+    }
 
     if (priv.getParam("max_veh_speed", max_veh_speed))
     {
@@ -342,6 +360,41 @@ int main(int argc, char *argv[]) {
         ROS_INFO("max_veh_speed is invalid");
         willExit = true;
       }
+    }
+    else
+    {
+        ROS_INFO("Parameter max_veh_speed is missing");
+        willExit = true;
+    }
+
+    if (priv.getParam("accel_scale_val", accel_scale_val))
+    {
+      ROS_INFO("Got accel_scale_val: %f", accel_scale_val);
+      if ( (accel_scale_val <= 0) || (accel_scale_val > 1.0) )
+      {
+        ROS_INFO("accel_scale_val is invalid");
+        willExit = true;
+      }
+    }
+    else
+    {
+        ROS_INFO("Parameter accel_scale_val is missing");
+        willExit = true;
+    }
+
+    if (priv.getParam("brake_scale_val", brake_scale_val))
+    {
+      ROS_INFO("Got brake_scale_val: %f", brake_scale_val);
+      if ( (brake_scale_val <= 0) || (brake_scale_val > 1.0) )
+      {
+        ROS_INFO("brake_scale_val is invalid");
+        willExit = true;
+      }
+    }
+    else
+    {
+        ROS_INFO("Parameter brake_scale_val is missing");
+        willExit = true;
     }
     
     if (willExit)
