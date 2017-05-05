@@ -73,6 +73,8 @@ std::mutex speed_mutex;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
 double max_veh_speed = -1.0;
+double accel_scale_val = -1.0;
+double brake_scale_val = -1.0;
 
 #define SHIFT_PARK 0
 #define SHIFT_REVERSE 1
@@ -157,7 +159,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         // Same for both Logitech and HRI controllers
         pacmod_msgs::PositionWithSpeed pub_msg1;
         float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
-        float speed_scale = 1.0 - (veh_speed / (max_veh_speed * 1.2)); //Never want to reach 0 speed scale.
+        float speed_scale = 1.0 - fabs((veh_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
         pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
         pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
         steering_set_position_with_speed_limit_pub.publish(pub_msg1);
@@ -171,7 +173,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         } else if(controller_type == 1) {
           // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully down = -1.0
           pacmod_msgs::PacmodCmd pub_msg1;
-          pub_msg1.f64_cmd = (msg->axes[4] > 0.0) ? 0.0 : msg->axes[4];
+          pub_msg1.f64_cmd = (msg->axes[4] > 0.0) ? 0.0 : (brake_scale_val * msg->axes[4]);
           brake_set_position_pub.publish(pub_msg1);    
         }
 
@@ -206,7 +208,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
           }
         }
 
-        turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+        if (last_axes.empty() || (last_axes[6] != msg->axes[6] || last_axes[2] != last_axes[2]))
+		turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         
         // Shifting: park
         if(controller_type==0) {
@@ -216,7 +219,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
             }
         } else if(controller_type==1) {
-            if(msg->buttons[2] == 1) {
+            if(msg->buttons[2] == 1 && (last_buttons.empty() || last_buttons[2] != msg->buttons[2])) {
                 pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
                 shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -225,7 +228,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
         // Shifting: reverse
         // Same for both Logitech and HRI controllers
-        if(msg->buttons[1] == 1) {
+        if(msg->buttons[1] == 1 && (last_buttons.empty() || last_buttons[1] != msg->buttons[1])) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -239,7 +242,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
             }
         } else if(controller_type == 1) {                        
-            if(msg->buttons[3] == 1) {
+            if(msg->buttons[3] == 1 && (last_buttons.empty() || last_buttons[3] != msg->buttons[3])) {
                 pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
                 shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
                 shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -255,7 +258,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         }
 
         // Shifting: high
-        if(msg->buttons[6] == 1) {
+        if(msg->buttons[6] == 1 && (last_buttons.empty() || last_buttons[6] != msg->buttons[6])) {
             pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
             shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;        
             shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -271,15 +274,20 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
         } else if(controller_type == 1) {
             // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully up = 1.0   
-            if(msg->axes[4]>=0.0) {  // only consider center-to-up range as accelerator motion
+            if(msg->axes[4] >= 0.0) {  // only consider center-to-up range as accelerator motion
               pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
               ROS_INFO("Raw value: %f", msg->axes[4]);
-              accelerator_cmd_pub_msg.f64_cmd = (msg->axes[4])*0.6+0.21;
+              accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[4])*0.6+0.21;
               ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
               accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
             }
         }       
     }
+
+    last_buttons.clear();
+    last_buttons.insert(last_buttons.end(), msg->buttons.begin(), msg->buttons.end());
+    last_axes.clear();
+    last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
 }  
 
 /*
@@ -288,7 +296,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 int main(int argc, char *argv[]) { 
     bool willExit = false;
     ros::init(argc, argv, "pacmod_gamepad_control");
-    ros::AsyncSpinner spinner(1);
+    ros::AsyncSpinner spinner(2);
     ros::NodeHandle n;
     ros::NodeHandle priv("~");
     ros::Rate loop_rate(25.0);
@@ -306,6 +314,12 @@ int main(int argc, char *argv[]) {
             willExit = true;
         }
     }
+    else
+    {
+        ROS_INFO("Parameter steering_axis is missing");
+        willExit = true;
+    }
+
     
     // Controller type 0 is Logitech gamepad, type 1 is HRI controller
     if (priv.getParam("controller_type", controller_type))
@@ -317,6 +331,11 @@ int main(int argc, char *argv[]) {
             willExit = true;
         }
     }
+    else
+    {
+        ROS_INFO("Parameter controller_type is missing");
+        willExit = true;
+    }
         
     if (priv.getParam("steering_max_speed", steering_max_speed))
     {
@@ -327,6 +346,11 @@ int main(int argc, char *argv[]) {
             willExit = true;
         }
     }
+    else
+    {
+        ROS_INFO("Parameter steering_max_speed_scale_val is missing");
+        willExit = true;
+    }
 
     if (priv.getParam("max_veh_speed", max_veh_speed))
     {
@@ -336,6 +360,41 @@ int main(int argc, char *argv[]) {
         ROS_INFO("max_veh_speed is invalid");
         willExit = true;
       }
+    }
+    else
+    {
+        ROS_INFO("Parameter max_veh_speed is missing");
+        willExit = true;
+    }
+
+    if (priv.getParam("accel_scale_val", accel_scale_val))
+    {
+      ROS_INFO("Got accel_scale_val: %f", accel_scale_val);
+      if ( (accel_scale_val <= 0) || (accel_scale_val > 1.0) )
+      {
+        ROS_INFO("accel_scale_val is invalid");
+        willExit = true;
+      }
+    }
+    else
+    {
+        ROS_INFO("Parameter accel_scale_val is missing");
+        willExit = true;
+    }
+
+    if (priv.getParam("brake_scale_val", brake_scale_val))
+    {
+      ROS_INFO("Got brake_scale_val: %f", brake_scale_val);
+      if ( (brake_scale_val <= 0) || (brake_scale_val > 1.0) )
+      {
+        ROS_INFO("brake_scale_val is invalid");
+        willExit = true;
+      }
+    }
+    else
+    {
+        ROS_INFO("Parameter brake_scale_val is missing");
+        willExit = true;
     }
     
     if (willExit)
