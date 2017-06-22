@@ -190,25 +190,17 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         }
 
         // Hazard lights (both left and right turn signals)
-        if(controller_type == 0) {
-          pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
-          
+        if(controller_type == 0) {         
           if(msg->axes[7] == -1.0) {
               turn_signal_cmd_pub_msg.ui16_cmd = 3;
-          } else {
-              turn_signal_cmd_pub_msg.ui16_cmd = 1;    
           }
-        } else if(controller_type == 1) {
-          pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
-          
+        } else if(controller_type == 1) {         
           if(msg->axes[2] < -0.5) {
               turn_signal_cmd_pub_msg.ui16_cmd = 3;
-          } else {
-              turn_signal_cmd_pub_msg.ui16_cmd = 1;    
           }
         }
 
-        if (last_axes.empty() || (last_axes[6] != msg->axes[6] || last_axes[2] != last_axes[2]))
+        if (last_axes.empty() || (last_axes[7] != msg->axes[7] || last_axes[6] != msg->axes[6] || last_axes[2] != last_axes[2]))
 		turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         
         // Shifting: park
