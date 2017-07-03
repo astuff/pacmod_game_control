@@ -54,6 +54,7 @@ Number buttons:
 #include <pacmod_msgs/PacmodCmd.h>
 
 ros::Publisher turn_signal_cmd_pub;
+ros::Publisher wiper_cmd_pub;
 ros::Publisher shift_cmd_pub;
 ros::Publisher accelerator_cmd_pub;
 ros::Publisher steering_set_position_with_speed_limit_pub;
@@ -62,8 +63,11 @@ ros::Publisher enable_pub;
 
 const float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
+const uint16_t NUM_WIPER_STATES = 3;
+const uint16_t WIPER_STATE_START_VALUE = 0;
 
 int steering_axis = -1;
+int vehicle_type = -1;
 int controller_type = -1;
 double steering_max_speed = -1.0;
 bool pacmod_enable;
@@ -75,6 +79,7 @@ std::vector<int> last_buttons;
 double max_veh_speed = -1.0;
 double accel_scale_val = -1.0;
 double brake_scale_val = -1.0;
+uint16_t wiper_state = 0;
 
 #define SHIFT_PARK 0
 #define SHIFT_REVERSE 1
@@ -203,6 +208,24 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if (last_axes.empty() || (last_axes[7] != msg->axes[7] || last_axes[6] != msg->axes[6] || last_axes[2] != last_axes[2]))
 		turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         
+        if(vehicle_type == 3) { // semi
+            // Windshield wipers
+            // TODO: implement for HRI controller
+            if(controller_type == 0) {
+                pacmod_msgs::PacmodCmd wiper_cmd_pub_msg;
+
+                // Rotate through wiper states as button is pressed 
+                if(msg->axes[7] == 1.0) {
+                    wiper_state++;
+                    if(wiper_state >= NUM_WIPER_STATES) {
+                        wiper_state = WIPER_STATE_START_VALUE;
+                    }
+                    wiper_cmd_pub_msg.ui16_cmd = wiper_state;
+		            wiper_cmd_pub.publish(wiper_cmd_pub_msg);
+                }
+            }  
+        }
+        
         // Shifting: park
         if(controller_type==0) {
             if(msg->buttons[3] == 1) {
@@ -313,6 +336,22 @@ int main(int argc, char *argv[]) {
     }
 
     
+    // Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger, type 3 is semi
+    if (priv.getParam("vehicle_type", vehicle_type))
+    {
+        ROS_INFO("Got vehicle_type: %d", vehicle_type);
+        if ((vehicle_type!=0)&&(vehicle_type!=1)&&(vehicle_type!=2))
+        {
+            ROS_INFO("vehicle_type is invalid");
+            willExit = true;
+        }
+    }
+    else
+    {
+        ROS_INFO("Parameter vehicle_type is missing");
+        willExit = true;
+    }
+    
     // Controller type 0 is Logitech gamepad, type 1 is HRI controller
     if (priv.getParam("controller_type", controller_type))
     {
@@ -400,6 +439,7 @@ int main(int argc, char *argv[]) {
     // Advertise published messages
     enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
     turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
+    wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod2/as_rx/wiper_cmd", 20);
     shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
     accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
     steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
