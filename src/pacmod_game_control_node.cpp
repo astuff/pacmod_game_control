@@ -63,7 +63,7 @@ ros::Publisher enable_pub;
 
 const float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
-const uint16_t NUM_WIPER_STATES = 3;
+const uint16_t NUM_WIPER_STATES = 8;
 const uint16_t WIPER_STATE_START_VALUE = 0;
 
 int steering_axis = -1;
@@ -283,9 +283,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(controller_type == 0) {
             // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
             pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
-            ROS_INFO("Raw value: %f", msg->axes[5]);
+            //ROS_INFO("Raw value: %f", msg->axes[5]);
             accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
-            ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
+            //ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
             accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
         } else if(controller_type == 1) {
             // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully up = 1.0   
@@ -340,7 +340,7 @@ int main(int argc, char *argv[]) {
     if (priv.getParam("vehicle_type", vehicle_type))
     {
         ROS_INFO("Got vehicle_type: %d", vehicle_type);
-        if ((vehicle_type!=0)&&(vehicle_type!=1)&&(vehicle_type!=2))
+        if ((vehicle_type!=0)&&(vehicle_type!=1)&&(vehicle_type!=2)&&(vehicle_type!=3))
         {
             ROS_INFO("vehicle_type is invalid");
             willExit = true;
@@ -439,7 +439,7 @@ int main(int argc, char *argv[]) {
     // Advertise published messages
     enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
     turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
-    wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod2/as_rx/wiper_cmd", 20);
+    wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
     shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
     accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
     steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
