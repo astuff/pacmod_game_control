@@ -1,5 +1,5 @@
 <launch>
-    <include file="$(find pacmod)/launch/pacmod.launch"/>
+    <arg name="launch_pacmod" default="true" />
 
     <!-- Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger,
          type 2 is Lexus RX 450h, type 3 is semi -->
@@ -22,6 +22,8 @@
 
     <!-- For GEM, 11.176m/s -->
     <arg name="max_veh_speed" default="11.176" />
+
+    <include file="$(find pacmod)/launch/pacmod.launch"/ if="$(arg launch_pacmod)" />
 
     <group ns="game_control">
         <node pkg="joy" type="joy_node" name="joy">
