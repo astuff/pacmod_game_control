@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <launch>
     <arg name="launch_pacmod" default="true" />
 
@@ -23,7 +24,7 @@
     <!-- For GEM, 11.176m/s -->
     <arg name="max_veh_speed" default="11.176" />
 
-    <include file="$(find pacmod)/launch/pacmod.launch"/ if="$(arg launch_pacmod)" />
+    <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)" />
 
     <group ns="game_control">
         <node pkg="joy" type="joy_node" name="joy">
