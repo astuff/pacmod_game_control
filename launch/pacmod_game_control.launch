@@ -3,7 +3,7 @@
     <arg name="launch_pacmod" default="true" />
 
     <!-- Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger,
-         type 2 is Lexus RX 450h, type 3 is semi -->
+         type 3 is International Prostar+ 122 -->
     <arg name="vehicle_type" default="3"/>
     
     <!-- Axis 3 is right thumbstick, 0 is left thumbstick -->
