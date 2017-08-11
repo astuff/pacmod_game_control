@@ -4,7 +4,7 @@
 
     <!-- Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger,
          type 3 is International Prostar+ 122 -->
-    <arg name="vehicle_type" default="3"/>
+    <arg name="vehicle_type" default="0"/>
     
     <!-- Axis 3 is right thumbstick, 0 is left thumbstick -->
     <arg name="steering_axis" default="0"/>
