@@ -284,7 +284,15 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
             pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
             //ROS_INFO("Raw value: %f", msg->axes[5]);
-            accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+            if (vehicle_type == 2)
+            {
+              accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6;
+            }
+            else
+            {
+              accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+            }
+
             //ROS_INFO("Calculated accel value: %f", accelerator_cmd_pub_msg.f64_cmd);
             accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
         } else if(controller_type == 1) {
