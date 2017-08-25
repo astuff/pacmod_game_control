@@ -61,7 +61,7 @@ ros::Publisher steering_set_position_with_speed_limit_pub;
 ros::Publisher brake_set_position_pub;
 ros::Publisher enable_pub;
 
-const float MAX_ROT_RAD = 10.9956;
+float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
 const uint16_t NUM_WIPER_STATES = 8;
 const uint16_t WIPER_STATE_START_VALUE = 0;
@@ -351,7 +351,12 @@ int main(int argc, char *argv[]) {
         ROS_INFO("Parameter vehicle_type is missing");
         willExit = true;
     }
-    
+
+    if (vehicle_type == 2)
+    {
+        MAX_ROT_RAD = 6.5;
+    }    
+
     // Controller type 0 is Logitech gamepad, type 1 is HRI controller
     if (priv.getParam("controller_type", controller_type))
     {
