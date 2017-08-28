@@ -165,7 +165,16 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         pacmod_msgs::PositionWithSpeed pub_msg1;
         float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
         float speed_scale = 1.0 - fabs((veh_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
-        pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
+
+        if (vehicle_type == 2)
+        {
+          pub_msg1.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
+        }
+        else
+        {
+          pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
+        }
+
         pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
         steering_set_position_with_speed_limit_pub.publish(pub_msg1);
         
@@ -173,7 +182,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(controller_type == 0) {
           // Logitech left trigger (axis 2): not pressed = 1.0, fully pressed = -1.0
           pacmod_msgs::PacmodCmd pub_msg1;
-          pub_msg1.f64_cmd = ((msg->axes[2] - 1.0) / 2.0);
+          pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0);
           brake_set_position_pub.publish(pub_msg1);    
         } else if(controller_type == 1) {
           // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully down = -1.0
