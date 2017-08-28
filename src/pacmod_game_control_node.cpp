@@ -187,7 +187,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         if(controller_type == 0) {
           // Logitech left trigger (axis 2): not pressed = 1.0, fully pressed = -1.0
           pacmod_msgs::PacmodCmd pub_msg1;
-          pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0);
+          pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
           brake_set_position_pub.publish(pub_msg1);    
         } else if(controller_type == 1) {
           // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully down = -1.0
