@@ -295,7 +295,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
             //ROS_INFO("Raw value: %f", msg->axes[5]);
             if (vehicle_type == 2)
             {
-              accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6;
+              accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
             }
             else
             {
