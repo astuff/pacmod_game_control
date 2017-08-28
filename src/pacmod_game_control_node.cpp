@@ -54,6 +54,8 @@ Number buttons:
 #include <pacmod_msgs/PacmodCmd.h>
 
 ros::Publisher turn_signal_cmd_pub;
+ros::Publisher headlight_cmd_pub;
+ros::Publisher horn_cmd_pub;
 ros::Publisher wiper_cmd_pub;
 ros::Publisher shift_cmd_pub;
 ros::Publisher accelerator_cmd_pub;
@@ -65,6 +67,8 @@ float MAX_ROT_RAD = 10.9956;
 const float ROT_RANGE_SCALER_LB = 0.05;
 const uint16_t NUM_WIPER_STATES = 8;
 const uint16_t WIPER_STATE_START_VALUE = 0;
+const uint16_t NUM_HEADLIGHT_STATES = 3;
+const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
 
 int steering_axis = -1;
 int vehicle_type = -1;
@@ -80,6 +84,7 @@ double max_veh_speed = -1.0;
 double accel_scale_val = -1.0;
 double brake_scale_val = -1.0;
 uint16_t wiper_state = 0;
+uint16_t headlight_state = 0;
 
 #define SHIFT_PARK 0
 #define SHIFT_REVERSE 1
@@ -216,6 +221,42 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
 
         if (last_axes.empty() || (last_axes[7] != msg->axes[7] || last_axes[6] != msg->axes[6] || last_axes[2] != last_axes[2]))
 		turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+
+        if(vehicle_type == 2)
+        {
+          // Headlights
+          // TODO: implement for HRI controller
+          if(controller_type == 0)
+          {
+            pacmod_msgs::PacmodCmd headlight_cmd_pub_msg;
+
+            // Rotate through headlight states as button is pressed 
+            if(msg->axes[7] == 1.0)
+            {
+              headlight_state++;
+              if(headlight_state >= NUM_HEADLIGHT_STATES)
+              {
+                headlight_state = HEADLIGHT_STATE_START_VALUE;
+              }
+              headlight_cmd_pub_msg.ui16_cmd = headlight_state;
+              headlight_cmd_pub.publish(headlight_cmd_pub_msg);
+            }
+          }
+
+          if(controller_type == 0)
+          {
+            pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
+              if(msg->buttons[7] == 1)
+              {
+                horn_cmd_pub_msg.ui16_cmd = 1;
+              }
+              else
+              {
+                horn_cmd_pub_msg.ui16_cmd = 0;
+              }
+              horn_cmd_pub.publish(horn_cmd_pub_msg);
+          }
+        }
         
         if(vehicle_type == 3) { // semi
             // Windshield wipers
@@ -461,6 +502,8 @@ int main(int argc, char *argv[]) {
     // Advertise published messages
     enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
     turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
+    headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
+    horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
     wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
     shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
     accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
