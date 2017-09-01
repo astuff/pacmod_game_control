@@ -52,6 +52,7 @@ Number buttons:
 #include <std_msgs/Float64.h>
 #include <pacmod_msgs/PositionWithSpeed.h>
 #include <pacmod_msgs/PacmodCmd.h>
+#include <pacmod_msgs/VehicleSpeedRpt.h>
 
 ros::Publisher turn_signal_cmd_pub;
 ros::Publisher headlight_cmd_pub;
@@ -76,7 +77,7 @@ int controller_type = -1;
 double steering_max_speed = -1.0;
 bool pacmod_enable;
 std::mutex enable_mutex;
-double veh_speed;
+pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt;
 std::mutex speed_mutex;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
@@ -101,10 +102,10 @@ void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg) {
   enable_mutex.unlock();
 } 
 
-void callback_veh_speed(const std_msgs::Float64::ConstPtr& msg)
+void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
   speed_mutex.lock();
-  veh_speed = msg->data;
+  last_speed_rpt = msg;
   speed_mutex.unlock();
 }
 
@@ -169,7 +170,19 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         // Same for both Logitech and HRI controllers
         pacmod_msgs::PositionWithSpeed pub_msg1;
         float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
-        float speed_scale = 1.0 - fabs((veh_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
+        float speed_scale = 1.0;
+        bool speed_valid = false;
+        float current_speed = 0.0;
+
+        speed_mutex.lock();
+        speed_valid = last_speed_rpt->vehicle_speed_valid;
+        current_speed = last_speed_rpt->vehicle_speed;
+        speed_mutex.unlock();
+
+        if (speed_valid)
+        {
+          speed_scale = 1.0 - fabs((current_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
+        }
 
         if (vehicle_type == 2)
         {
