@@ -77,7 +77,7 @@ int controller_type = -1;
 double steering_max_speed = -1.0;
 bool pacmod_enable;
 std::mutex enable_mutex;
-pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt;
+pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
 std::mutex speed_mutex;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
