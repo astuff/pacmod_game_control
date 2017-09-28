@@ -175,8 +175,13 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg) {
         float current_speed = 0.0;
 
         speed_mutex.lock();
-        speed_valid = last_speed_rpt->vehicle_speed_valid;
-        current_speed = last_speed_rpt->vehicle_speed;
+
+        if (last_speed_rpt != NULL)
+          speed_valid = last_speed_rpt->vehicle_speed_valid;
+
+        if (speed_valid)
+          current_speed = last_speed_rpt->vehicle_speed;
+
         speed_mutex.unlock();
 
         if (speed_valid)
