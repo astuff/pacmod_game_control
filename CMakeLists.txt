@@ -5,15 +5,17 @@ add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   std_msgs
-  message_generation
-  pacmod
+  sensor_msgs
+  pacmod_msgs
   joy
 )
 
-catkin_package(
-  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime pacmod
+catkin_package(CATKIN_DEPENDS
+  std_msgs
+  sensor_msgs
+  pacmod_msgs
+  joy
 )
 
 include_directories(
@@ -21,7 +23,10 @@ include_directories(
 )
 
 add_executable(pacmod_game_control_node src/pacmod_game_control_node.cpp)
-add_dependencies(pacmod_game_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(pacmod_game_control_node
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
 target_link_libraries(pacmod_game_control_node
   ${catkin_LIBRARIES}
 )
@@ -30,11 +35,6 @@ install(TARGETS pacmod_game_control_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
 )
 
 install(DIRECTORY launch

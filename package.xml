@@ -1,25 +1,23 @@
 <?xml version="1.0"?>
 <package>
   <name>pacmod_game_control</name>
-  <version>1.1.0</version>
-  <description>The pacmod_game_control package</description>
-  <maintainer email="support@autonomoustuff.com">AutonomouStuff Software Development Team</maintainer>
-  <license>BSD 3-Clause</license>
-  <author email="jdriscoll@autonomoustuff.com">Joe Driscoll</author> -->
+  <version>2.0.0</version>
+  <description>ROS Package for controlling the AStuff PACMod with a Joystick</description>
+  <license>GNU GPL v3.0</license>
+  <maintainer email="software@autonomoustuff.com">AutonomouStuff Software Development Team</maintainer>
+  <author email="jdriscoll@autonomoustuff.com">Joe Driscoll</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+
   <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>message_generation</build_depend>
-  <build_depend>pacmod</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>pacmod_msgs</build_depend>
   <build_depend>joy</build_depend>
     
   <run_depend>roscpp</run_depend>
-  <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>message_generation</run_depend>
-  <run_depend>message_runtime</run_depend>
-  <run_depend>pacmod</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>pacmod_msgs</run_depend>
   <run_depend>joy</run_depend>
 </package>

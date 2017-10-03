@@ -1,54 +1,54 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="launch_pacmod" default="true" />
+  <arg name="launch_pacmod" default="true" />
 
-    <!-- Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger,
-         type 3 is International Prostar+ 122 -->
-    <arg name="vehicle_type" default="0"/>
+  <!-- Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger,
+       type 3 is International Prostar+ 122 -->
+  <arg name="vehicle_type" default="0"/>
 
-    <arg name="pacmod_can_hardware_id" default="12345" />
-    <arg name="pacmod_can_circuit_id" default="0" />
-    <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
+  <arg name="pacmod_can_hardware_id" default="12345" />
+  <arg name="pacmod_can_circuit_id" default="0" />
+  <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
     
-    <!-- Axis 3 is right thumbstick, 0 is left thumbstick -->
-    <arg name="steering_axis" default="0"/>
+  <!-- Axis 3 is right thumbstick, 0 is left thumbstick -->
+  <arg name="steering_axis" default="0"/>
 
-    <!-- Controller type 0 is Logitech gamepad, type 1 is HRI controller -->
-    <arg name="controller_type" default="0"/>
+  <!-- Controller type 0 is Logitech gamepad, type 1 is HRI controller -->
+  <arg name="controller_type" default="0"/>
         
-    <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
-    <arg name="steering_max_speed" default="3.3"/>
+  <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
+  <arg name="steering_max_speed" default="3.3"/>
 
-    <!-- Scales raw joystick input -->
-    <arg name="accel_scale_val" default="1.0"/>
+  <!-- Scales raw joystick input -->
+  <arg name="accel_scale_val" default="1.0"/>
 
-    <!-- Scales raw joystick input -->
-    <arg name="brake_scale_val" default="1.0"/>
+  <!-- Scales raw joystick input -->
+  <arg name="brake_scale_val" default="1.0"/>
 
-    <!-- For GEM, 11.176m/s -->
-    <arg name="max_veh_speed" default="11.176" />
+  <!-- For GEM, 11.176m/s -->
+  <arg name="max_veh_speed" default="11.176" />
 
-    <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)">
-      <arg name="pacmod_can_hardware_id" value="$(arg pacmod_can_hardware_id)" />
-      <arg name="pacmod_can_circuit_id" value="$(arg pacmod_can_circuit_id)" />
-      <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
-    </include>
+  <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)">
+    <arg name="pacmod_can_hardware_id" value="$(arg pacmod_can_hardware_id)" />
+    <arg name="pacmod_can_circuit_id" value="$(arg pacmod_can_circuit_id)" />
+    <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
+  </include>
 
-    <group ns="game_control">
-        <node pkg="joy" type="joy_node" name="joy">
-              <param name="coalesce_interval" type="double" value="0.02"/>
-              <param name="default_trig_val" value="true"/>
-              <param name="dev" value="/dev/input/js0"/>
-        </node>
+  <group ns="game_control">
+    <node pkg="joy" type="joy_node" name="joy">
+      <param name="coalesce_interval" type="double" value="0.02"/>
+      <param name="default_trig_val" value="true"/>
+      <param name="dev" value="/dev/input/js0"/>
+    </node>
 
-        <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
-            <param name="vehicle_type" value="$(arg vehicle_type)"/>
-            <param name="steering_axis" value="$(arg steering_axis)"/>
-            <param name="controller_type" value="$(arg controller_type)"/>            
-            <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
-            <param name="accel_scale_val" value="$(arg accel_scale_val)"/>
-            <param name="brake_scale_val" value="$(arg brake_scale_val)"/>
-            <param name="max_veh_speed" value="$(arg max_veh_speed)" />
-        </node>
+    <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
+      <param name="vehicle_type" value="$(arg vehicle_type)"/>
+      <param name="steering_axis" value="$(arg steering_axis)"/>
+      <param name="controller_type" value="$(arg controller_type)"/>            
+      <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
+      <param name="accel_scale_val" value="$(arg accel_scale_val)"/>
+      <param name="brake_scale_val" value="$(arg brake_scale_val)"/>
+      <param name="max_veh_speed" value="$(arg max_veh_speed)" />
+    </node>
 	</group>
 </launch>

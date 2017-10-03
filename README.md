@@ -15,4 +15,4 @@ that is represented in ROS by a Joy node.
 ### SUBSCRIBERS ###
 
  - `[std_msgs/Bool]` *as_tx/override* - The PACMod override flag.
- - `[sensor_msgs/Joy]` */pacmod/joy* - Joystick commands from Joy node.
+ - `[sensor_msgs/Joy]` *game_control/joy* - Joystick commands from Joy node.
