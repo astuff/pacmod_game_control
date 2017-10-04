@@ -513,7 +513,7 @@ int main(int argc, char *argv[]) {
                  
   // Subscribe to messages
   ros::Subscriber joy_sub = n.subscribe("joy", 1000, callback_joy);
-  ros::Subscriber speed_sub = n.subscribe("/pacmod/as_tx/vehicle_speed", 20, callback_veh_speed);
+  ros::Subscriber speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, callback_veh_speed);
   ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, callback_pacmod_enable);
   
   // Advertise published messages
