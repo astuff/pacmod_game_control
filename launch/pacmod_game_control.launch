@@ -50,5 +50,5 @@
       <param name="brake_scale_val" value="$(arg brake_scale_val)"/>
       <param name="max_veh_speed" value="$(arg max_veh_speed)" />
     </node>
-	</group>
+  </group>
 </launch>
