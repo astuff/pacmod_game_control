@@ -117,6 +117,10 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 {
   bool local_enable = false;
 
+  enable_mutex.lock();
+  local_enable = pacmod_enable;
+  enable_mutex.unlock();
+
   if(controller_type == 0) {
     // Enable
     if(msg->buttons[5] == 1) {
