@@ -29,9 +29,10 @@
   <arg name="max_veh_speed" default="11.176" />
 
   <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)">
-    <arg name="pacmod_can_hardware_id" value="$(arg pacmod_can_hardware_id)" />
-    <arg name="pacmod_can_circuit_id" value="$(arg pacmod_can_circuit_id)" />
     <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
+    <arg name="use_kvaser" value="true" />
+    <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" />
+    <arg name="kvaser_circuit_id" value="$(arg pacmod_can_circuit_id)" />
   </include>
 
   <group ns="game_control">
