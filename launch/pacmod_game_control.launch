@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="launch_pacmod" default="true" />
+  <arg name="use_socketcan" default="false" />
 
   <!-- Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger,
        type 3 is International Prostar+ 122 -->
@@ -8,6 +9,7 @@
 
   <arg name="pacmod_can_hardware_id" default="12345" />
   <arg name="pacmod_can_circuit_id" default="0" />
+  <arg name="pacmod_socketcan_device" default="can0" />
   <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
     
   <!-- Axis 3 is right thumbstick, 0 is left thumbstick -->
@@ -30,9 +32,11 @@
 
   <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)">
     <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
-    <arg name="use_kvaser" value="true" />
-    <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" />
-    <arg name="kvaser_circuit_id" value="$(arg pacmod_can_circuit_id)" />
+    <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
+    <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" unless="$(arg use_socketcan)" />
+    <arg name="kvaser_circuit_id" value="$(arg pacmod_can_circuit_id)" unless="$(arg use_socketcan)" />
+    <arg name="use_socketcan" value="true" if="$(arg use_socketcan)" />
+    <arg name="socketcan_device" value="$(arg pacmod_socketcan_device)" if="$(arg use_socketcan)" />
   </include>
 
   <group ns="game_control">
