@@ -30,7 +30,7 @@
   <!-- For GEM, 11.176m/s -->
   <arg name="max_veh_speed" default="11.176" />
 
-  <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)">
+  <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)" ns="pacmod">
     <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
     <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
     <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" unless="$(arg use_socketcan)" />
