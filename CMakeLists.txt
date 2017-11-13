@@ -38,7 +38,7 @@ install(TARGETS pacmod_game_control_node
 )
 
 install(DIRECTORY launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 install(FILES README.md
