@@ -74,6 +74,9 @@ double brake_scale_val = 1.0;
 uint16_t wiper_state = 0;
 uint16_t headlight_state = 0;
 
+bool enable_accel = false;
+bool enable_brake = false;
+
 #define SHIFT_PARK 0
 #define SHIFT_REVERSE 1
 #define SHIFT_NEUTRAL 2
@@ -243,17 +246,39 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
       pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
 
-      if (vehicle_type == 2)
-        accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
+      if (msg->axes[5] != 0)
+        enable_accel = true;
+
+      if (enable_accel)
+      {
+        if (vehicle_type == 2)
+          accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
+        else
+          accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+      }
       else
-        accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+      {
+        accelerator_cmd_pub_msg.f64_cmd = 0;
+      }
 
       accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
 
       // Brake
       // Logitech left trigger (axis 2): not pressed = 1.0, fully pressed = -1.0
       pacmod_msgs::PacmodCmd pub_msg1;
-      pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
+
+      if (msg->axes[2] != 0)
+        enable_brake = true;
+
+      if (enable_brake)
+      {
+        pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
+      }
+      else
+      {
+        pub_msg1.f64_cmd = 0;
+      }
+
       brake_set_position_pub.publish(pub_msg1);    
 
       // Shifting: park
