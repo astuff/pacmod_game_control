@@ -251,7 +251,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 
       if (enable_accel)
       {
-        if (vehicle_type == 2)
+        if ((vehicle_type == 2) || (vehicle_type == 4))
           accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
         else
           accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
@@ -428,7 +428,8 @@ int main(int argc, char *argv[]) {
     if (vehicle_type != 0 &&
         vehicle_type != 1 &&
         vehicle_type != 2 &&
-        vehicle_type != 3)
+        vehicle_type != 3 &&
+        vehicle_type != 4)
     {
       ROS_INFO("vehicle_type is invalid");
       willExit = true;
@@ -442,6 +443,9 @@ int main(int argc, char *argv[]) {
 
   if (vehicle_type == 2)
     MAX_ROT_RAD = 6.5;
+
+  if (vehicle_type == 4)
+    MAX_ROT_RAD = 5.236;
 
   // Controller type 0 is Logitech gamepad, type 1 is HRI controller
   if (priv.getParam("controller_type", controller_type))
