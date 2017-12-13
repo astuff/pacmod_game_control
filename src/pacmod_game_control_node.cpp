@@ -176,10 +176,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     if (speed_valid)
       speed_scale = 1.0 - fabs((current_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
 
-    if (vehicle_type == 2)
-      pub_msg1.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
-    else
-      pub_msg1.angular_position = -(range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
+    pub_msg1.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
 
     pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
     steering_set_position_with_speed_limit_pub.publish(pub_msg1);
