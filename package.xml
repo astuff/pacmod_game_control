@@ -3,7 +3,8 @@
   <name>pacmod_game_control</name>
   <version>2.0.0</version>
   <description>ROS Package for controlling the AStuff PACMod with a Joystick</description>
-  <license>GNU GPL v3.0</license>
+  <license>MIT</license>
+
   <maintainer email="software@autonomoustuff.com">AutonomouStuff Software Development Team</maintainer>
   <author email="jdriscoll@autonomoustuff.com">Joe Driscoll</author>
 
