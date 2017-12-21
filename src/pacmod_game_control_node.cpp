@@ -40,6 +40,10 @@ Number buttons:
 #include <pacmod_msgs/PositionWithSpeed.h>
 #include <pacmod_msgs/PacmodCmd.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
+#include <pacmod_msgs/SystemCmdBool.h>
+#include <pacmod_msgs/SystemCmdFloat.h>
+#include <pacmod_msgs/SystemCmdInt.h>
+#include <pacmod_msgs/SteerSystemCmd.h>
 
 ros::Publisher turn_signal_cmd_pub;
 ros::Publisher headlight_cmd_pub;
@@ -60,6 +64,7 @@ const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
 
 int steering_axis = -1;
 int vehicle_type = -1;
+int board_rev = -1;
 int controller_type = -1;
 double steering_max_speed = -1.0;
 bool pacmod_enable;
@@ -157,7 +162,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     // Steering
     // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
     // Same for both Logitech and HRI controllers
-    pacmod_msgs::PositionWithSpeed pub_msg1;
     float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
     float speed_scale = 1.0;
     bool speed_valid = false;
@@ -176,53 +180,125 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     if (speed_valid)
       speed_scale = 1.0 - fabs((current_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
 
-    pub_msg1.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
-
-    pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
-    steering_set_position_with_speed_limit_pub.publish(pub_msg1);
+    if (board_rev == 3)
+    {
+      pacmod_msgs::SteerSystemCmd steer_msg;
+      steer_msg.enable = true;
+      steer_msg.ignore_overrides = false;
+      steer_msg.clear_override = false;
+      steer_msg.command = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
+      steer_msg.rotation_rate = steering_max_speed * speed_scale;
+      steering_set_position_with_speed_limit_pub.publish(steer_msg);
+    }
+    else
+    {
+      pacmod_msgs::PositionWithSpeed pub_msg1;
+      pub_msg1.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
+      pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
+      steering_set_position_with_speed_limit_pub.publish(pub_msg1);
+    }
 
     // Turn signal
     // Same for both Logitech and HRI controllers
-    pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
-    
-    if(msg->axes[6] == 1.0)
-      turn_signal_cmd_pub_msg.ui16_cmd = 2;
-    else if(msg->axes[6] == -1.0)
-      turn_signal_cmd_pub_msg.ui16_cmd = 0;
+    if (board_rev == 3)
+    {
+      pacmod_msgs::SystemCmdInt turn_msg;
+      turn_msg.enable = true;
+      turn_msg.ignore_overrides = false;
+      turn_msg.clear_override = false;
+      
+      if (msg->axes[6] == 1.0)
+        turn_msg.command = 2;
+      else if (msg->axes[6] == -1.0)
+        turn_msg.command = 0;
+      else
+        turn_msg.command = 1;
+
+      if (controller_type == 0)
+      {
+        if (msg->axes[7] == -1.0)
+          turn_msg.command = 3;
+      }
+      else if (controller_type == 1)
+      {
+        if (msg->axes[2] < 0.5)
+          turn_msg.command = 3;
+      }
+
+      if (last_axes.empty() ||
+         (last_axes[7] != msg->axes[7] ||
+          last_axes[6] != msg->axes[6] ||
+          last_axes[2] != msg->axes[2]))
+        turn_signal_cmd_pub.publish(turn_msg);
+    }
     else
-      turn_signal_cmd_pub_msg.ui16_cmd = 1;    
+    {
+      pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
+      
+      if(msg->axes[6] == 1.0)
+        turn_signal_cmd_pub_msg.ui16_cmd = 2;
+      else if(msg->axes[6] == -1.0)
+        turn_signal_cmd_pub_msg.ui16_cmd = 0;
+      else
+        turn_signal_cmd_pub_msg.ui16_cmd = 1;    
 
-    // Hazard lights (both left and right turn signals)
-    if(controller_type == 0)         
-      if(msg->axes[7] == -1.0)
-        turn_signal_cmd_pub_msg.ui16_cmd = 3;
-    else if(controller_type == 1)
-      if(msg->axes[2] < -0.5)
-        turn_signal_cmd_pub_msg.ui16_cmd = 3;
+      // Hazard lights (both left and right turn signals)
+      if(controller_type == 0)         
+        if(msg->axes[7] == -1.0)
+          turn_signal_cmd_pub_msg.ui16_cmd = 3;
+      else if(controller_type == 1)
+        if(msg->axes[2] < -0.5)
+          turn_signal_cmd_pub_msg.ui16_cmd = 3;
 
-    if (last_axes.empty() ||
-          (last_axes[7] != msg->axes[7] ||
-           last_axes[6] != msg->axes[6] ||
-           last_axes[2] != last_axes[2]))
-      turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+      if (last_axes.empty() ||
+            (last_axes[7] != msg->axes[7] ||
+             last_axes[6] != msg->axes[6] ||
+             last_axes[2] != msg->axes[2]))
+        turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+    }
 
     // Shifting: reverse
     // Same for both Logitech and HRI controllers
     if(msg->buttons[1] == 1 &&
-        (last_buttons.empty() ||
-         last_buttons[1] != msg->buttons[1])) {
-      pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-      shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
+      (last_buttons.empty() ||
+       last_buttons[1] != msg->buttons[1]))
+    {
+      if (board_rev == 3)
+      {
+        pacmod_msgs::SystemCmdInt shift_msg;
+        shift_msg.enable = true;
+        shift_msg.ignore_overrides = false;
+        shift_msg.clear_override = false;
+        shift_msg.command = SHIFT_REVERSE;
+        shift_cmd_pub.publish(shift_msg);
+      }
+      else
+      {
+        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+        shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
+        shift_cmd_pub.publish(shift_cmd_pub_msg);
+      }
     }
 
     // Shifting: drive/low
     // Same for both Logitech and HRI controllers
     if(msg->buttons[0] == 1)
     {
-      pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-      shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
+      if (board_rev == 3)
+      {
+        pacmod_msgs::SystemCmdInt shift_msg;
+        shift_msg.enable = true;
+        shift_msg.ignore_overrides = false;
+        shift_msg.clear_override = false;
+        shift_msg.command = SHIFT_LOW;
+        shift_cmd_pub.publish(shift_msg);
+      }
+      else
+      {
+        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+        shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
+        shift_cmd_pub.publish(shift_cmd_pub_msg);
+      }
     }
 
     // Shifting: high
@@ -231,96 +307,204 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         (last_buttons.empty() ||
          last_buttons[6] != msg->buttons[6]))
     {
-      pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-      shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
+      if (board_rev == 3)
+      {
+        pacmod_msgs::SystemCmdInt shift_msg;
+        shift_msg.enable = true;
+        shift_msg.ignore_overrides = false;
+        shift_msg.clear_override = false;
+        shift_msg.command = SHIFT_HIGH;
+        shift_cmd_pub.publish(shift_msg);
+      }
+      else
+      {
+        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+        shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;
+        shift_cmd_pub.publish(shift_cmd_pub_msg);
+      }
     }
-    
+
     // Controller-specific Triggers
     if(controller_type == 0)
     {
       // Acelerator
       // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
-      pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
-
       if (msg->axes[5] != 0)
         enable_accel = true;
 
-      if (enable_accel)
+      if (board_rev == 3)
       {
-        if ((vehicle_type == 2) || (vehicle_type == 4))
-          accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
+        pacmod_msgs::SystemCmdFloat accel_msg;
+
+        accel_msg.enable = true;
+        accel_msg.ignore_overrides = false;
+        accel_msg.clear_override = false;
+
+        if (enable_accel)
+        {
+          if ((vehicle_type == 2) || (vehicle_type == 4))
+            accel_msg.command = (-0.5 * (msg->axes[5] - 1.0));
+          else
+            accel_msg.command = (-0.5 * (msg->axes[5] - 1.0)) * 0.6 + 0.21;
+        }
         else
-          accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+        {
+          accel_msg.command = 0;
+        }
+
+        accelerator_cmd_pub.publish(accel_msg);
       }
       else
       {
-        accelerator_cmd_pub_msg.f64_cmd = 0;
-      }
+        pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
 
-      accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+        if (enable_accel)
+        {
+          if ((vehicle_type == 2) || (vehicle_type == 4))
+            accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
+          else
+            accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+        }
+        else
+        {
+          accelerator_cmd_pub_msg.f64_cmd = 0;
+        }
+
+        accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+      }
 
       // Brake
       // Logitech left trigger (axis 2): not pressed = 1.0, fully pressed = -1.0
-      pacmod_msgs::PacmodCmd pub_msg1;
-
       if (msg->axes[2] != 0)
         enable_brake = true;
 
-      if (enable_brake)
+      if (board_rev == 3)
       {
-        pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
+        pacmod_msgs::SystemCmdFloat brake_msg;
+
+        brake_msg.enable = true;
+        brake_msg.ignore_overrides = false;
+        brake_msg.clear_override = false;
+
+        if (enable_brake)
+          brake_msg.command = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
+        else
+          brake_msg.command = 0;
+
+        brake_set_position_pub.publish(brake_msg);
       }
       else
       {
-        pub_msg1.f64_cmd = 0;
-      }
+        pacmod_msgs::PacmodCmd pub_msg1;
 
-      brake_set_position_pub.publish(pub_msg1);    
+        if (enable_brake)
+        {
+          pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
+        }
+        else
+        {
+          pub_msg1.f64_cmd = 0;
+        }
+
+        brake_set_position_pub.publish(pub_msg1);    
+      }
 
       // Shifting: park
       if(msg->buttons[3] == 1)
       {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
+        if (board_rev == 3)
+        {
+          pacmod_msgs::SystemCmdInt shift_msg;
+          shift_msg.enable = true;
+          shift_msg.ignore_overrides = false;
+          shift_msg.clear_override = false;
+          shift_msg.command = SHIFT_PARK;
+          shift_cmd_pub.publish(shift_msg);
+        }
+        else
+        {
+          pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+          shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
+          shift_cmd_pub.publish(shift_cmd_pub_msg);
+        }
       }
 
       // Shifting: neutral
       if(msg->buttons[2] == 1)
       {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
+        if (board_rev == 3)
+        {
+          pacmod_msgs::SystemCmdInt shift_msg;
+          shift_msg.enable = true;
+          shift_msg.ignore_overrides = false;
+          shift_msg.clear_override = false;
+          shift_msg.command = SHIFT_NEUTRAL;
+          shift_cmd_pub.publish(shift_msg);
+        }
+        else
+        {
+          pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+          shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
+          shift_cmd_pub.publish(shift_cmd_pub_msg);
+        }
       }
 
-      if(vehicle_type == 2)
+      if (vehicle_type == 2)
       {
         // Headlights
         // TODO: Implement for HRI Controller
-        if(msg->axes[7] == 1.0)
+        if (msg->axes[7] == 1.0)
         {
           // Rotate through headlight states as button is pressed 
           headlight_state++;
 
-          if(headlight_state >= NUM_HEADLIGHT_STATES)
+          if (headlight_state >= NUM_HEADLIGHT_STATES)
             headlight_state = HEADLIGHT_STATE_START_VALUE;
 
-          pacmod_msgs::PacmodCmd headlight_cmd_pub_msg;
-          headlight_cmd_pub_msg.ui16_cmd = headlight_state;
-          headlight_cmd_pub.publish(headlight_cmd_pub_msg);
+          if (board_rev == 3)
+          {
+            pacmod_msgs::SystemCmdInt headlight_msg;
+            headlight_msg.enable = true;
+            headlight_msg.ignore_overrides = false;
+            headlight_msg.clear_override = false;
+            headlight_msg.command = headlight_state;
+            headlight_cmd_pub.publish(headlight_msg);
+          }
+          else
+          {
+            pacmod_msgs::PacmodCmd headlight_cmd_pub_msg;
+            headlight_cmd_pub_msg.ui16_cmd = headlight_state;
+            headlight_cmd_pub.publish(headlight_cmd_pub_msg);
+          }
         }
 
         // Horn
         // TODO: Implement for HRI Controller
-        pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
+        if (board_rev == 3)
+        {
+          pacmod_msgs::SystemCmdBool horn_msg;
+          horn_msg.enable = true;
+          horn_msg.ignore_overrides = false;
+          horn_msg.clear_override = false;
+          
+          if (msg->buttons[7] == 1)
+            horn_msg.command = true;
+          else
+            horn_msg.command = false;
 
-        if(msg->buttons[7] == 1)
-          horn_cmd_pub_msg.ui16_cmd = 1;
+          horn_cmd_pub.publish(horn_msg);
+        }
         else
-          horn_cmd_pub_msg.ui16_cmd = 0;
+        {
+          pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
 
-        horn_cmd_pub.publish(horn_cmd_pub_msg);
+          if(msg->buttons[7] == 1)
+            horn_cmd_pub_msg.ui16_cmd = 1;
+          else
+            horn_cmd_pub_msg.ui16_cmd = 0;
+
+          horn_cmd_pub.publish(horn_cmd_pub_msg);
+        }
       }
 
       if(vehicle_type == 3) // Semi
@@ -335,9 +519,21 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           if(wiper_state >= NUM_WIPER_STATES)
               wiper_state = WIPER_STATE_START_VALUE;
 
-          pacmod_msgs::PacmodCmd wiper_cmd_pub_msg;
-          wiper_cmd_pub_msg.ui16_cmd = wiper_state;
-          wiper_cmd_pub.publish(wiper_cmd_pub_msg);
+          if (board_rev == 3)
+          {
+            pacmod_msgs::SystemCmdInt wiper_msg;
+            wiper_msg.enable = true;
+            wiper_msg.ignore_overrides = false;
+            wiper_msg.clear_override = false;
+            wiper_msg.command = wiper_state;
+            wiper_cmd_pub.publish(wiper_msg);
+          }
+          else
+          {
+            pacmod_msgs::PacmodCmd wiper_cmd_pub_msg;
+            wiper_cmd_pub_msg.ui16_cmd = wiper_state;
+            wiper_cmd_pub.publish(wiper_cmd_pub_msg);
+          }
         }
       }
     }
@@ -345,26 +541,62 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     {
       // Accelerator
       // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully up = 1.0   
-      if(msg->axes[4] >= 0.0) {  // only consider center-to-up range as accelerator motion
-        pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
-        accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[4]) * 0.6 + 0.21;
-        accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+      if (msg->axes[4] >= 0.0) {  // only consider center-to-up range as accelerator motion
+        if (board_rev == 3)
+        {
+          pacmod_msgs::SystemCmdFloat accel_msg;
+          accel_msg.enable = true;
+          accel_msg.ignore_overrides = false;
+          accel_msg.clear_override = false;
+          accel_msg.command = accel_scale_val * (msg->axes[4]) * 0.6 + 0.21;
+          accelerator_cmd_pub.publish(accel_msg);
+        }
+        else
+        {
+          pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
+          accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[4]) * 0.6 + 0.21;
+          accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+        }
       }
 
       // Brake
       // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully down = -1.0
-      pacmod_msgs::PacmodCmd pub_msg1;
-      pub_msg1.f64_cmd = (msg->axes[4] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
-      brake_set_position_pub.publish(pub_msg1);    
+      if (board_rev == 3)
+      {
+        pacmod_msgs::SystemCmdFloat brake_msg;
+        brake_msg.enable = true;
+        brake_msg.ignore_overrides = false;
+        brake_msg.clear_override = false;
+        brake_msg.command = (msg->axes[4] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
+        brake_set_position_pub.publish(brake_msg);
+      }
+      else
+      {
+        pacmod_msgs::PacmodCmd pub_msg1;
+        pub_msg1.f64_cmd = (msg->axes[4] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
+        brake_set_position_pub.publish(pub_msg1);    
+      }
 
       // Shifting: park
       if(msg->buttons[2] == 1 &&
           (last_buttons.empty() ||
            last_buttons[2] != msg->buttons[2]))
       {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
+        if (board_rev == 3)
+        {
+          pacmod_msgs::SystemCmdInt shift_msg;
+          shift_msg.enable = true;
+          shift_msg.ignore_overrides = false;
+          shift_msg.clear_override = false;
+          shift_msg.command = SHIFT_PARK;
+          shift_cmd_pub.publish(shift_msg);
+        }
+        else
+        {
+          pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+          shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
+          shift_cmd_pub.publish(shift_cmd_pub_msg);
+        }
       }
 
       // Shifting: neutral
@@ -372,9 +604,21 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           (last_buttons.empty() ||
            last_buttons[3] != msg->buttons[3]))
       {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
+        if (board_rev == 3)
+        {
+          pacmod_msgs::SystemCmdInt shift_msg;
+          shift_msg.enable = true;
+          shift_msg.ignore_overrides = false;
+          shift_msg.clear_override = false;
+          shift_msg.command = SHIFT_NEUTRAL;
+          shift_cmd_pub.publish(shift_msg);
+        }
+        else
+        {
+          pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+          shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
+          shift_cmd_pub.publish(shift_cmd_pub_msg);
+        }
       }
     }
   }
@@ -436,6 +680,18 @@ int main(int argc, char *argv[]) {
   {
     ROS_INFO("Parameter vehicle_type is missing");
     willExit = true;
+  }
+
+  // Board Rev
+  if (priv.getParam("board_rev", board_rev))
+  {
+    ROS_INFO("Got board rev: %u", board_rev);
+
+    if (board_rev < 1 || board_rev > 3)
+    {
+      ROS_INFO("Got invalid board_rev. Assuming 2.");
+      board_rev = 2;
+    }
   }
 
   if (vehicle_type == 2)
@@ -538,14 +794,29 @@ int main(int argc, char *argv[]) {
   
   // Advertise published messages
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
-  turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
-  headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
-  horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
-  wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
-  shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
-  accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
-  steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
-  brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
+
+  if (board_rev == 3)
+  {
+    accelerator_cmd_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
+    brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
+    headlight_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
+    horn_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/horn_cmd", 20);
+    shift_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/shift_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::SteerSystemCmd>("/pacmod/as_rx/steer_cmd", 20);
+    turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
+    wiper_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/wiper_cmd", 20);
+  }
+  else
+  {
+    accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
+    brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
+    headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
+    horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
+    shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
+    turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
+    wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
+  }
 
   spinner.start();
 
