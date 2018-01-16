@@ -185,7 +185,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       pacmod_msgs::SteerSystemCmd steer_msg;
       steer_msg.enable = true;
       steer_msg.ignore_overrides = false;
-      steer_msg.clear_override = false;
       steer_msg.command = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
       steer_msg.rotation_rate = steering_max_speed * speed_scale;
       steering_set_position_with_speed_limit_pub.publish(steer_msg);
@@ -205,7 +204,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       pacmod_msgs::SystemCmdInt turn_msg;
       turn_msg.enable = true;
       turn_msg.ignore_overrides = false;
-      turn_msg.clear_override = false;
       
       if (msg->axes[6] == 1.0)
         turn_msg.command = 2;
@@ -268,7 +266,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         pacmod_msgs::SystemCmdInt shift_msg;
         shift_msg.enable = true;
         shift_msg.ignore_overrides = false;
-        shift_msg.clear_override = false;
         shift_msg.command = SHIFT_REVERSE;
         shift_cmd_pub.publish(shift_msg);
       }
@@ -289,7 +286,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         pacmod_msgs::SystemCmdInt shift_msg;
         shift_msg.enable = true;
         shift_msg.ignore_overrides = false;
-        shift_msg.clear_override = false;
         shift_msg.command = SHIFT_LOW;
         shift_cmd_pub.publish(shift_msg);
       }
@@ -312,7 +308,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         pacmod_msgs::SystemCmdInt shift_msg;
         shift_msg.enable = true;
         shift_msg.ignore_overrides = false;
-        shift_msg.clear_override = false;
         shift_msg.command = SHIFT_HIGH;
         shift_cmd_pub.publish(shift_msg);
       }
@@ -338,7 +333,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 
         accel_msg.enable = true;
         accel_msg.ignore_overrides = false;
-        accel_msg.clear_override = false;
 
         if (enable_accel)
         {
@@ -384,7 +378,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 
         brake_msg.enable = true;
         brake_msg.ignore_overrides = false;
-        brake_msg.clear_override = false;
 
         if (enable_brake)
           brake_msg.command = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
@@ -417,7 +410,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           pacmod_msgs::SystemCmdInt shift_msg;
           shift_msg.enable = true;
           shift_msg.ignore_overrides = false;
-          shift_msg.clear_override = false;
           shift_msg.command = SHIFT_PARK;
           shift_cmd_pub.publish(shift_msg);
         }
@@ -437,7 +429,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           pacmod_msgs::SystemCmdInt shift_msg;
           shift_msg.enable = true;
           shift_msg.ignore_overrides = false;
-          shift_msg.clear_override = false;
           shift_msg.command = SHIFT_NEUTRAL;
           shift_cmd_pub.publish(shift_msg);
         }
@@ -466,7 +457,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
             pacmod_msgs::SystemCmdInt headlight_msg;
             headlight_msg.enable = true;
             headlight_msg.ignore_overrides = false;
-            headlight_msg.clear_override = false;
             headlight_msg.command = headlight_state;
             headlight_cmd_pub.publish(headlight_msg);
           }
@@ -485,7 +475,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           pacmod_msgs::SystemCmdBool horn_msg;
           horn_msg.enable = true;
           horn_msg.ignore_overrides = false;
-          horn_msg.clear_override = false;
           
           if (msg->buttons[7] == 1)
             horn_msg.command = true;
@@ -524,7 +513,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
             pacmod_msgs::SystemCmdInt wiper_msg;
             wiper_msg.enable = true;
             wiper_msg.ignore_overrides = false;
-            wiper_msg.clear_override = false;
             wiper_msg.command = wiper_state;
             wiper_cmd_pub.publish(wiper_msg);
           }
@@ -547,7 +535,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           pacmod_msgs::SystemCmdFloat accel_msg;
           accel_msg.enable = true;
           accel_msg.ignore_overrides = false;
-          accel_msg.clear_override = false;
           accel_msg.command = accel_scale_val * (msg->axes[4]) * 0.6 + 0.21;
           accelerator_cmd_pub.publish(accel_msg);
         }
@@ -566,7 +553,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         pacmod_msgs::SystemCmdFloat brake_msg;
         brake_msg.enable = true;
         brake_msg.ignore_overrides = false;
-        brake_msg.clear_override = false;
         brake_msg.command = (msg->axes[4] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
         brake_set_position_pub.publish(brake_msg);
       }
@@ -587,7 +573,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           pacmod_msgs::SystemCmdInt shift_msg;
           shift_msg.enable = true;
           shift_msg.ignore_overrides = false;
-          shift_msg.clear_override = false;
           shift_msg.command = SHIFT_PARK;
           shift_cmd_pub.publish(shift_msg);
         }
@@ -609,7 +594,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
           pacmod_msgs::SystemCmdInt shift_msg;
           shift_msg.enable = true;
           shift_msg.ignore_overrides = false;
-          shift_msg.clear_override = false;
           shift_msg.command = SHIFT_NEUTRAL;
           shift_cmd_pub.publish(shift_msg);
         }
