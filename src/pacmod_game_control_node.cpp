@@ -654,7 +654,8 @@ int main(int argc, char *argv[]) {
         vehicle_type != 1 &&
         vehicle_type != 2 &&
         vehicle_type != 3 &&
-        vehicle_type != 4)
+        vehicle_type != 4 &&
+        vehicle_type != 5)
     {
       ROS_INFO("vehicle_type is invalid");
       willExit = true;
@@ -683,6 +684,9 @@ int main(int argc, char *argv[]) {
 
   if (vehicle_type == 4)
     MAX_ROT_RAD = 5.236;
+
+  if (vehicle_type == 5)
+    MAX_ROT_RAD = 8.378;
 
   // Controller type 0 is Logitech gamepad, type 1 is HRI controller
   if (priv.getParam("controller_type", controller_type))
