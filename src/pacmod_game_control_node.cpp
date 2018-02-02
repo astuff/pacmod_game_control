@@ -203,7 +203,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     if (last_axes.empty() ||
           (last_axes[7] != msg->axes[7] ||
            last_axes[6] != msg->axes[6] ||
-           last_axes[2] != last_axes[2]))
+           last_axes[2] != msg->axes[2]))
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
 
     // Shifting: reverse
