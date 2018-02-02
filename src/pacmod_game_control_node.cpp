@@ -452,7 +452,7 @@ int main(int argc, char *argv[]) {
     if (controller_type != 0 &&
         controller_type != 1)
     {
-      ROS_INFO("steering_axis is invalid");
+      ROS_INFO("controller_type is invalid");
       willExit = true;
     }
   }
