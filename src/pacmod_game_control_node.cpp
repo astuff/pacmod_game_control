@@ -514,13 +514,14 @@ int main(int argc, char *argv[])
     {
       controller = LOGITECH_F310;
 
-      // TODO: Complete missing buttons
       axes[LEFT_STICK_LR] = 0;
       axes[LEFT_TRIGGER_AXIS] = 2;
       axes[RIGHT_STICK_LR] = 3;
       axes[RIGHT_TRIGGER_AXIS] = 5;
       axes[DPAD_LR] = 6;
       axes[DPAD_UD] = 7;
+      axes[LEFT_STICK_UD] = 1;
+      axes[RIGHT_STICK_UD] = 4;
 
       btns[BOTTOM_BTN] = 0;
       btns[RIGHT_BTN] = 1;
@@ -528,6 +529,10 @@ int main(int argc, char *argv[])
       btns[TOP_BTN] = 3;
       btns[LEFT_BUMPER] = 4;
       btns[RIGHT_BUMPER] = 5;
+      btns[BACK_SELECT_MINUS] = 6;
+      btns[START_PLUS] = 7;
+      btns[LEFT_STICK_PUSH] = 9;
+      btns[RIGHT_STICK_PUSH] = 10;
     }
     else if (controller_string == "HRI_SAFE_REMOTE")
     {
