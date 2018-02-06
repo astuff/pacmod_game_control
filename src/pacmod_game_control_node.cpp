@@ -114,9 +114,11 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   local_enable = pacmod_enable;
   enable_mutex.unlock();
 
-  if(controller_type == 0) {
+  if (controller_type == 0)
+  {
     // Enable
-    if(msg->buttons[5] == 1) {
+    if (msg->buttons[5] == 1)
+    {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;
@@ -124,15 +126,19 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Disable
-    if(msg->buttons[4] == 1) { 
+    if (msg->buttons[4] == 1)
+    { 
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
     }
-  } else if(controller_type == 1) {  
+  }
+  else if (controller_type == 1)
+  {  
     // Enable
-    if(msg->axes[7] >= 0.9) {
+    if (msg->axes[7] >= 0.9)
+    {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;
@@ -140,7 +146,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Disable
-    if(msg->axes[7] <= -0.9) {
+    if (msg->axes[7] <= -0.9)
+    {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
       local_enable = false;
@@ -185,32 +192,39 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     // Same for both Logitech and HRI controllers
     pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
     
-    if(msg->axes[6] == 1.0)
+    if (msg->axes[6] == 1.0)
       turn_signal_cmd_pub_msg.ui16_cmd = 2;
-    else if(msg->axes[6] == -1.0)
+    else if (msg->axes[6] == -1.0)
       turn_signal_cmd_pub_msg.ui16_cmd = 0;
     else
       turn_signal_cmd_pub_msg.ui16_cmd = 1;    
 
     // Hazard lights (both left and right turn signals)
-    if(controller_type == 0)         
-      if(msg->axes[7] == -1.0)
+    if (controller_type == 0)         
+    {
+      if (msg->axes[7] == -1.0)
         turn_signal_cmd_pub_msg.ui16_cmd = 3;
-    else if(controller_type == 1)
+    }
+    else if (controller_type == 1)
+    {
       if(msg->axes[2] < -0.5)
         turn_signal_cmd_pub_msg.ui16_cmd = 3;
+    }
 
     if (last_axes.empty() ||
-          (last_axes[7] != msg->axes[7] ||
-           last_axes[6] != msg->axes[6] ||
-           last_axes[2] != msg->axes[2]))
+       (last_axes[7] != msg->axes[7] ||
+        last_axes[6] != msg->axes[6] ||
+        last_axes[2] != msg->axes[2]))
+    {
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+    }
 
     // Shifting: reverse
     // Same for both Logitech and HRI controllers
-    if(msg->buttons[1] == 1 &&
-        (last_buttons.empty() ||
-         last_buttons[1] != msg->buttons[1])) {
+    if (msg->buttons[1] == 1 &&
+       (last_buttons.empty() ||
+        last_buttons[1] != msg->buttons[1]))
+    {
       pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
       shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
@@ -218,7 +232,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 
     // Shifting: drive/low
     // Same for both Logitech and HRI controllers
-    if(msg->buttons[0] == 1)
+    if (msg->buttons[0] == 1)
     {
       pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
       shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
@@ -227,9 +241,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 
     // Shifting: high
     // Same for both Logitech and HRI controllers
-    if(msg->buttons[6] == 1 &&
-        (last_buttons.empty() ||
-         last_buttons[6] != msg->buttons[6]))
+    if (msg->buttons[6] == 1 &&
+       (last_buttons.empty() ||
+        last_buttons[6] != msg->buttons[6]))
     {
       pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
       shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;
@@ -237,7 +251,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     }
     
     // Controller-specific Triggers
-    if(controller_type == 0)
+    if (controller_type == 0)
     {
       // Acelerator
       // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
@@ -248,7 +262,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 
       if (enable_accel)
       {
-        if ((vehicle_type == 2) || (vehicle_type == 4))
+        if ((vehicle_type == 2) ||
+            (vehicle_type == 4))
           accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
         else
           accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
@@ -279,7 +294,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       brake_set_position_pub.publish(pub_msg1);    
 
       // Shifting: park
-      if(msg->buttons[3] == 1)
+      if (msg->buttons[3] == 1)
       {
         pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
         shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
@@ -287,18 +302,18 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       }
 
       // Shifting: neutral
-      if(msg->buttons[2] == 1)
+      if (msg->buttons[2] == 1)
       {
         pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
         shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
         shift_cmd_pub.publish(shift_cmd_pub_msg);
       }
 
-      if(vehicle_type == 2)
+      if (vehicle_type == 2)
       {
         // Headlights
         // TODO: Implement for HRI Controller
-        if(msg->axes[7] == 1.0)
+        if (msg->axes[7] == 1.0)
         {
           // Rotate through headlight states as button is pressed 
           headlight_state++;
@@ -315,7 +330,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         // TODO: Implement for HRI Controller
         pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
 
-        if(msg->buttons[7] == 1)
+        if (msg->buttons[7] == 1)
           horn_cmd_pub_msg.ui16_cmd = 1;
         else
           horn_cmd_pub_msg.ui16_cmd = 0;
@@ -323,17 +338,17 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         horn_cmd_pub.publish(horn_cmd_pub_msg);
       }
 
-      if(vehicle_type == 3) // Semi
+      if (vehicle_type == 3) // Semi
       {
         // Windshield wipers
         // TODO: implement for HRI controller
-        if(msg->axes[7] == 1.0)
+        if (msg->axes[7] == 1.0)
         {
           // Rotate through wiper states as button is pressed 
           wiper_state++;
 
           if(wiper_state >= NUM_WIPER_STATES)
-              wiper_state = WIPER_STATE_START_VALUE;
+            wiper_state = WIPER_STATE_START_VALUE;
 
           pacmod_msgs::PacmodCmd wiper_cmd_pub_msg;
           wiper_cmd_pub_msg.ui16_cmd = wiper_state;
@@ -341,11 +356,13 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
         }
       }
     }
-    else if(controller_type == 1)
+    else if (controller_type == 1)
     {
       // Accelerator
       // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully up = 1.0   
-      if(msg->axes[4] >= 0.0) {  // only consider center-to-up range as accelerator motion
+      if (msg->axes[4] >= 0.0)
+      {
+        // only consider center-to-up range as accelerator motion
         pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
         accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[4]) * 0.6 + 0.21;
         accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
@@ -358,9 +375,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       brake_set_position_pub.publish(pub_msg1);    
 
       // Shifting: park
-      if(msg->buttons[2] == 1 &&
-          (last_buttons.empty() ||
-           last_buttons[2] != msg->buttons[2]))
+      if (msg->buttons[2] == 1 &&
+         (last_buttons.empty() ||
+          last_buttons[2] != msg->buttons[2]))
       {
         pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
         shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
@@ -368,9 +385,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       }
 
       // Shifting: neutral
-      if(msg->buttons[3] == 1 &&
-          (last_buttons.empty() ||
-           last_buttons[3] != msg->buttons[3]))
+      if (msg->buttons[3] == 1 &&
+         (last_buttons.empty() ||
+          last_buttons[3] != msg->buttons[3]))
       {
         pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
         shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
@@ -388,7 +405,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 /*
  * Main method running the ROS Node
  */
-int main(int argc, char *argv[]) { 
+int main(int argc, char *argv[])
+{ 
   bool willExit = false;
   ros::init(argc, argv, "pacmod_gamepad_control");
   ros::AsyncSpinner spinner(2);
@@ -404,7 +422,8 @@ int main(int argc, char *argv[]) {
   {
     ROS_INFO("Got steering_axis: %d", steering_axis);
 
-    if ((steering_axis!=0)&&(steering_axis!=3))
+    if ((steering_axis != 0) &&
+        (steering_axis!=3))
     {
       ROS_INFO("steering_axis is invalid");
       willExit = true;
@@ -416,7 +435,6 @@ int main(int argc, char *argv[]) {
     willExit = true;
   }
 
-  
   // Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger, type 3 is semi
   if (priv.getParam("vehicle_type", vehicle_type))
   {
@@ -549,12 +567,7 @@ int main(int argc, char *argv[]) {
 
   spinner.start();
 
-  while(ros::ok()) {   
-      // Wait for next loop
-      loop_rate.sleep();
-  }
-
-  spinner.stop();
+  ros::waitForShutdown();
 
   return 0;
 }
