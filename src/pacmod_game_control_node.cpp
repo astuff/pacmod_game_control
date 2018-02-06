@@ -77,11 +77,14 @@ uint16_t headlight_state = 0;
 bool enable_accel = false;
 bool enable_brake = false;
 
-#define SHIFT_PARK 0
-#define SHIFT_REVERSE 1
-#define SHIFT_NEUTRAL 2
-#define SHIFT_LOW 3
-#define SHIFT_HIGH 4
+enum ShiftState
+{
+  SHIFT_PARK = 0,
+  SHIFT_REVERSE = 1,
+  SHIFT_NEUTRAL = 2,
+  SHIFT_LOW = 3,
+  SHIFT_HIGH = 4
+};
 
 /*
  * Called when the node receives a message from the enable topic
