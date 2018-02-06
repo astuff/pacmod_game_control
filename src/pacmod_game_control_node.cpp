@@ -32,8 +32,10 @@ Number buttons:
 "4" button pressed = button 3 = 1, not pressed = 0
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <mutex>
+#include <map>
+
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
@@ -58,9 +60,57 @@ const uint16_t WIPER_STATE_START_VALUE = 0;
 const uint16_t NUM_HEADLIGHT_STATES = 3;
 const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
 
-int steering_axis = -1;
+enum ShiftState
+{
+  SHIFT_PARK = 0,
+  SHIFT_REVERSE = 1,
+  SHIFT_NEUTRAL = 2,
+  SHIFT_LOW = 3,
+  SHIFT_HIGH = 4
+};
+
+enum GamepadType
+{
+  LOGITECH_F310,
+  HRI_SAFE_REMOTE,
+  LOGITECH_G29,
+  NINTENDO_SWITCH_WIRED_PLUS
+};
+
+enum JoyAxis
+{
+  LEFT_STICK_UD,
+  LEFT_STICK_LR,
+  RIGHT_STICK_UD,
+  RIGHT_STICK_LR,
+  DPAD_UD,
+  DPAD_LR,
+  LEFT_TRIGGER_AXIS,   // Sometimes button, sometimes axis
+  RIGHT_TRIGGER_AXIS   // Sometimes button, sometimes axis
+};
+
+enum JoyButton
+{
+  TOP_BTN,
+  LEFT_BTN,
+  BOTTOM_BTN,
+  RIGHT_BTN,
+  LEFT_BUMPER,
+  RIGHT_BUMPER,
+  BACK_SELECT_MINUS,
+  START_PLUS,
+  LEFT_TRIGGER_BTN,   // Sometimes button, sometimes axis
+  RIGHT_TRIGGER_BTN,  // Sometimes button, sometimes axis
+  LEFT_STICK_PUSH,
+  RIGHT_STICK_PUSH
+};
+
+std::map<JoyAxis, int> axes;
+std::map<JoyButton, int> btns;
+
 int vehicle_type = -1;
-int controller_type = -1;
+GamepadType controller = LOGITECH_F310;
+JoyAxis steering_axis = LEFT_STICK_LR;
 double steering_max_speed = -1.0;
 bool pacmod_enable;
 std::mutex enable_mutex;
@@ -76,15 +126,6 @@ uint16_t headlight_state = 0;
 
 bool enable_accel = false;
 bool enable_brake = false;
-
-enum ShiftState
-{
-  SHIFT_PARK = 0,
-  SHIFT_REVERSE = 1,
-  SHIFT_NEUTRAL = 2,
-  SHIFT_LOW = 3,
-  SHIFT_HIGH = 4
-};
 
 /*
  * Called when the node receives a message from the enable topic
@@ -117,30 +158,10 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   local_enable = pacmod_enable;
   enable_mutex.unlock();
 
-  if (controller_type == 0)
-  {
-    // Enable
-    if (msg->buttons[5] == 1)
-    {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
-    }
-
-    // Disable
-    if (msg->buttons[4] == 1)
-    { 
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
-    }
-  }
-  else if (controller_type == 1)
+  if (controller == HRI_SAFE_REMOTE)
   {  
     // Enable
-    if (msg->axes[7] >= 0.9)
+    if (msg->axes[axes[DPAD_UD]] >= 0.9)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
@@ -149,13 +170,33 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Disable
-    if (msg->axes[7] <= -0.9)
+    if (msg->axes[axes[DPAD_UD]] <= -0.9)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
     }    
+  }
+  else
+  {
+    // Enable
+    if (msg->buttons[btns[RIGHT_BUMPER]] == 1)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = true;
+      local_enable = true;
+      enable_pub.publish(bool_pub_msg);
+    }
+
+    // Disable
+    if (msg->buttons[btns[LEFT_BUMPER]] == 1)
+    { 
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = false;
+      local_enable = false;
+      enable_pub.publish(bool_pub_msg);
+    }
   }
 
   enable_mutex.lock();
@@ -166,9 +207,12 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   {
     // Steering
     // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
-    // Same for both Logitech and HRI controllers
-    pacmod_msgs::PositionWithSpeed pub_msg1;
-    float range_scale = (fabs(msg->axes[steering_axis]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
+    pacmod_msgs::PositionWithSpeed steer_msg;
+    
+    float range_scale;
+
+    range_scale = (fabs(msg->axes[axes[steering_axis]]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
+
     float speed_scale = 1.0;
     bool speed_valid = false;
     float current_speed = 0.0;
@@ -186,47 +230,46 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     if (speed_valid)
       speed_scale = 1.0 - fabs((current_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
 
-    pub_msg1.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
+    steer_msg.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[axes[steering_axis]];
 
-    pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
-    steering_set_position_with_speed_limit_pub.publish(pub_msg1);
+    steer_msg.angular_velocity_limit = steering_max_speed * speed_scale;
+    steering_set_position_with_speed_limit_pub.publish(steer_msg);
 
     // Turn signal
-    // Same for both Logitech and HRI controllers
     pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
     
-    if (msg->axes[6] == 1.0)
+    if (msg->axes[DPAD_LR] == 1.0)
       turn_signal_cmd_pub_msg.ui16_cmd = 2;
-    else if (msg->axes[6] == -1.0)
+    else if (msg->axes[DPAD_LR] == -1.0)
       turn_signal_cmd_pub_msg.ui16_cmd = 0;
     else
       turn_signal_cmd_pub_msg.ui16_cmd = 1;    
 
     // Hazard lights (both left and right turn signals)
-    if (controller_type == 0)         
-    {
-      if (msg->axes[7] == -1.0)
-        turn_signal_cmd_pub_msg.ui16_cmd = 3;
-    }
-    else if (controller_type == 1)
+    if (controller == HRI_SAFE_REMOTE)
     {
       if(msg->axes[2] < -0.5)
         turn_signal_cmd_pub_msg.ui16_cmd = 3;
+
+      if (last_axes.empty() ||
+          last_axes[2] != msg->axes[2])
+        turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+    }
+    else
+    {
+      if (msg->axes[axes[DPAD_LR]] == -1.0)
+        turn_signal_cmd_pub_msg.ui16_cmd = 3;
+
+      if (last_axes.empty() ||
+          last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]])
+      {
+        turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+      }
     }
 
-    if (last_axes.empty() ||
-       (last_axes[7] != msg->axes[7] ||
-        last_axes[6] != msg->axes[6] ||
-        last_axes[2] != msg->axes[2]))
-    {
-      turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
-    }
 
     // Shifting: reverse
-    // Same for both Logitech and HRI controllers
-    if (msg->buttons[1] == 1 &&
-       (last_buttons.empty() ||
-        last_buttons[1] != msg->buttons[1]))
+    if (msg->buttons[btns[RIGHT_BTN]] == 1)
     {
       pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
       shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
@@ -234,16 +277,31 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Shifting: drive/low
-    // Same for both Logitech and HRI controllers
-    if (msg->buttons[0] == 1)
+    if (msg->buttons[btns[BOTTOM_BTN]] == 1)
     {
       pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
       shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
     }
 
+    // Shifting: park
+    if (msg->buttons[btns[TOP_BTN]] == 1)
+    {
+      pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+      shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
+
+    // Shifting: neutral
+    if (msg->buttons[btns[LEFT_BTN]] == 1)
+    {
+      pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+      shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
+
+    /* TODO: What??
     // Shifting: high
-    // Same for both Logitech and HRI controllers
     if (msg->buttons[6] == 1 &&
        (last_buttons.empty() ||
         last_buttons[6] != msg->buttons[6]))
@@ -252,149 +310,106 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
     }
+    */
     
-    // Controller-specific Triggers
-    if (controller_type == 0)
-    {
-      // Acelerator
-      // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
-      pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
+    // Acelerator
+    pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
 
-      if (msg->axes[5] != 0)
+    if (controller = HRI_SAFE_REMOTE)
+    {
+      // Accelerator
+      if (msg->axes[axes[RIGHT_STICK_UD]] >= 0.0)
+      {
+        // only consider center-to-up range as accelerator motion
+        accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]) * 0.6 + 0.21;
+      }
+    }
+    else
+    {
+      if (msg->axes[axes[RIGHT_TRIGGER_AXIS]] != 0)
         enable_accel = true;
 
       if (enable_accel)
       {
         if ((vehicle_type == 2) ||
             (vehicle_type == 4))
-          accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
+          accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
         else
-          accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
+          accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * 0.6 + 0.21;
       }
       else
       {
         accelerator_cmd_pub_msg.f64_cmd = 0;
       }
+    }
 
-      accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+    accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
 
-      // Brake
-      // Logitech left trigger (axis 2): not pressed = 1.0, fully pressed = -1.0
-      pacmod_msgs::PacmodCmd pub_msg1;
+    // Brake
+    pacmod_msgs::PacmodCmd brake_msg;
 
-      if (msg->axes[2] != 0)
+    if (controller == HRI_SAFE_REMOTE)
+    {
+      brake_msg.f64_cmd = (msg->axes[axes[RIGHT_STICK_UD]] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
+    }
+    else
+    {
+      if (msg->axes[axes[LEFT_TRIGGER_AXIS]] != 0)
         enable_brake = true;
 
       if (enable_brake)
       {
-        pub_msg1.f64_cmd = -((msg->axes[2] - 1.0) / 2.0) * brake_scale_val;
+        brake_msg.f64_cmd = -((msg->axes[axes[LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
       }
       else
       {
-        pub_msg1.f64_cmd = 0;
-      }
-
-      brake_set_position_pub.publish(pub_msg1);    
-
-      // Shifting: park
-      if (msg->buttons[3] == 1)
-      {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
-      }
-
-      // Shifting: neutral
-      if (msg->buttons[2] == 1)
-      {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
-      }
-
-      if (vehicle_type == 2)
-      {
-        // Headlights
-        // TODO: Implement for HRI Controller
-        if (msg->axes[7] == 1.0)
-        {
-          // Rotate through headlight states as button is pressed 
-          headlight_state++;
-
-          if(headlight_state >= NUM_HEADLIGHT_STATES)
-            headlight_state = HEADLIGHT_STATE_START_VALUE;
-
-          pacmod_msgs::PacmodCmd headlight_cmd_pub_msg;
-          headlight_cmd_pub_msg.ui16_cmd = headlight_state;
-          headlight_cmd_pub.publish(headlight_cmd_pub_msg);
-        }
-
-        // Horn
-        // TODO: Implement for HRI Controller
-        pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
-
-        if (msg->buttons[7] == 1)
-          horn_cmd_pub_msg.ui16_cmd = 1;
-        else
-          horn_cmd_pub_msg.ui16_cmd = 0;
-
-        horn_cmd_pub.publish(horn_cmd_pub_msg);
-      }
-
-      if (vehicle_type == 3) // Semi
-      {
-        // Windshield wipers
-        // TODO: implement for HRI controller
-        if (msg->axes[7] == 1.0)
-        {
-          // Rotate through wiper states as button is pressed 
-          wiper_state++;
-
-          if(wiper_state >= NUM_WIPER_STATES)
-            wiper_state = WIPER_STATE_START_VALUE;
-
-          pacmod_msgs::PacmodCmd wiper_cmd_pub_msg;
-          wiper_cmd_pub_msg.ui16_cmd = wiper_state;
-          wiper_cmd_pub.publish(wiper_cmd_pub_msg);
-        }
+        brake_msg.f64_cmd = 0;
       }
     }
-    else if (controller_type == 1)
+
+    brake_set_position_pub.publish(brake_msg);    
+
+    if (vehicle_type == 2 && controller != HRI_SAFE_REMOTE)
     {
-      // Accelerator
-      // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully up = 1.0   
-      if (msg->axes[4] >= 0.0)
+      // Headlights
+      if (msg->axes[axes[DPAD_UD]] == 1.0)
       {
-        // only consider center-to-up range as accelerator motion
-        pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
-        accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[4]) * 0.6 + 0.21;
-        accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+        // Rotate through headlight states as button is pressed 
+        headlight_state++;
+
+        if(headlight_state >= NUM_HEADLIGHT_STATES)
+          headlight_state = HEADLIGHT_STATE_START_VALUE;
+
+        pacmod_msgs::PacmodCmd headlight_cmd_pub_msg;
+        headlight_cmd_pub_msg.ui16_cmd = headlight_state;
+        headlight_cmd_pub.publish(headlight_cmd_pub_msg);
       }
 
-      // Brake
-      // HRI right thumbstick vertical (axis 4): not pressed = 0.0, fully down = -1.0
-      pacmod_msgs::PacmodCmd pub_msg1;
-      pub_msg1.f64_cmd = (msg->axes[4] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
-      brake_set_position_pub.publish(pub_msg1);    
+      // Horn
+      pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
 
-      // Shifting: park
-      if (msg->buttons[2] == 1 &&
-         (last_buttons.empty() ||
-          last_buttons[2] != msg->buttons[2]))
-      {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
-      }
+      if (msg->buttons[7] == 1)
+        horn_cmd_pub_msg.ui16_cmd = 1;
+      else
+        horn_cmd_pub_msg.ui16_cmd = 0;
 
-      // Shifting: neutral
-      if (msg->buttons[3] == 1 &&
-         (last_buttons.empty() ||
-          last_buttons[3] != msg->buttons[3]))
+      horn_cmd_pub.publish(horn_cmd_pub_msg);
+    }
+
+    if (vehicle_type == 3 && controller != HRI_SAFE_REMOTE) // Semi
+    {
+      // Windshield wipers
+      if (msg->axes[7] == 1.0)
       {
-        pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-        shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;        
-        shift_cmd_pub.publish(shift_cmd_pub_msg);
+        // Rotate through wiper states as button is pressed 
+        wiper_state++;
+
+        if(wiper_state >= NUM_WIPER_STATES)
+          wiper_state = WIPER_STATE_START_VALUE;
+
+        pacmod_msgs::PacmodCmd wiper_cmd_pub_msg;
+        wiper_cmd_pub_msg.ui16_cmd = wiper_state;
+        wiper_cmd_pub.publish(wiper_cmd_pub_msg);
       }
     }
   }
@@ -420,21 +435,29 @@ int main(int argc, char *argv[])
   // Wait for time to be valid
   while (ros::Time::now().nsec == 0);
   
-  // Axis 3 is right thumbstick, 0 is left thumbstick
-  if (priv.getParam("steering_axis", steering_axis))
-  {
-    ROS_INFO("Got steering_axis: %d", steering_axis);
+  std::string steering_stick_string;
 
-    if ((steering_axis != 0) &&
-        (steering_axis!=3))
+  if (priv.getParam("steering_stick", steering_stick_string))
+  {
+    ROS_INFO("Got steering_stick: %s", steering_stick_string.c_str());
+
+    if (steering_stick_string == "LEFT")
     {
-      ROS_INFO("steering_axis is invalid");
+      steering_axis = LEFT_STICK_LR;
+    }
+    else if (steering_stick_string == "RIGHT")
+    {
+      steering_axis = RIGHT_STICK_LR;
+    }
+    else
+    {
+      ROS_INFO("steering_stick is invalid. Exiting.");
       willExit = true;
     }
   }
   else
   {
-    ROS_INFO("Parameter steering_axis is missing");
+    ROS_INFO("Parameter steering_stick is missing. Exiting.");
     willExit = true;
   }
 
@@ -455,7 +478,7 @@ int main(int argc, char *argv[])
   }
   else
   {
-    ROS_INFO("Parameter vehicle_type is missing");
+    ROS_INFO("Parameter vehicle_type is missing. Exiting.");
     willExit = true;
   }
 
@@ -465,21 +488,85 @@ int main(int argc, char *argv[])
   if (vehicle_type == 4)
     MAX_ROT_RAD = 5.236;
 
-  // Controller type 0 is Logitech gamepad, type 1 is HRI controller
-  if (priv.getParam("controller_type", controller_type))
-  {
-    ROS_INFO("Got controller_type: %d", controller_type);
+  std::string controller_string;
 
-    if (controller_type != 0 &&
-        controller_type != 1)
+  if (priv.getParam("controller_type", controller_string))
+  {
+    ROS_INFO("Got controller_type: %s", controller_string.c_str());
+
+    if (controller_string == "LOGITECH_F310")
     {
-      ROS_INFO("controller_type is invalid");
+      controller = LOGITECH_F310;
+
+      // TODO: Complete missing buttons
+      axes[LEFT_STICK_LR] = 0;
+      axes[LEFT_TRIGGER_AXIS] = 2;
+      axes[RIGHT_STICK_LR] = 3;
+      axes[RIGHT_TRIGGER_AXIS] = 5;
+      axes[DPAD_LR] = 6;
+      axes[DPAD_UD] = 7;
+
+      btns[BOTTOM_BTN] = 0;
+      btns[RIGHT_BTN] = 1;
+      btns[LEFT_BTN] = 2;
+      btns[TOP_BTN] = 3;
+      btns[LEFT_BUMPER] = 4;
+      btns[RIGHT_BUMPER] = 5;
+    }
+    else if (controller_string == "HRI_SAFE_REMOTE")
+    {
+      controller = HRI_SAFE_REMOTE;
+
+      // TODO: Complete missing buttons
+      axes[LEFT_STICK_LR] = 0;
+      axes[RIGHT_STICK_LR] = 3;
+      axes[RIGHT_STICK_UD] = 4;
+      axes[DPAD_LR] = 6;
+      axes[DPAD_UD] = 7;
+
+      btns[BOTTOM_BTN] = 0;
+      btns[RIGHT_BTN] = 1;
+      btns[TOP_BTN] = 2;
+      btns[LEFT_BTN] = 3;
+    }
+    else if (controller_string == "LOGITECH_G29")
+    {
+      controller = LOGITECH_G29;
+      // TODO: Complete missing buttons
+    }
+    else if (controller_string == "NINTENDO_SWITCH_WIRED_PLUS")
+    {
+      controller = NINTENDO_SWITCH_WIRED_PLUS;
+
+      axes[LEFT_STICK_LR] = 0;
+      axes[LEFT_STICK_UD] = 1;
+      axes[RIGHT_STICK_LR] = 2;
+      axes[RIGHT_STICK_UD] = 3;
+      axes[DPAD_LR] = 4;
+      axes[DPAD_UD] = 5;
+
+      btns[LEFT_BTN] = 0;
+      btns[BOTTOM_BTN] = 1;
+      btns[RIGHT_BTN] = 2;
+      btns[TOP_BTN] = 3;
+      btns[LEFT_BUMPER] = 4;
+      btns[RIGHT_BUMPER] = 5;
+      btns[LEFT_TRIGGER_BTN] = 6;
+      btns[RIGHT_TRIGGER_BTN] = 7;
+      btns[BACK_SELECT_MINUS] = 8;
+      btns[START_PLUS] = 9;
+      btns[LEFT_STICK_PUSH] = 10;
+      btns[RIGHT_STICK_PUSH] = 11;
+    }
+    else
+    {
+      ROS_INFO("Provided controller_type is invalid. Exiting.");
       willExit = true;
     }
   }
   else
   {
-    ROS_INFO("Parameter controller_type is missing");
+    ROS_INFO("Parameter controller_type is missing. Exiting.");
     willExit = true;
   }
       
@@ -489,13 +576,13 @@ int main(int argc, char *argv[])
 
     if (steering_max_speed <= 0)
     {
-      ROS_INFO("steering_max_speed is invalid");
+      ROS_INFO("Parameter steering_max_speed is invalid. Exiting.");
       willExit = true;
     }
   }
   else
   {
-    ROS_INFO("Parameter steering_max_speed_scale_val is missing");
+    ROS_INFO("Parameter steering_max_speed_scale_val is missing. Exiting.");
     willExit = true;
   }
 
@@ -505,13 +592,13 @@ int main(int argc, char *argv[])
 
     if (max_veh_speed <= 0)
     {
-      ROS_INFO("max_veh_speed is invalid");
+      ROS_INFO("Parameter max_veh_speed is invalid. Exiting.");
       willExit = true;
     }
   }
   else
   {
-    ROS_INFO("Parameter max_veh_speed is missing");
+    ROS_INFO("Parameter max_veh_speed is missing. Exiting.");
     willExit = true;
   }
 
@@ -522,13 +609,13 @@ int main(int argc, char *argv[])
     if (accel_scale_val <= 0 ||
         accel_scale_val > 1.0)
     {
-      ROS_INFO("accel_scale_val is invalid");
+      ROS_INFO("Parameter accel_scale_val is invalid. Exiting.");
       willExit = true;
     }
   }
   else
   {
-    ROS_INFO("Parameter accel_scale_val is missing");
+    ROS_INFO("Parameter accel_scale_val is missing. Exiting.");
     willExit = true;
   }
 
@@ -539,13 +626,13 @@ int main(int argc, char *argv[])
     if (brake_scale_val <= 0 ||
         brake_scale_val > 1.0)
     {
-      ROS_INFO("brake_scale_val is invalid");
+      ROS_INFO("Parameter brake_scale_val is invalid. Exiting.");
       willExit = true;
     }
   }
   else
   {
-    ROS_INFO("Parameter brake_scale_val is missing");
+    ROS_INFO("Parameter brake_scale_val is missing. Exiting.");
     willExit = true;
   }
   
