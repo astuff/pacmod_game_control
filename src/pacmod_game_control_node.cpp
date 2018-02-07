@@ -429,7 +429,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   }
   catch (const std::out_of_range& oor)
   {
-    ROS_INFO("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
+    ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
   }
 
   last_buttons.clear();
