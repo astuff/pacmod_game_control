@@ -194,6 +194,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       // Enable
       if (msg->buttons[btns[RIGHT_BUMPER]] == 1)
       {
+      
         std_msgs::Bool bool_pub_msg;
         bool_pub_msg.data = true;
         local_enable = true;
@@ -249,9 +250,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       // Turn signal
       pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
       
-      if (msg->axes[DPAD_LR] == 1.0)
+      if (msg->axes[axes[DPAD_LR]] == 1.0)
         turn_signal_cmd_pub_msg.ui16_cmd = 2;
-      else if (msg->axes[DPAD_LR] == -1.0)
+      else if (msg->axes[axes[DPAD_LR]] == -1.0)
         turn_signal_cmd_pub_msg.ui16_cmd = 0;
       else
         turn_signal_cmd_pub_msg.ui16_cmd = 1;    
@@ -268,11 +269,12 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       }
       else
       {
-        if (msg->axes[axes[DPAD_LR]] == -1.0)
+        if (msg->axes[axes[DPAD_UD]] == -1.0)
           turn_signal_cmd_pub_msg.ui16_cmd = 3;
 
         if (last_axes.empty() ||
-            last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]])
+            last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
+            last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]])
         {
           turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
         }
@@ -326,7 +328,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       // Acelerator
       pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
 
-      if (controller = HRI_SAFE_REMOTE)
+      if (controller == HRI_SAFE_REMOTE)
       {
         // Accelerator
         if (msg->axes[axes[RIGHT_STICK_UD]] >= 0.0)
@@ -427,7 +429,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   }
   catch (const std::out_of_range& oor)
   {
-    ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
+    ROS_INFO("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
   }
 
   last_buttons.clear();
