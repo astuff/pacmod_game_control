@@ -367,7 +367,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
 
         if (enable_accel)
         {
-          if ((vehicle_type == 2) || (vehicle_type == 4))
+          if (vehicle_type == 2 || 
+              vehicle_type == 4 ||
+              vehicle_type == 5)
             accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0));
           else
             accelerator_cmd_pub_msg.f64_cmd = (-0.5*(msg->axes[5]-1.0))*0.6+0.21;
