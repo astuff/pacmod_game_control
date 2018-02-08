@@ -12,11 +12,14 @@
   <arg name="pacmod_socketcan_device" default="can0" />
   <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
     
-  <!-- Axis 3 is right thumbstick, 0 is left thumbstick -->
-  <arg name="steering_axis" default="0"/>
+  <arg name="steering_stick" default="LEFT"/>
 
-  <!-- Controller type 0 is Logitech gamepad, type 1 is HRI controller -->
-  <arg name="controller_type" default="0"/>
+  <!-- Supported types are:
+       LOGITECH_F310 (the standard gamepad provided with all vehicles)
+       HRI_SAFE_REMOTE
+       LOGITECH_G29 (steering wheel and pedals)
+       NINTENDO_SWITCH_WIRED_PLUS -->
+  <arg name="controller_type" default="LOGITECH_F310"/>
         
   <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
   <arg name="steering_max_speed" default="3.3"/>
@@ -48,7 +51,7 @@
 
     <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
       <param name="vehicle_type" value="$(arg vehicle_type)"/>
-      <param name="steering_axis" value="$(arg steering_axis)"/>
+      <param name="steering_stick" value="$(arg steering_stick)"/>
       <param name="controller_type" value="$(arg controller_type)"/>            
       <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
       <param name="accel_scale_val" value="$(arg accel_scale_val)"/>
