@@ -3,13 +3,22 @@
   <arg name="launch_pacmod" default="true" />
   <arg name="use_socketcan" default="false" />
 
-  <!-- Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger,
-       type 3 is International Prostar+ 122 -->
+  <!-- Vehicle types are:
+       0: Polaris GEM/eLXD
+       1: Polaris Ranger
+       2: Lexus RX 450H
+       3: International Prostar+ 122 -->
   <arg name="vehicle_type" default="0"/>
 
   <arg name="pacmod_can_hardware_id" default="12345" />
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
+
+  <!-- PACMod Vehicle Types are:
+       POLARIS_GEM (also covers eLXD)
+       POLARIS_RANGER
+       LEXUS_RX_450H
+       INTERNATIONAL_PROSTAR_122 -->
   <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
     
   <arg name="steering_stick" default="LEFT"/>
