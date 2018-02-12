@@ -8,7 +8,23 @@
 
 #include "publish_control_board_rev2.h"
 
-bool check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
+publish_control_board_rev2::publish_control_board_rev2(publish_control * publish_control_class)
+{
+  steering_axis = publish_control_class->steering_axis;
+  max_rot_rad = publish_control_class->max_rot_rad;
+  vehicle_type = publish_control_class->vehicle_type;
+  controller = publish_control_class->controller;
+  board_rev = publish_control_class->board_rev;
+  max_veh_speed = publish_control_class->max_veh_speed;
+  accel_scale_val = publish_control_class->accel_scale_val;
+  brake_scale_val = publish_control_class->brake_scale_val;
+  steering_max_speed = publish_control_class->steering_max_speed;
+  
+  axes = publish_control_class->axes;
+  btns = publish_control_class->btns;
+}
+
+bool publish_control_board_rev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
   bool local_enable = false;
 
@@ -65,13 +81,13 @@ bool check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   return local_enable;
 }
 
-void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   // Steering
   // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
   pacmod_msgs::PositionWithSpeed steer_msg;
 
-  float range_scale = (fabs(msg->axes[axes[steering_axis]]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB);
+  float range_scale = fabs(msg->axes[axes[steering_axis]]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
   float speed_scale = 1.0;
   bool speed_valid = false;
@@ -90,13 +106,13 @@ void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
   if (speed_valid)
     speed_scale = 1.0 - fabs((current_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
 
-  steer_msg.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[axes[steering_axis]];
+  steer_msg.angular_position = (range_scale * max_rot_rad) * msg->axes[axes[steering_axis]];
 
   steer_msg.angular_velocity_limit = steering_max_speed * speed_scale;
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }
 
-void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
   
@@ -131,7 +147,7 @@ void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
   }
 }
 
-void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   // Shifting: reverse
   if (msg->buttons[btns[RIGHT_BTN]] == 1)
@@ -178,9 +194,10 @@ void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
   */
 }
 
-void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
+  bool enable_accel;
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -213,9 +230,10 @@ void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
 }
 
-void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd brake_msg;
+  bool enable_brake;
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -239,8 +257,11 @@ void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
   brake_set_position_pub.publish(brake_msg);    
 }
 
-void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
+  static uint16_t headlight_state = 0;
+  static uint16_t wiper_state = 0;
+  
   if (vehicle_type == 2 && controller != HRI_SAFE_REMOTE)
   {
     // Headlights
@@ -290,7 +311,7 @@ void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
 /*
  * Called when a game controller message is received
  */
-void publish_control_board_rev2(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::publish_control_messages(const sensor_msgs::Joy::ConstPtr& msg)
 {
   try
   {

@@ -33,29 +33,8 @@ Number buttons:
 */
 
 #include "publish_control_board_rev2.h"
-#include "publish_control_board_rev3.h"
 #include "globals.h"
 #include "startup_checks.h"
-
-/*
- * Called when the node receives a message from the enable topic
- */
-void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
-{
-  enable_mutex.lock();
-  pacmod_enable = msg->data;
-  enable_mutex.unlock();
-} 
-
-/*
- * Called when the node receives a message from the vehicle speed topic
- */
-void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg)
-{
-  speed_mutex.lock();
-  last_speed_rpt = msg;
-  speed_mutex.unlock();
-}
 
 /*
  * Main method running the ROS Node
@@ -67,22 +46,32 @@ int main(int argc, char *argv[])
   ros::NodeHandle n;
   ros::NodeHandle priv("~");
   ros::Rate loop_rate(2.0);
+  publish_control publish_control_class;
 
   // Wait for time to be valid
   while (ros::Time::now().nsec == 0);
   
-  if(run_startup_checks_ok(&priv) == false)
+  if(run_startup_checks_ok(&priv, &publish_control_class) == false)
     return 0;
 
-  // Subscribe to generic messages
-  ros::Subscriber speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, callback_veh_speed);
-  ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, callback_pacmod_enable);
+  callback boundVehSpeedCallback = boost::bind(publish_control::callback_veh_speed, &publish_control_cast, _1);
   
-  if(board_rev == 2)
+  // Subscribe to generic messages
+  //publish_control_class.subscribe_vehicle_speed( &n );
+  ros::Subscriber speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, 
+                                            &publish_control::callback_veh_speed);
+  ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, 
+                                            publish_control_class.callback_pacmod_enable);
+  
+  if(publish_control_class.board_rev == 2)
   {
+    // construct child class
+    publish_control_board_rev2 publish_control_class_board_rev2(&publish_control_class);
+    
     // Subcribe to board specific messages
-    ros::Subscriber joy_sub = n.subscribe("joy", 1000, publish_control_board_rev2);
-      
+    ros::Subscriber joy_sub = n.subscribe("joy", 1000, publish_control_board_rev2.publish_control_messages);
+    
+    // TODO : we can add this into the publish_control_board_rev2 class 
     // Advertise published messages
     enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
     turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
@@ -94,16 +83,20 @@ int main(int argc, char *argv[])
     steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
     brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
   }
-  else if(board_rev == 3)
+  /*else if(board_rev == 3)
   {
+    // construct child class
+    publish_control_board_rev3 publish_control_class_board_rev3(&publish_control_class);
+    
     // Subcribe to board specific messages
-    ros::Subscriber joy_sub = n.subscribe("joy", 1000, publish_control_board_rev3);
-      
+    ros::Subscriber joy_sub = n.subscribe("joy", 1000, publish_control_board_rev3.publish_control_messages);
+    
+    // TODO : we can add this into the publish_control_board_rev2 class  
     // Advertise published messages
     // ... 
     // ... 
     // ...
-  }
+  }*/
 
   spinner.start();
 
