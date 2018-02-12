@@ -9,10 +9,31 @@
 #define PUBLISH_CONTROL_BOARD_REV2_H
 
 #include "globals.h"
+#include "publish_control.h"
 
-/*
- * Called when a game controller message is received
- */
-void publish_control_board_rev2(const sensor_msgs::Joy::ConstPtr& msg);
+
+class publish_control_board_rev2 : public publish_control
+{
+public:
+
+  //publish_control_board_rev2(){};
+  //publish_control_board_rev2(publish_control * publish_control_class);
+  
+  void publish_control_messages(const sensor_msgs::Joy::ConstPtr& msg);
+
+private:
+
+  // private functions
+  bool check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
+
+  std::vector<float> last_axes;
+  std::vector<int> last_buttons;
+};
 
 #endif

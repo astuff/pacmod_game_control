@@ -13,8 +13,9 @@
 #define STARTUP_CHECKS_H
 
 #include "globals.h"
+#include "publish_control.h"
 
 
-bool run_startup_checks_ok(ros::NodeHandle * nodeH);
+bool run_startup_checks_error(ros::NodeHandle * nodeH);
 
 #endif
