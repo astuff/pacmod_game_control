@@ -36,11 +36,6 @@ Number buttons:
 #include "globals.h"
 #include "startup_checks.h"
 
-void callback_test(const sensor_msgs::Joy::ConstPtr& msg)
-{
-	ROS_INFO( "TEST!!!!!!" );
-}
-
 /*
  * Main method running the ROS Node
  */
@@ -51,6 +46,7 @@ int main(int argc, char *argv[])
   ros::NodeHandle n;
   ros::NodeHandle priv("~");
   ros::Rate loop_rate(2.0);
+  publish_control publish_control_class;
 
   // Wait for time to be valid
   while (ros::Time::now().nsec == 0);
@@ -70,11 +66,9 @@ int main(int argc, char *argv[])
     publish_control_board_rev2 publish_control_class_board_rev2;
     
     // Subcribe to board specific messages
-//    ros::Subscriber joy_sub = n.subscribe("joy", 1000,
-//    										&publish_control_board_rev2::publish_control_messages,
-//											&publish_control_class_board_rev2);
-	ros::Subscriber joy_sub = n.subscribe("joy", 1000, callback_test);
-	ROS_INFO( "TEST111111!!!!!!" );
+    ros::Subscriber joy_sub = n.subscribe("joy", 1000,
+    										&publish_control_board_rev2::publish_control_messages,
+											&publish_control_class_board_rev2);
     
     // TODO : we can add this into the publish_control_board_rev2 class 
     // Advertise published messages

@@ -8,21 +8,6 @@
 
 #include "publish_control_board_rev2.h"
 
-/*publish_control_board_rev2::publish_control_board_rev2(publish_control * publish_control_class)
-{
-  steering_axis = publish_control::steering_axis;
-  max_rot_rad = publish_control::max_rot_rad;
-  vehicle_type = publish_control::vehicle_type;
-  controller = publish_control::controller;
-  board_rev = publish_control::board_rev;
-  max_veh_speed = publish_control::max_veh_speed;
-  accel_scale_val = publish_control::accel_scale_val;
-  brake_scale_val = publish_control::brake_scale_val;
-  steering_max_speed = publish_control::steering_max_speed;
-  
-  axes = publish_control::axes;
-  btns = publish_control::btns;
-}*/
 
 bool publish_control_board_rev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
@@ -313,9 +298,6 @@ void publish_control_board_rev2::publish_lights_horn_wipers_message(const sensor
  */
 void publish_control_board_rev2::publish_control_messages(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  ROS_INFO("VEHICLE TYPE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: %d", vehicle_type);
-
-
   try
   {
     if (check_is_enabled(msg) == true)

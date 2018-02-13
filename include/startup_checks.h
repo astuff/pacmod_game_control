@@ -15,7 +15,6 @@
 #include "globals.h"
 #include "publish_control.h"
 
-
 bool run_startup_checks_error(ros::NodeHandle * nodeH);
 
 #endif

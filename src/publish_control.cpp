@@ -1,7 +1,6 @@
 
 #include "publish_control.h"
 
-
 JoyAxis publish_control::steering_axis = LEFT_STICK_LR;
 float publish_control::max_rot_rad = 10.9956;
 int publish_control::vehicle_type = -1;
@@ -17,7 +16,6 @@ pacmod_msgs::VehicleSpeedRpt::ConstPtr publish_control::last_speed_rpt = NULL;
 bool publish_control::pacmod_enable;
 std::mutex publish_control::enable_mutex;
 std::mutex publish_control::speed_mutex;
-
 
 /*
  * Called when the node receives a message from the enable topic

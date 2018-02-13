@@ -15,9 +15,6 @@
 class publish_control_board_rev2 : public publish_control
 {
 public:
-
-  //publish_control_board_rev2(){};
-  //publish_control_board_rev2(publish_control * publish_control_class);
   
   void publish_control_messages(const sensor_msgs::Joy::ConstPtr& msg);
 

@@ -11,7 +11,7 @@
 #include "startup_checks.h"
 
  
-bool check_steering_stick_left_right(ros::NodeHandle * nodeH)
+bool check_steering_stick_left_right(ros::NodeHandle * nodeH, publish_control * publish_control_class)
 {
   std::string steering_stick_string;
   bool exit = false;
@@ -43,7 +43,7 @@ bool check_steering_stick_left_right(ros::NodeHandle * nodeH)
   return exit;
 }
 
-bool check_vehicle_type(ros::NodeHandle * nodeH)
+bool check_vehicle_type(ros::NodeHandle * nodeH, publish_control * publish_control_class)
 {
   bool exit = false;
   int vehicle_type = -1;
@@ -82,7 +82,7 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
   return exit;
 }
 
-bool check_controller_type(ros::NodeHandle * nodeH)
+bool check_controller_type(ros::NodeHandle * nodeH, publish_control * publish_control_class)
 {
   std::string controller_string;
   bool exit = false;
@@ -175,7 +175,7 @@ bool check_controller_type(ros::NodeHandle * nodeH)
   return exit;
 }
 
-bool check_scale_values(ros::NodeHandle * nodeH)
+bool check_scale_values(ros::NodeHandle * nodeH, publish_control * publish_control_class)
 {
   bool exit = false;
   
@@ -253,10 +253,10 @@ bool run_startup_checks_error(ros::NodeHandle * nodeH)
   bool willExit = false;
   
   // Run startup checks
-  willExit = check_steering_stick_left_right(nodeH);
-  willExit = check_vehicle_type(nodeH);
-  willExit = check_controller_type(nodeH);
-  willExit = check_scale_values(nodeH);
+  willExit = check_steering_stick_left_right(nodeH, publish_control_class);
+  willExit = check_vehicle_type(nodeH, publish_control_class);
+  willExit = check_controller_type(nodeH, publish_control_class);
+  willExit = check_scale_values(nodeH, publish_control_class);
   
   return willExit;
 }
