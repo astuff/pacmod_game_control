@@ -46,7 +46,6 @@ int main(int argc, char *argv[])
   ros::NodeHandle n;
   ros::NodeHandle priv("~");
   ros::Rate loop_rate(2.0);
-  publish_control publish_control_class;
 
   // Wait for time to be valid
   while (ros::Time::now().nsec == 0);
