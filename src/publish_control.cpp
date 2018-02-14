@@ -14,14 +14,14 @@ std::unordered_map<JoyAxis, int, EnumHash> publish_control::axes;
 std::unordered_map<JoyButton, int, EnumHash> publish_control::btns;
 pacmod_msgs::VehicleSpeedRpt::ConstPtr publish_control::last_speed_rpt = NULL;
 bool publish_control::pacmod_enable;
-std::mutex publish_control::enable_mutex;
-std::mutex publish_control::speed_mutex;
 
 /*
  * Called when the node receives a message from the enable topic
  */
 void publish_control::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
+  ROS_INFO("ENABLE FUNCTION");
+
   enable_mutex.lock();
   pacmod_enable = msg->data;
   enable_mutex.unlock();

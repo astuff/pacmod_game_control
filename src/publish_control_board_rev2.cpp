@@ -8,6 +8,23 @@
 
 #include "publish_control_board_rev2.h"
 
+publish_control_board_rev2::publish_control_board_rev2()
+{
+	joy_sub = n.subscribe("joy", 1000, &publish_control_board_rev2::callback_control, this);
+    speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &publish_control::callback_veh_speed);
+    enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &publish_control::callback_pacmod_enable);
+
+    // Advertise published messages
+    enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
+    turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
+    headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
+    horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
+    wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
+    shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
+    accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
+    steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
+    brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
+}
 
 bool publish_control_board_rev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
@@ -296,7 +313,7 @@ void publish_control_board_rev2::publish_lights_horn_wipers_message(const sensor
 /*
  * Called when a game controller message is received
  */
-void publish_control_board_rev2::publish_control_messages(const sensor_msgs::Joy::ConstPtr& msg)
+void publish_control_board_rev2::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 {
   try
   {

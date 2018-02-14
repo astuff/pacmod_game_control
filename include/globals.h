@@ -83,16 +83,8 @@ static const uint16_t WIPER_STATE_START_VALUE = 0;
 static const uint16_t NUM_HEADLIGHT_STATES = 3;
 static const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
 
-
-// ROS publishers
-static ros::Publisher turn_signal_cmd_pub;
-static ros::Publisher headlight_cmd_pub;
-static ros::Publisher horn_cmd_pub;
-static ros::Publisher wiper_cmd_pub;
-static ros::Publisher shift_cmd_pub;
-static ros::Publisher accelerator_cmd_pub;
-static ros::Publisher steering_set_position_with_speed_limit_pub;
-static ros::Publisher brake_set_position_pub;
-static ros::Publisher enable_pub;
+// mutex
+static std::mutex enable_mutex;
+static std::mutex speed_mutex;
 
 #endif
