@@ -4,15 +4,41 @@
 * This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
- 
+/*
+HRI joystick mappings as found by ROS Kinetic Joy node on Ubuntu 16.04
+Last modified 2-13-2018 by Lucas Buckland
+
+Left thumbstick:
+*Axis 0 is left (+1) to right (-1), centered=0.0
+*Axis 1 is up (+1) to down (-1), centered=0.0
+
+Triggers:
+*Axis 2 is left trigger: up=1.0, center=0.0, down=-1.0
+*Axis 5 is right trigger: up=1.0, center=0.0, down=-1.0
+
+Right thumbstick:
+*Axis 3 is left (+1) to right (-1), centered=0.0
+*Axis 4 is up (+1) to down (-1), centered=0.0
+
+Arrow buttons:
+*Axis 6 is left (+1.0) and right (-1.0) arrow buttons, not pressed = 0.0
+*Axis 7 is up (+1.0) and down (-1.0) arrow buttons, not pressed = 0.0
+
+Number buttons:
+"1" button pressed = button 0 = 1, not pressed = 0
+"2" button pressed = button 1 = 1, not pressed = 0
+"3" button pressed = button 2 = 1, not pressed = 0
+"4" button pressed = button 3 = 1, not pressed = 0
+*/
 
 #include "publish_control_board_rev2.h"
 
-publish_control_board_rev2::publish_control_board_rev2()
+PublishControlBoardRev2::PublishControlBoardRev2()
 {
-	joy_sub = n.subscribe("joy", 1000, &publish_control_board_rev2::callback_control, this);
-    speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &publish_control::callback_veh_speed);
-    enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &publish_control::callback_pacmod_enable);
+	// Subscribe to messages
+	joy_sub = n.subscribe("joy", 1000, &PublishControlBoardRev2::callback_control, this);
+    speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed);
+    enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &PublishControl::callback_pacmod_enable);
 
     // Advertise published messages
     enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
@@ -26,7 +52,7 @@ publish_control_board_rev2::publish_control_board_rev2()
     brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
 }
 
-bool publish_control_board_rev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
+bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
   bool local_enable = false;
 
@@ -57,7 +83,7 @@ bool publish_control_board_rev2::check_is_enabled(const sensor_msgs::Joy::ConstP
   else
   {
     // Enable
-    if (msg->buttons[btns[RIGHT_BUMPER]] == 1)
+    if (msg->buttons[btns[START_PLUS]] == 1)
     {
     
       std_msgs::Bool bool_pub_msg;
@@ -67,7 +93,7 @@ bool publish_control_board_rev2::check_is_enabled(const sensor_msgs::Joy::ConstP
     }
 
     // Disable
-    if (msg->buttons[btns[LEFT_BUMPER]] == 1)
+    if (msg->buttons[btns[BACK_SELECT_MINUS]] == 1)
     { 
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
@@ -83,7 +109,7 @@ bool publish_control_board_rev2::check_is_enabled(const sensor_msgs::Joy::ConstP
   return local_enable;
 }
 
-void publish_control_board_rev2::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   // Steering
   // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
@@ -114,7 +140,7 @@ void publish_control_board_rev2::publish_steering_message(const sensor_msgs::Joy
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }
 
-void publish_control_board_rev2::publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
   
@@ -149,7 +175,7 @@ void publish_control_board_rev2::publish_turn_signal_message(const sensor_msgs::
   }
 }
 
-void publish_control_board_rev2::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   // Shifting: reverse
   if (msg->buttons[btns[RIGHT_BTN]] == 1)
@@ -196,7 +222,7 @@ void publish_control_board_rev2::publish_shifting_message(const sensor_msgs::Joy
   */
 }
 
-void publish_control_board_rev2::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
   bool enable_accel;
@@ -232,7 +258,7 @@ void publish_control_board_rev2::publish_accelerator_message(const sensor_msgs::
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
 }
 
-void publish_control_board_rev2::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd brake_msg;
   bool enable_brake;
@@ -259,7 +285,7 @@ void publish_control_board_rev2::publish_brake_message(const sensor_msgs::Joy::C
   brake_set_position_pub.publish(brake_msg);    
 }
 
-void publish_control_board_rev2::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   static uint16_t headlight_state = 0;
   static uint16_t wiper_state = 0;
@@ -309,11 +335,10 @@ void publish_control_board_rev2::publish_lights_horn_wipers_message(const sensor
   }
 }
 
-
 /*
  * Called when a game controller message is received
  */
-void publish_control_board_rev2::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControlBoardRev2::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 {
   try
   {

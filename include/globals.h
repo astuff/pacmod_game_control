@@ -19,7 +19,6 @@
 #include <pacmod_msgs/PacmodCmd.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
 
-
 // Enums
 enum ShiftState
 {
@@ -74,7 +73,6 @@ struct EnumHash
     return static_cast<std::size_t>(t);
   }
 };
-
 
 // static constants
 static const float ROT_RANGE_SCALER_LB = 0.05;

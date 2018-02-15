@@ -11,12 +11,12 @@
 #include "globals.h"
 #include "publish_control.h"
 
-
-class publish_control_board_rev2 : public publish_control
+// Publish control class, child class from publish control
+class PublishControlBoardRev2 : public PublishControl
 {
 public:
 
-  publish_control_board_rev2();
+  PublishControlBoardRev2();
   
   void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
 

@@ -10,7 +10,7 @@
 
 #include "startup_checks.h"
 
- 
+// Check which steering stick we should use on the joypad
 bool check_steering_stick_left_right(ros::NodeHandle * nodeH)
 {
   std::string steering_stick_string;
@@ -22,11 +22,11 @@ bool check_steering_stick_left_right(ros::NodeHandle * nodeH)
 
     if (steering_stick_string == "LEFT")
     {
-      publish_control::steering_axis = LEFT_STICK_LR;
+      PublishControl::steering_axis = LEFT_STICK_LR;
     }
     else if (steering_stick_string == "RIGHT")
     {
-      publish_control::steering_axis = RIGHT_STICK_LR;
+      PublishControl::steering_axis = RIGHT_STICK_LR;
     }
     else
     {
@@ -72,12 +72,12 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
 
   // TODO : fix this 
   if (vehicle_type == 2)
-	publish_control::max_rot_rad = 6.5;
+	PublishControl::max_rot_rad = 6.5;
 
   if (vehicle_type == 4)
-	publish_control::max_rot_rad = 5.236;
+	PublishControl::max_rot_rad = 5.236;
     
-  publish_control::vehicle_type = vehicle_type;
+  PublishControl::vehicle_type = vehicle_type;
     
   return exit;
 }
@@ -93,72 +93,72 @@ bool check_controller_type(ros::NodeHandle * nodeH)
 
     if (controller_string == "LOGITECH_F310")
     {
-      publish_control::controller = LOGITECH_F310;
+      PublishControl::controller = LOGITECH_F310;
 
-      publish_control::axes[LEFT_STICK_LR] = 0;
-      publish_control::axes[LEFT_STICK_UD] = 1;
-      publish_control::axes[LEFT_TRIGGER_AXIS] = 2;
-      publish_control::axes[RIGHT_STICK_LR] = 3;
-      publish_control::axes[RIGHT_STICK_UD] = 4;
-      publish_control::axes[RIGHT_TRIGGER_AXIS] = 5;
-      publish_control::axes[DPAD_LR] = 6;
-      publish_control::axes[DPAD_UD] = 7;
+      PublishControl::axes[LEFT_STICK_LR] = 0;
+      PublishControl::axes[LEFT_STICK_UD] = 1;
+      PublishControl::axes[LEFT_TRIGGER_AXIS] = 2;
+      PublishControl::axes[RIGHT_STICK_LR] = 3;
+      PublishControl::axes[RIGHT_STICK_UD] = 4;
+      PublishControl::axes[RIGHT_TRIGGER_AXIS] = 5;
+      PublishControl::axes[DPAD_LR] = 6;
+      PublishControl::axes[DPAD_UD] = 7;
 
-      publish_control::btns[BOTTOM_BTN] = 0;
-      publish_control::btns[RIGHT_BTN] = 1;
-      publish_control::btns[LEFT_BTN] = 2;
-      publish_control::btns[TOP_BTN] = 3;
-      publish_control::btns[LEFT_BUMPER] = 4;
-      publish_control::btns[RIGHT_BUMPER] = 5;
-      publish_control::btns[BACK_SELECT_MINUS] = 6;
-      publish_control::btns[START_PLUS] = 7;
-      publish_control::btns[LEFT_STICK_PUSH] = 9;
-      publish_control::btns[RIGHT_STICK_PUSH] = 10;
+      PublishControl::btns[BOTTOM_BTN] = 0;
+      PublishControl::btns[RIGHT_BTN] = 1;
+      PublishControl::btns[LEFT_BTN] = 2;
+      PublishControl::btns[TOP_BTN] = 3;
+      PublishControl::btns[LEFT_BUMPER] = 4;
+      PublishControl::btns[RIGHT_BUMPER] = 5;
+      PublishControl::btns[BACK_SELECT_MINUS] = 6;
+      PublishControl::btns[START_PLUS] = 7;
+      PublishControl::btns[LEFT_STICK_PUSH] = 9;
+      PublishControl::btns[RIGHT_STICK_PUSH] = 10;
     }
     else if (controller_string == "HRI_SAFE_REMOTE")
     {
-      publish_control::controller = HRI_SAFE_REMOTE;
+      PublishControl::controller = HRI_SAFE_REMOTE;
 
       // TODO: Complete missing buttons
-      publish_control::axes[LEFT_STICK_LR] = 0;
-      publish_control::axes[RIGHT_STICK_LR] = 3;
-      publish_control::axes[RIGHT_STICK_UD] = 4;
-      publish_control::axes[DPAD_LR] = 6;
-      publish_control::axes[DPAD_UD] = 7;
+      PublishControl::axes[LEFT_STICK_LR] = 0;
+      PublishControl::axes[RIGHT_STICK_LR] = 3;
+      PublishControl::axes[RIGHT_STICK_UD] = 4;
+      PublishControl::axes[DPAD_LR] = 6;
+      PublishControl::axes[DPAD_UD] = 7;
 
-      publish_control::btns[BOTTOM_BTN] = 0;
-      publish_control::btns[RIGHT_BTN] = 1;
-      publish_control::btns[TOP_BTN] = 2;
-      publish_control::btns[LEFT_BTN] = 3;
+      PublishControl::btns[BOTTOM_BTN] = 0;
+      PublishControl::btns[RIGHT_BTN] = 1;
+      PublishControl::btns[TOP_BTN] = 2;
+      PublishControl::btns[LEFT_BTN] = 3;
     }
     else if (controller_string == "LOGITECH_G29")
     {
-    	publish_control::controller = LOGITECH_G29;
+    	PublishControl::controller = LOGITECH_G29;
       // TODO: Complete missing buttons
     }
     else if (controller_string == "NINTENDO_SWITCH_WIRED_PLUS")
     {
-      publish_control::controller = NINTENDO_SWITCH_WIRED_PLUS;
+      PublishControl::controller = NINTENDO_SWITCH_WIRED_PLUS;
 
-      publish_control::axes[LEFT_STICK_LR] = 0;
-      publish_control::axes[LEFT_STICK_UD] = 1;
-      publish_control::axes[RIGHT_STICK_LR] = 2;
-      publish_control::axes[RIGHT_STICK_UD] = 3;
-      publish_control::axes[DPAD_LR] = 4;
-      publish_control::axes[DPAD_UD] = 5;
+      PublishControl::axes[LEFT_STICK_LR] = 0;
+      PublishControl::axes[LEFT_STICK_UD] = 1;
+      PublishControl::axes[RIGHT_STICK_LR] = 2;
+      PublishControl::axes[RIGHT_STICK_UD] = 3;
+      PublishControl::axes[DPAD_LR] = 4;
+      PublishControl::axes[DPAD_UD] = 5;
 
-      publish_control::btns[LEFT_BTN] = 0;
-      publish_control::btns[BOTTOM_BTN] = 1;
-      publish_control::btns[RIGHT_BTN] = 2;
-      publish_control::btns[TOP_BTN] = 3;
-      publish_control::btns[LEFT_BUMPER] = 4;
-      publish_control::btns[RIGHT_BUMPER] = 5;
-      publish_control::btns[LEFT_TRIGGER_BTN] = 6;
-      publish_control::btns[RIGHT_TRIGGER_BTN] = 7;
-      publish_control::btns[BACK_SELECT_MINUS] = 8;
-      publish_control::btns[START_PLUS] = 9;
-      publish_control::btns[LEFT_STICK_PUSH] = 10;
-      publish_control::btns[RIGHT_STICK_PUSH] = 11;
+      PublishControl::btns[LEFT_BTN] = 0;
+      PublishControl::btns[BOTTOM_BTN] = 1;
+      PublishControl::btns[RIGHT_BTN] = 2;
+      PublishControl::btns[TOP_BTN] = 3;
+      PublishControl::btns[LEFT_BUMPER] = 4;
+      PublishControl::btns[RIGHT_BUMPER] = 5;
+      PublishControl::btns[LEFT_TRIGGER_BTN] = 6;
+      PublishControl::btns[RIGHT_TRIGGER_BTN] = 7;
+      PublishControl::btns[BACK_SELECT_MINUS] = 8;
+      PublishControl::btns[START_PLUS] = 9;
+      PublishControl::btns[LEFT_STICK_PUSH] = 10;
+      PublishControl::btns[RIGHT_STICK_PUSH] = 11;
     }
     else
     {
@@ -179,11 +179,11 @@ bool check_scale_values(ros::NodeHandle * nodeH)
 {
   bool exit = false;
   
-  if (nodeH->getParam("steering_max_speed", publish_control::steering_max_speed))
+  if (nodeH->getParam("steering_max_speed", PublishControl::steering_max_speed))
   {
-    ROS_INFO("Got steering_max_speed: %f", publish_control::steering_max_speed);
+    ROS_INFO("Got steering_max_speed: %f", PublishControl::steering_max_speed);
 
-    if (publish_control::steering_max_speed <= 0)
+    if (PublishControl::steering_max_speed <= 0)
     {
       ROS_ERROR("Parameter steering_max_speed is invalid. Exiting.");
       exit = true;
@@ -195,11 +195,11 @@ bool check_scale_values(ros::NodeHandle * nodeH)
     exit = true;
   }
 
-  if (nodeH->getParam("max_veh_speed", publish_control::max_veh_speed))
+  if (nodeH->getParam("max_veh_speed", PublishControl::max_veh_speed))
   {
-    ROS_INFO("Got max_veh_speed: %f", publish_control::max_veh_speed);
+    ROS_INFO("Got max_veh_speed: %f", PublishControl::max_veh_speed);
 
-    if (publish_control::max_veh_speed <= 0)
+    if (PublishControl::max_veh_speed <= 0)
     {
       ROS_ERROR("Parameter max_veh_speed is invalid. Exiting.");
       exit = true;
@@ -211,12 +211,12 @@ bool check_scale_values(ros::NodeHandle * nodeH)
     exit = true;
   }
 
-  if (nodeH->getParam("accel_scale_val", publish_control::accel_scale_val))
+  if (nodeH->getParam("accel_scale_val", PublishControl::accel_scale_val))
   {
-    ROS_INFO("Got accel_scale_val: %f", publish_control::accel_scale_val);
+    ROS_INFO("Got accel_scale_val: %f", PublishControl::accel_scale_val);
 
-    if (publish_control::accel_scale_val <= 0 ||
-        publish_control::accel_scale_val > 1.0)
+    if (PublishControl::accel_scale_val <= 0 ||
+        PublishControl::accel_scale_val > 1.0)
     {
       ROS_ERROR("Parameter accel_scale_val is invalid. Exiting.");
       exit = true;
@@ -228,12 +228,12 @@ bool check_scale_values(ros::NodeHandle * nodeH)
     exit = true;
   }
 
-  if (nodeH->getParam("brake_scale_val", publish_control::brake_scale_val))
+  if (nodeH->getParam("brake_scale_val", PublishControl::brake_scale_val))
   {
-    ROS_INFO("Got brake_scale_val: %f", publish_control::brake_scale_val);
+    ROS_INFO("Got brake_scale_val: %f", PublishControl::brake_scale_val);
 
-    if (publish_control::brake_scale_val <= 0 ||
-        publish_control::brake_scale_val > 1.0)
+    if (PublishControl::brake_scale_val <= 0 ||
+        PublishControl::brake_scale_val > 1.0)
     {
       ROS_ERROR("Parameter brake_scale_val is invalid. Exiting.");
       exit = true;
