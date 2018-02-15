@@ -35,21 +35,21 @@ Number buttons:
 
 PublishControlBoardRev2::PublishControlBoardRev2()
 {
-	// Subscribe to messages
-	joy_sub = n.subscribe("joy", 1000, &PublishControlBoardRev2::callback_control, this);
-    speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed);
-    enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &PublishControl::callback_pacmod_enable);
+  // Subscribe to messages
+  joy_sub = n.subscribe("joy", 1000, &PublishControlBoardRev2::callback_control, this);
+  speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed);
+  enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &PublishControl::callback_pacmod_enable);
 
-    // Advertise published messages
-    enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
-    turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
-    headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
-    horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
-    wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
-    shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
-    accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
-    steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
-    brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
+  // Advertise published messages
+  enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
+  turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
+  headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
+  horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
+  wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
+  shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
+  accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
+  steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
+  brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
 }
 
 bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
@@ -368,8 +368,8 @@ void PublishControlBoardRev2::callback_control(const sensor_msgs::Joy::ConstPtr&
     ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
   }
 
-  last_buttons.clear();
-  last_buttons.insert(last_buttons.end(), msg->buttons.begin(), msg->buttons.end());
+  //last_buttons.clear();
+  //last_buttons.insert(last_buttons.end(), msg->buttons.begin(), msg->buttons.end());
   last_axes.clear();
   last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
 }

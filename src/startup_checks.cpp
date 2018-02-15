@@ -36,7 +36,7 @@ bool check_steering_stick_left_right(ros::NodeHandle * nodeH)
   }
   else
   {
-	ROS_ERROR("Parameter steering_stick is missing. Exiting.");
+    ROS_ERROR("Parameter steering_stick is missing. Exiting.");
     exit = true;
   }
   
@@ -66,16 +66,16 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
   }
   else
   {
-	ROS_ERROR("Parameter vehicle_type is missing. Exiting.");
+    ROS_ERROR("Parameter vehicle_type is missing. Exiting.");
     exit = true;
   }
 
   // TODO : fix this 
   if (vehicle_type == 2)
-	PublishControl::max_rot_rad = 6.5;
+    PublishControl::max_rot_rad = 6.5;
 
   if (vehicle_type == 4)
-	PublishControl::max_rot_rad = 5.236;
+    PublishControl::max_rot_rad = 5.236;
     
   PublishControl::vehicle_type = vehicle_type;
     
@@ -133,7 +133,7 @@ bool check_controller_type(ros::NodeHandle * nodeH)
     }
     else if (controller_string == "LOGITECH_G29")
     {
-    	PublishControl::controller = LOGITECH_G29;
+      PublishControl::controller = LOGITECH_G29;
       // TODO: Complete missing buttons
     }
     else if (controller_string == "NINTENDO_SWITCH_WIRED_PLUS")
@@ -168,7 +168,7 @@ bool check_controller_type(ros::NodeHandle * nodeH)
   }
   else
   {
-	ROS_ERROR("Parameter controller_type is missing. Exiting.");
+    ROS_ERROR("Parameter controller_type is missing. Exiting.");
     exit = true;
   }
   
@@ -207,7 +207,7 @@ bool check_scale_values(ros::NodeHandle * nodeH)
   }
   else
   {
-	ROS_ERROR("Parameter max_veh_speed is missing. Exiting.");
+  ROS_ERROR("Parameter max_veh_speed is missing. Exiting.");
     exit = true;
   }
 
@@ -224,7 +224,7 @@ bool check_scale_values(ros::NodeHandle * nodeH)
   }
   else
   {
-	ROS_ERROR("Parameter accel_scale_val is missing. Exiting.");
+    ROS_ERROR("Parameter accel_scale_val is missing. Exiting.");
     exit = true;
   }
 
