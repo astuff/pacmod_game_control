@@ -54,11 +54,11 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
     ROS_INFO("Got vehicle_type: %d", vehicle_type);
 
     // TODO : macro for vehicle type
-    if (vehicle_type != 0 &&
-        vehicle_type != 1 &&
-        vehicle_type != 2 &&
-        vehicle_type != 3 &&
-        vehicle_type != 4)
+    if (vehicle_type != POLARIS_GEM &&
+        vehicle_type != POLARIS_RANGER &&
+        vehicle_type != VEHICLE_2 &&
+        vehicle_type != INTERNATIONAL_PROSTAR &&
+        vehicle_type != VEHICLE_4)
     {
       ROS_ERROR("vehicle_type is invalid");
       exit = true;
@@ -72,10 +72,10 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
 
   // TODO : fix this 
   if (vehicle_type == 2)
-    PublishControl::max_rot_rad = 6.5;
+    PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE2;
 
   if (vehicle_type == 4)
-    PublishControl::max_rot_rad = 5.236;
+    PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE4;
     
   PublishControl::vehicle_type = vehicle_type;
     

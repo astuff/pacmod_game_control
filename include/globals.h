@@ -29,12 +29,29 @@ enum ShiftState
   SHIFT_HIGH = 4
 };
 
+enum TurnSignalState
+{
+  SIGNAL_RIGHT,
+  SIGNAL_OFF,
+  SIGNAL_LEFT,
+  SIGNAL_HAZARD
+};
+
 enum GamepadType
 {
   LOGITECH_F310,
   HRI_SAFE_REMOTE,
   LOGITECH_G29,
   NINTENDO_SWITCH_WIRED_PLUS
+};
+
+enum VehicleType
+{
+  POLARIS_GEM,
+  POLARIS_RANGER,
+  VEHICLE_2,
+  INTERNATIONAL_PROSTAR,
+  VEHICLE_4
 };
 
 enum JoyAxis
@@ -76,10 +93,21 @@ struct EnumHash
 
 // static constants
 static const float ROT_RANGE_SCALER_LB = 0.05;
+static const float ACCEL_SCALE_FACTOR = 0.6;
+static const float ACCEL_OFFSET = 0.21;
+static const float STEER_SCALE_FACTOR = 1.5;
+static const float STEER_OFFSET = 1.0;
+static const float MAX_ROT_RAD_VEHICLE2 = 6.5;
+static const float MAX_ROT_RAD_VEHICLE4 = 5.236;
+static const float MAX_ROT_RAD_DEFAULT = 10.9956;
+static const float AXES_MIN = -1.0;
+static const float AXES_MAX = 1.0;
 static const uint16_t NUM_WIPER_STATES = 8;
 static const uint16_t WIPER_STATE_START_VALUE = 0;
 static const uint16_t NUM_HEADLIGHT_STATES = 3;
 static const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
+static const uint16_t INVALID = -1;
+static const uint16_t BUTTON_DOWN = 1;
 
 // mutex
 static std::mutex enable_mutex;

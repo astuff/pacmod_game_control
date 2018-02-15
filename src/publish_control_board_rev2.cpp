@@ -83,7 +83,7 @@ bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr&
   else
   {
     // Enable
-    if (msg->buttons[btns[START_PLUS]] == 1)
+    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN)
     {
     
       std_msgs::Bool bool_pub_msg;
@@ -93,7 +93,7 @@ bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr&
     }
 
     // Disable
-    if (msg->buttons[btns[BACK_SELECT_MINUS]] == 1)
+    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
     { 
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
@@ -115,7 +115,7 @@ void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::C
   // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
   pacmod_msgs::PositionWithSpeed steer_msg;
 
-  float range_scale = fabs(msg->axes[axes[steering_axis]]) * (1.0 - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+  float range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
   float speed_scale = 1.0;
   bool speed_valid = false;
@@ -132,7 +132,7 @@ void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::C
   speed_mutex.unlock();
 
   if (speed_valid)
-    speed_scale = 1.0 - fabs((current_speed / (max_veh_speed * 1.5))); //Never want to reach 0 speed scale.
+    speed_scale = STEER_OFFSET - fabs((current_speed / (max_veh_speed * STEER_SCALE_FACTOR))); //Never want to reach 0 speed scale.
 
   steer_msg.angular_position = (range_scale * max_rot_rad) * msg->axes[axes[steering_axis]];
 
@@ -144,18 +144,18 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
 {
   pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
   
-  if (msg->axes[axes[DPAD_LR]] == 1.0)
-    turn_signal_cmd_pub_msg.ui16_cmd = 2;
-  else if (msg->axes[axes[DPAD_LR]] == -1.0)
-    turn_signal_cmd_pub_msg.ui16_cmd = 0;
+  if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
+    turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_LEFT;
+  else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
+    turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_RIGHT;
   else
-    turn_signal_cmd_pub_msg.ui16_cmd = 1;    
+    turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
 
   // Hazard lights (both left and right turn signals)
   if (controller == HRI_SAFE_REMOTE)
   {
     if(msg->axes[2] < -0.5)
-      turn_signal_cmd_pub_msg.ui16_cmd = 3;
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_HAZARD;
 
     if (last_axes.empty() ||
         last_axes[2] != msg->axes[2])
@@ -163,8 +163,8 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
   }
   else
   {
-    if (msg->axes[axes[DPAD_UD]] == -1.0)
-      turn_signal_cmd_pub_msg.ui16_cmd = 3;
+    if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_HAZARD;
 
     if (last_axes.empty() ||
         last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
@@ -178,7 +178,7 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
 void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   // Shifting: reverse
-  if (msg->buttons[btns[RIGHT_BTN]] == 1)
+  if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
     shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
@@ -186,7 +186,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   }
 
   // Shifting: drive/low
-  if (msg->buttons[btns[BOTTOM_BTN]] == 1)
+  if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
     shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
@@ -194,15 +194,15 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   }
 
   // Shifting: park
-  if (msg->buttons[btns[TOP_BTN]] == 1)
+  if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;        
+    shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
   // Shifting: neutral
-  if (msg->buttons[btns[LEFT_BTN]] == 1)
+  if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
     shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
@@ -233,7 +233,8 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
     if (msg->axes[axes[RIGHT_STICK_UD]] >= 0.0)
     {
       // only consider center-to-up range as accelerator motion
-      accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]) * 0.6 + 0.21;
+      accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]) * ACCEL_SCALE_FACTOR 
+        + ACCEL_OFFSET;
     }
   }
   else
@@ -243,11 +244,12 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
 
     if (enable_accel)
     {
-      if ((vehicle_type == 2) ||
-          (vehicle_type == 4))
+      if ((vehicle_type == VEHICLE_2) ||
+          (vehicle_type == VEHICLE_4))
         accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
       else
-        accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * 0.6 + 0.21;
+        accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR
+          + ACCEL_OFFSET;
     }
     else
     {
@@ -282,7 +284,7 @@ void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::Cons
     }
   }
 
-  brake_set_position_pub.publish(brake_msg);    
+  brake_set_position_pub.publish(brake_msg);
 }
 
 void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
@@ -293,7 +295,7 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
   if (vehicle_type == 2 && controller != HRI_SAFE_REMOTE)
   {
     // Headlights
-    if (msg->axes[axes[DPAD_UD]] == 1.0)
+    if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
     {
       // Rotate through headlight states as button is pressed 
       headlight_state++;
@@ -320,7 +322,7 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
   if (vehicle_type == 3 && controller != HRI_SAFE_REMOTE) // Semi
   {
     // Windshield wipers
-    if (msg->axes[7] == 1.0)
+    if (msg->axes[7] == AXES_MAX)
     {
       // Rotate through wiper states as button is pressed 
       wiper_state++;

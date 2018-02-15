@@ -8,14 +8,14 @@
 #include "publish_control.h"
 
 JoyAxis PublishControl::steering_axis = LEFT_STICK_LR;
-float PublishControl::max_rot_rad = 10.9956;
-int PublishControl::vehicle_type = -1;
+float PublishControl::max_rot_rad = MAX_ROT_RAD_DEFAULT;
+int PublishControl::vehicle_type = INVALID;
 GamepadType PublishControl::controller = LOGITECH_F310;
-int PublishControl::board_rev = -1;
-double PublishControl::max_veh_speed = -1.0;
+int PublishControl::board_rev = INVALID;
+double PublishControl::max_veh_speed = INVALID;
 double PublishControl::accel_scale_val = 1.0;
 double PublishControl::brake_scale_val = 1.0;
-double PublishControl::steering_max_speed = -1.0;
+double PublishControl::steering_max_speed = INVALID;
 std::unordered_map<JoyAxis, int, EnumHash> PublishControl::axes;
 std::unordered_map<JoyButton, int, EnumHash> PublishControl::btns;
 pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;

@@ -8,7 +8,6 @@
  * Series of startup checks for the pacmod game control node.
  */
 
-
 #ifndef STARTUP_CHECKS_H
 #define STARTUP_CHECKS_H
 
