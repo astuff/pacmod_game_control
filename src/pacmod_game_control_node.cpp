@@ -74,7 +74,8 @@ enum GamepadType
   LOGITECH_F310,
   HRI_SAFE_REMOTE,
   LOGITECH_G29,
-  NINTENDO_SWITCH_WIRED_PLUS
+  NINTENDO_SWITCH_WIRED_PLUS,
+  XBOX_ONE
 };
 
 enum JoyAxis
@@ -512,9 +513,9 @@ int main(int argc, char *argv[])
   {
     ROS_INFO("Got controller_type: %s", controller_string.c_str());
 
-    if (controller_string == "LOGITECH_F310")
+    if (controller_string == "LOGITECH_F310" || controller_string == "XBOX_ONE")
     {
-      controller = LOGITECH_F310;
+      controller = (controller_string == "LOGITECH_F310") ? LOGITECH_F310 : XBOX_ONE;
 
       axes[LEFT_STICK_LR] = 0;
       axes[LEFT_TRIGGER_AXIS] = 2;
