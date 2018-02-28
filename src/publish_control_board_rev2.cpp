@@ -185,11 +185,11 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
-  // Shifting: drive/low
+  // Shifting: drive/high
   if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
+    shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -208,18 +208,6 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
     shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
-
-  /* TODO: What??
-  // Shifting: high
-  if (msg->buttons[6] == 1 &&
-     (last_buttons.empty() ||
-      last_buttons[6] != msg->buttons[6]))
-  {
-    pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;
-    shift_cmd_pub.publish(shift_cmd_pub_msg);
-  }
-  */
 }
 
 void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
