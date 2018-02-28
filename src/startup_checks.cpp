@@ -70,11 +70,10 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
     exit = true;
   }
 
-  // TODO : fix this 
-  if (vehicle_type == 2)
+  if (vehicle_type == VEHICLE_2)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE2;
 
-  if (vehicle_type == 4)
+  if (vehicle_type == VEHICLE_4)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE4;
     
   PublishControl::vehicle_type = vehicle_type;
