@@ -189,7 +189,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_HIGH;
+    shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -225,6 +225,25 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
         + ACCEL_OFFSET;
     }
   }
+  else if(controller == LOGITECH_G29)
+  {
+    if (msg->axes[axes[RIGHT_TRIGGER_AXIS]] != 0)
+      enable_accel = true;
+
+    if (enable_accel)
+    {
+      if ((vehicle_type == LEXUS_RX_450H) ||
+          (vehicle_type == VEHICLE_4))
+        accelerator_cmd_pub_msg.f64_cmd = (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
+      else
+        accelerator_cmd_pub_msg.f64_cmd = (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR
+          + ACCEL_OFFSET;
+    }
+    else
+    {
+      accelerator_cmd_pub_msg.f64_cmd = 0;
+    }
+  }
   else
   {
     if (msg->axes[axes[RIGHT_TRIGGER_AXIS]] != 0)
@@ -256,6 +275,20 @@ void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::Cons
   if (controller == HRI_SAFE_REMOTE)
   {
     brake_msg.f64_cmd = (msg->axes[axes[RIGHT_STICK_UD]] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
+  }
+  else if(controller == LOGITECH_G29)
+  {
+    if (msg->axes[axes[LEFT_TRIGGER_AXIS]] != 0)
+      enable_brake = true;
+
+    if (enable_brake)
+    {
+      brake_msg.f64_cmd = ((msg->axes[axes[LEFT_TRIGGER_AXIS]] + 1.0) / 2.0) * brake_scale_val;
+    }
+    else
+    {
+      brake_msg.f64_cmd = 0;
+    }
   }
   else
   {
