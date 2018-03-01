@@ -56,7 +56,7 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
     // TODO : macro for vehicle type
     if (vehicle_type != POLARIS_GEM &&
         vehicle_type != POLARIS_RANGER &&
-        vehicle_type != VEHICLE_2 &&
+        vehicle_type != LEXUS_RX_450H &&
         vehicle_type != INTERNATIONAL_PROSTAR &&
         vehicle_type != VEHICLE_4)
     {
@@ -70,7 +70,7 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
     exit = true;
   }
 
-  if (vehicle_type == VEHICLE_2)
+  if (vehicle_type == LEXUS_RX_450H)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE2;
 
   if (vehicle_type == VEHICLE_4)
@@ -90,9 +90,9 @@ bool check_controller_type(ros::NodeHandle * nodeH)
   {
     ROS_INFO("Got controller_type: %s", controller_string.c_str());
 
-    if (controller_string == "LOGITECH_F310")
+    if (controller_string == "LOGITECH_F310" || controller_string == "XBOX_ONE")
     {
-      PublishControl::controller = LOGITECH_F310;
+      PublishControl::controller = (controller_string == "LOGITECH_F310") ? LOGITECH_F310 : XBOX_ONE;
 
       PublishControl::axes[LEFT_STICK_LR] = 0;
       PublishControl::axes[LEFT_STICK_UD] = 1;

@@ -232,7 +232,7 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
 
     if (enable_accel)
     {
-      if ((vehicle_type == VEHICLE_2) ||
+      if ((vehicle_type == LEXUS_RX_450H) ||
           (vehicle_type == VEHICLE_4))
         accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
       else
@@ -358,8 +358,6 @@ void PublishControlBoardRev2::callback_control(const sensor_msgs::Joy::ConstPtr&
     ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
   }
 
-  //last_buttons.clear();
-  //last_buttons.insert(last_buttons.end(), msg->buttons.begin(), msg->buttons.end());
   last_axes.clear();
   last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
 }
