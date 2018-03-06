@@ -10,9 +10,17 @@
 
 #include "globals.h"
 
+namespace AS
+{
+namespace Joystick
+{
+
 /*
  * Called when a game controller message is received
  */
 void publish_control_board_rev3(const sensor_msgs::Joy::ConstPtr& msg);
+
+}
+}
 
 #endif

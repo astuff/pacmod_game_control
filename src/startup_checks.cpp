@@ -11,7 +11,7 @@
 #include "startup_checks.h"
 
 // Check which steering stick we should use on the joypad
-bool check_steering_stick_left_right(ros::NodeHandle * nodeH)
+bool AS::Joystick::check_steering_stick_left_right(ros::NodeHandle * nodeH)
 {
   std::string steering_stick_string;
   bool exit = false;
@@ -43,7 +43,7 @@ bool check_steering_stick_left_right(ros::NodeHandle * nodeH)
   return exit;
 }
 
-bool check_vehicle_type(ros::NodeHandle * nodeH)
+bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
 {
   bool exit = false;
   int vehicle_type = -1;
@@ -81,7 +81,7 @@ bool check_vehicle_type(ros::NodeHandle * nodeH)
   return exit;
 }
 
-bool check_controller_type(ros::NodeHandle * nodeH)
+bool AS::Joystick::check_controller_type(ros::NodeHandle * nodeH)
 {
   std::string controller_string;
   bool exit = false;
@@ -195,7 +195,7 @@ bool check_controller_type(ros::NodeHandle * nodeH)
   return exit;
 }
 
-bool check_scale_values(ros::NodeHandle * nodeH)
+bool AS::Joystick::check_scale_values(ros::NodeHandle * nodeH)
 {
   bool exit = false;
   
@@ -268,7 +268,7 @@ bool check_scale_values(ros::NodeHandle * nodeH)
   return exit;
 }
 
-bool run_startup_checks_error(ros::NodeHandle * nodeH)
+bool AS::Joystick::run_startup_checks_error(ros::NodeHandle * nodeH)
 {
   bool willExit = false;
   

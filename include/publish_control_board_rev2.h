@@ -11,6 +11,11 @@
 #include "globals.h"
 #include "publish_control.h"
 
+namespace AS
+{
+namespace Joystick
+{
+
 // Publish control class, child class from publish control
 class PublishControlBoardRev2 : public PublishControl
 {
@@ -54,5 +59,8 @@ private:
   std::vector<float> last_axes;
   std::vector<int> last_buttons;
 };
+
+}
+}
 
 #endif

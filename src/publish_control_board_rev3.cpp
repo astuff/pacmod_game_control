@@ -6,6 +6,9 @@
 */
 
 #include "publish_control_board_rev3.h"
+
+using namespace AS::Joystick;
+
 /*
  * Called when a game controller message is received
  */

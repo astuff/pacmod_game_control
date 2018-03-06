@@ -7,6 +7,8 @@
 
 #include "publish_control.h"
 
+using namespace AS::Joystick;
+
 JoyAxis PublishControl::steering_axis = LEFT_STICK_LR;
 float PublishControl::max_rot_rad = MAX_ROT_RAD_DEFAULT;
 int PublishControl::vehicle_type = INVALID;
