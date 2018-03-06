@@ -831,7 +831,7 @@ int main(int argc, char *argv[])
   ros::Subscriber joy_sub = n.subscribe("joy", 1000, callback_joy);
   ros::Subscriber speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, callback_veh_speed);
   ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, callback_pacmod_enable);
-  ros::Subscriber shift_sub = n.subscribe("/pacmod/as_tx/shift_rpt", 20, callback_shift_rpt);
+  ros::Subscriber shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, callback_shift_rpt);
   
   // Advertise published messages
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
