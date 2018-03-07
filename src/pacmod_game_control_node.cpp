@@ -148,8 +148,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   local_enable = pacmod_enable;
   enable_mutex.unlock();
 
-  ROS_INFO("Local enable before button press: %u", local_enable);
-
   if (controller_type == 0)
   {
     std_msgs::Bool bool_pub_msg;
@@ -199,8 +197,6 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       enable_pub.publish(bool_pub_msg);
     }    
   }
-
-  ROS_INFO("Local enable after button press: %u", local_enable);
 
   enable_mutex.lock();
   pacmod_enable = local_enable;
