@@ -15,7 +15,7 @@ Left thumbstick:
 
 Triggers:
 *Axis 2 is left trigger: up=1.0, center=0.0, down=-1.0
-*Axis 5 is right trigger: up=1.0, center=0.0, down=-1.0
+*Axis 5 is right trigger:O up=1.0, center=0.0, down=-1.0
 
 Right thumbstick:
 *Axis 3 is left (+1) to right (-1), centered=0.0
@@ -110,6 +110,11 @@ void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
   {
     enable_mutex.lock();
     pacmod_enable = msg->data;
+    enable_accel = msg->data;
+    enable_brake = msg->data;
+    enable_shift = msg->data;
+    enable_turn = msg->data;
+    
     enable_mutex.unlock();
   }
   else
