@@ -240,9 +240,9 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     steering_set_position_with_speed_limit_pub.publish(pub_msg1);
   }
 
-   // Sends the last turn signal state back to the PACMod with the appropriate enable/disable flag
-  // Only evaluated when last shift enable state does not match the local enable
-  if (enable_turn != local_enable)
+  // Sends the last turn signal state back to the PACMod with the appropriate enable/disable flag
+  // Only evaluated when last turn signal enable state does not match the local enable for PM 3
+  if (enable_turn != local_enable && board_rev == 3)
   {
     pacmod_msgs::SystemCmdInt turn_msg;
     turn_msg.enable = local_enable;
@@ -318,8 +318,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   }
 
   // Sends the last read gear state back to the PACMod with the appropriate enable/disable flag
-  // Only evaluated when last shift enable state does not match the local enable
-  if (enable_shift != local_enable)
+  // Only evaluated when last shift enable state does not match the local enable for PM 3
+  if (enable_shift != local_enable && board_rev == 3)
   {
     pacmod_msgs::SystemCmdInt shift_msg;
     shift_msg.enable = local_enable;
