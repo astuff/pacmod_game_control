@@ -62,6 +62,9 @@ const uint16_t NUM_WIPER_STATES = 8;
 const uint16_t WIPER_STATE_START_VALUE = 0;
 const uint16_t NUM_HEADLIGHT_STATES = 3;
 const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
+const uint8_t STATE_CHANGE_DEBOUNCE_THRESHOLD = 4;
+bool recent_state_change = false;
+uint8_t state_change_debounce_count = 0;
 
 int steering_axis = -1;
 int vehicle_type = -1;
@@ -74,6 +77,7 @@ pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
 std::mutex speed_mutex;
 std::mutex shift_mutex;
 std::mutex turn_mutex;
+std::mutex state_change_mutex;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
 double max_veh_speed = -1.0;
@@ -100,9 +104,23 @@ bool enable_turn = false;
  */
 void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
-  enable_mutex.lock();
-  pacmod_enable = msg->data;
-  enable_mutex.unlock();
+  state_change_mutex.lock();
+
+  if (!recent_state_change)
+  {
+    enable_mutex.lock();
+    pacmod_enable = msg->data;
+    enable_mutex.unlock();
+  }
+  else
+  {
+    state_change_debounce_count++;
+
+    if (state_change_debounce_count > STATE_CHANGE_DEBOUNCE_THRESHOLD)
+      recent_state_change = false;
+  }
+
+  state_change_mutex.unlock();
 } 
 
 /*
@@ -157,6 +175,11 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     {
       local_enable = true;
 
+      state_change_mutex.lock();
+      recent_state_change = true;
+      state_change_debounce_count = 0;
+      state_change_mutex.unlock();
+
       if (board_rev != 3)
       {
         enable_pub.publish(bool_pub_msg);
@@ -169,6 +192,10 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     if (local_enable && msg->buttons[4] == 1)
     { 
       local_enable = false;
+      state_change_mutex.lock();
+      recent_state_change = true;
+      state_change_debounce_count = 0;
+      state_change_mutex.unlock();
 
       if (board_rev != 3)
       {
