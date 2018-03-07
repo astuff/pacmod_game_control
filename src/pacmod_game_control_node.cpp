@@ -73,6 +73,7 @@ std::mutex enable_mutex;
 pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
 std::mutex speed_mutex;
 std::mutex shift_mutex;
+std::mutex turn_mutex;
 std::vector<float> last_axes;
 std::vector<int> last_buttons;
 double max_veh_speed = -1.0;
@@ -81,10 +82,12 @@ double brake_scale_val = 1.0;
 uint16_t wiper_state = 0;
 uint16_t headlight_state = 0;
 uint16_t last_shift_cmd = 2;
+uint16_t last_turn_cmd = 1;
 
 bool enable_accel = false;
 bool enable_brake = false;
 bool enable_shift = false;
+bool enable_turn = false;
 
 #define SHIFT_PARK 0
 #define SHIFT_REVERSE 1
@@ -121,6 +124,17 @@ void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
   // Store the latest value read from the gear state to be sent on enable/disable
   last_shift_cmd = msg->output;
   shift_mutex.unlock();
+}
+
+/*
+ * Called when the node receives a message from the turn signal report
+ */
+void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+{
+  turn_mutex.lock();
+  // Store the latest value read from the gear state to be sent on enable/disable
+  last_turn_cmd = msg->output;
+  turn_mutex.unlock();
 }
 
 /*
@@ -224,6 +238,19 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     pub_msg1.angular_position = (range_scale * MAX_ROT_RAD) * msg->axes[steering_axis];
     pub_msg1.angular_velocity_limit = steering_max_speed * speed_scale;
     steering_set_position_with_speed_limit_pub.publish(pub_msg1);
+  }
+
+   // Sends the last turn signal state back to the PACMod with the appropriate enable/disable flag
+  // Only evaluated when last shift enable state does not match the local enable
+  if (enable_turn != local_enable)
+  {
+    pacmod_msgs::SystemCmdInt turn_msg;
+    turn_msg.enable = local_enable;
+    turn_msg.ignore_overrides = false;
+    turn_msg.command = last_turn_cmd;
+    turn_signal_cmd_pub.publish(turn_msg);
+
+    enable_turn = local_enable;
   }
 
   // Turn signal
@@ -832,6 +859,7 @@ int main(int argc, char *argv[])
   ros::Subscriber speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, callback_veh_speed);
   ros::Subscriber enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, callback_pacmod_enable);
   ros::Subscriber shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, callback_shift_rpt);
+  ros::Subscriber turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, callback_turn_rpt);
   
   // Advertise published messages
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
