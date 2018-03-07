@@ -119,12 +119,14 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
   local_enable = pacmod_enable;
   enable_mutex.unlock();
 
+  ROS_INFO("Local enable before button press: %u", local_enable);
+
   if (controller_type == 0)
   {
     std_msgs::Bool bool_pub_msg;
 
     // Enable
-    if (msg->buttons[5] == 1)
+    if (!local_enable && msg->buttons[5] == 1)
     {
       local_enable = true;
 
@@ -137,7 +139,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Disable
-    if (msg->buttons[4] == 1)
+    if (local_enable && msg->buttons[4] == 1)
     { 
       local_enable = false;
 
@@ -168,6 +170,8 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
       enable_pub.publish(bool_pub_msg);
     }    
   }
+
+  ROS_INFO("Local enable after button press: %u", local_enable);
 
   enable_mutex.lock();
   pacmod_enable = local_enable;
@@ -345,7 +349,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     // Acelerator
     // Logitech right trigger (axis 5): not pressed = 1.0, fully pressed = -1.0
     if (msg->axes[5] != 0)
-      enable_accel = true;
+      enable_accel = local_enable;
 
     if (board_rev == 3)
     {
@@ -393,7 +397,7 @@ void callback_joy(const sensor_msgs::Joy::ConstPtr& msg)
     // Brake
     // Logitech left trigger (axis 2): not pressed = 1.0, fully pressed = -1.0
     if (msg->axes[2] != 0)
-      enable_brake = true;
+      enable_brake = local_enable;
 
     if (board_rev == 3)
     {
