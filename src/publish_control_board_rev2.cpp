@@ -33,6 +33,8 @@ Number buttons:
 
 #include "publish_control_board_rev2.h"
 
+using namespace AS::Joystick;
+
 PublishControlBoardRev2::PublishControlBoardRev2()
 {
   // Subscribe to messages

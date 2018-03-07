@@ -9,6 +9,8 @@
 #include "globals.h"
 #include "startup_checks.h"
 
+using namespace AS::Joystick;
+
 /*
  * Main method running the ROS Node
  */

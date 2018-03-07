@@ -19,6 +19,11 @@
 #include <pacmod_msgs/PacmodCmd.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
 
+namespace AS
+{
+namespace Joystick
+{
+
 // Enums
 enum ShiftState
 {
@@ -113,5 +118,8 @@ static const uint16_t BUTTON_DOWN = 1;
 // mutex
 static std::mutex enable_mutex;
 static std::mutex speed_mutex;
+
+}
+}
 
 #endif

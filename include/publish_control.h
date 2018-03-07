@@ -10,6 +10,11 @@
 
 #include "globals.h"
 
+namespace AS
+{
+namespace Joystick
+{
+
 class PublishControl
 {
 
@@ -45,5 +50,8 @@ private:
   virtual void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
   virtual void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
 };
+
+}
+}
 
 #endif
