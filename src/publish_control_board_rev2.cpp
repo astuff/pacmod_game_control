@@ -35,15 +35,10 @@ Number buttons:
 
 using namespace AS::Joystick;
 
-PublishControlBoardRev2::PublishControlBoardRev2()
+PublishControlBoardRev2::PublishControlBoardRev2() :
+  PublishControl()
 {
-  // Subscribe to messages
-  joy_sub = n.subscribe("joy", 1000, &PublishControlBoardRev2::callback_control, this);
-  speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed);
-  enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &PublishControl::callback_pacmod_enable);
-
   // Advertise published messages
-  enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
   turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
   headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
   horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
@@ -52,63 +47,6 @@ PublishControlBoardRev2::PublishControlBoardRev2()
   accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
   steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
   brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
-}
-
-bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
-{
-  bool local_enable = false;
-
-  enable_mutex.lock();
-  local_enable = pacmod_enable;
-  enable_mutex.unlock();
-
-  if (controller == HRI_SAFE_REMOTE)
-  {  
-    // Enable
-    if (msg->axes[axes[DPAD_UD]] >= 0.9)
-    {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
-    }
-
-    // Disable
-    if (msg->axes[axes[DPAD_UD]] <= -0.9)
-    {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
-    }    
-  }
-  else
-  {
-    // Enable
-    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN)
-    {
-    
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
-    }
-
-    // Disable
-    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
-    { 
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
-    }
-  }
-
-  enable_mutex.lock();
-  pacmod_enable = local_enable;
-  enable_mutex.unlock();
-  
-  return local_enable;
 }
 
 void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
@@ -358,41 +296,4 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
       wiper_cmd_pub.publish(wiper_cmd_pub_msg);
     }
   }
-}
-
-/*
- * Called when a game controller message is received
- */
-void PublishControlBoardRev2::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
-{
-  try
-  {
-    if (check_is_enabled(msg) == true)
-    {
-      // Steering
-      publish_steering_message(msg);
-      
-      // Turn signals
-      publish_turn_signal_message(msg);
-
-      // Shifting
-      publish_shifting_message(msg);
-      
-      // Accelerator
-      publish_accelerator_message(msg);
-
-      // Brake
-      publish_brake_message(msg);
-      
-      // Lights and horn
-      publish_lights_horn_wipers_message(msg);
-    }
-  }
-  catch (const std::out_of_range& oor)
-  {
-    ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
-  }
-
-  last_axes.clear();
-  last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
 }

@@ -20,7 +20,8 @@ class PublishControl
 
 public:
   // public functions
-  virtual void callback_control(const sensor_msgs::Joy::ConstPtr& msg) = 0;
+  PublishControl();
+  virtual void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
   static void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg);
   static void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
   
@@ -38,11 +39,37 @@ public:
   static std::unordered_map<JoyButton, int, EnumHash> btns;
   static pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt;
   static bool pacmod_enable;
+
+protected:
+
+  virtual bool check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
+
+  // ROS node handle
+  ros::NodeHandle n;
+
+  // ROS publishers
+  ros::Publisher turn_signal_cmd_pub;
+  ros::Publisher headlight_cmd_pub;
+  ros::Publisher horn_cmd_pub;
+  ros::Publisher wiper_cmd_pub;
+  ros::Publisher shift_cmd_pub;
+  ros::Publisher accelerator_cmd_pub;
+  ros::Publisher steering_set_position_with_speed_limit_pub;
+  ros::Publisher brake_set_position_pub;
+  ros::Publisher enable_pub;
+
+  // ROS subscribers
+  ros::Subscriber joy_sub;
+  ros::Subscriber speed_sub;
+  ros::Subscriber enable_sub;
+
+  // state vectors
+  std::vector<float> last_axes;
+  std::vector<int> last_buttons;
   
 private:
 
   // private functions
-  virtual bool check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg) = 0;
   virtual void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
   virtual void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
   virtual void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
