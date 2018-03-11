@@ -38,6 +38,8 @@ public:
   static std::unordered_map<JoyButton, int, EnumHash> btns;
   static pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt;
   static bool pacmod_enable;
+  static bool recent_state_change;
+  static uint8_t state_change_debounce_count;
   
 private:
 

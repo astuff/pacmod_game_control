@@ -98,6 +98,7 @@ struct EnumHash
 };
 
 // static constants
+static const uint8_t STATE_CHANGE_DEBOUNCE_THRESHOLD = 4;
 static const float ROT_RANGE_SCALER_LB = 0.05;
 static const float ACCEL_SCALE_FACTOR = 0.6;
 static const float ACCEL_OFFSET = 0.21;
@@ -118,6 +119,7 @@ static const uint16_t BUTTON_DOWN = 1;
 // mutex
 static std::mutex enable_mutex;
 static std::mutex speed_mutex;
+static std::mutex state_change_mutex;
 
 }
 }
