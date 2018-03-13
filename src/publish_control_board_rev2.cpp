@@ -71,6 +71,11 @@ bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr&
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
+
+      state_change_mutex.lock();
+      recent_state_change = true;
+      state_change_debounce_count = 0;
+      state_change_mutex.unlock();
     }
 
     // Disable
@@ -80,6 +85,11 @@ bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr&
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
+
+      state_change_mutex.lock();
+      recent_state_change = true;
+      state_change_debounce_count = 0;
+      state_change_mutex.unlock();
     }    
   }
   else
@@ -87,11 +97,15 @@ bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr&
     // Enable
     if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN)
     {
-    
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
+
+      state_change_mutex.lock();
+      recent_state_change = true;
+      state_change_debounce_count = 0;
+      state_change_mutex.unlock();
     }
 
     // Disable
@@ -101,6 +115,11 @@ bool PublishControlBoardRev2::check_is_enabled(const sensor_msgs::Joy::ConstPtr&
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
+
+      state_change_mutex.lock();
+      recent_state_change = true;
+      state_change_debounce_count = 0;
+      state_change_mutex.unlock();
     }
   }
 
