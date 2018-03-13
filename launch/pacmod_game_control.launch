@@ -4,7 +4,7 @@
   <arg name="use_socketcan" default="false" />
 
   <!-- PACMod Board Revision -->
-  <arg name="is_pacmod_3" default="true" />
+  <arg name="is_pacmod_3" default="false" />
 
   <!-- Vehicle types are:
        0: Polaris GEM/eLXD

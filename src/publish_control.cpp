@@ -22,6 +22,7 @@ std::unordered_map<JoyAxis, int, EnumHash> PublishControl::axes;
 std::unordered_map<JoyButton, int, EnumHash> PublishControl::btns;
 pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
 bool PublishControl::pacmod_enable;
+bool PublishControl::prev_enable = false;
 bool PublishControl::recent_state_change = false;
 uint8_t PublishControl::state_change_debounce_count = 0;
 
@@ -43,7 +44,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 {
   try
   {
-    if (check_is_enabled(msg) == true)
+    // Only send messages when enabled, or when the state changes between enabled/disabled
+    bool curr_enable = check_is_enabled(msg);
+    if (curr_enable == true || curr_enable != prev_enable)
     {
       // Steering
       publish_steering_message(msg);
@@ -63,6 +66,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
       // Lights and horn
       publish_lights_horn_wipers_message(msg);
     }
+    prev_enable = curr_enable;
   }
   catch (const std::out_of_range& oor)
   {
