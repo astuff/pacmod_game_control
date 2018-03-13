@@ -15,6 +15,7 @@
 #include <pacmod_msgs/SystemCmdBool.h>
 #include <pacmod_msgs/SystemCmdFloat.h>
 #include <pacmod_msgs/SystemCmdInt.h>
+#include <pacmod_msgs/SystemRptInt.h>
 
 namespace AS
 {
@@ -26,7 +27,13 @@ class PublishControlBoardRev3 :
 {
 public:
 
-    PublishControlBoardRev3();
+  PublishControlBoardRev3();
+  static void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+  static void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+
+  // Variables
+  static int last_shift_cmd;
+  static int last_turn_cmd;
 
 private:
   
@@ -37,6 +44,10 @@ private:
   void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
   void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
   void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
+
+  // ROS Subscribers
+  ros::Subscriber shift_sub;
+  ros::Subscriber turn_sub;
 
 };
 

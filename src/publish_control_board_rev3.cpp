@@ -9,9 +9,16 @@
 
 using namespace AS::Joystick;
 
+int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
+int PublishControlBoardRev3::last_turn_cmd = SIGNAL_OFF;
+
 PublishControlBoardRev3::PublishControlBoardRev3() :
   PublishControl()
 {
+  // Subscribe to messages
+  shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControlBoardRev3::callback_shift_rpt);
+  turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
+
   // Advertise published messages
   turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
   headlight_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
@@ -21,6 +28,22 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   accelerator_cmd_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
   steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::SteerSystemCmd>("/pacmod/as_rx/steer_cmd", 20);
   brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
+}
+
+void PublishControlBoardRev3::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+{
+  shift_mutex.lock();
+  // Store the latest value read from the gear state to be sent on enable/disable
+  last_shift_cmd = msg->output;
+  shift_mutex.unlock();
+}
+
+void PublishControlBoardRev3::callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+{
+  turn_mutex.lock();
+  // Store the latest value read from the gear state to be sent on enable/disable
+  last_turn_cmd = msg->output;
+  turn_mutex.unlock();
 }
 
 void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
@@ -70,6 +93,8 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
     turn_signal_cmd_pub_msg.command = SIGNAL_LEFT;
   else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
     turn_signal_cmd_pub_msg.command = SIGNAL_RIGHT;
+  else if (pacmod_enable != prev_enable)
+    turn_signal_cmd_pub_msg.command = last_turn_cmd;
   else
     turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
 
@@ -79,8 +104,9 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
     if(msg->axes[2] < -0.5)
       turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
 
-    if (last_axes.empty() ||
-        last_axes[2] != msg->axes[2])
+    if ((last_axes.empty() ||
+        last_axes[2] != msg->axes[2]) ||
+        (pacmod_enable != prev_enable))
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
   }
   else
@@ -88,9 +114,10 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
     if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
       turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
 
-    if (last_axes.empty() ||
+    if ((last_axes.empty() ||
         last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
-        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]])
+        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]]) ||
+        (pacmod_enable != prev_enable))
     {
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
     }
@@ -136,6 +163,15 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     shift_cmd_pub_msg.enable = pacmod_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
     shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+    shift_cmd_pub.publish(shift_cmd_pub_msg);
+  }
+
+  if (pacmod_enable != prev_enable)
+  {
+    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+    shift_cmd_pub_msg.enable = pacmod_enable;
+    shift_cmd_pub_msg.ignore_overrides = false;
+    shift_cmd_pub_msg.command = last_shift_cmd;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
