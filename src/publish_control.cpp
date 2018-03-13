@@ -22,6 +22,8 @@ std::unordered_map<JoyAxis, int, EnumHash> PublishControl::axes;
 std::unordered_map<JoyButton, int, EnumHash> PublishControl::btns;
 pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
 bool PublishControl::pacmod_enable;
+bool PublishControl::recent_state_change = false;
+uint8_t PublishControl::state_change_debounce_count = 0;
 
 PublishControl::PublishControl()
 {
@@ -76,9 +78,23 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
  */
 void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
-  enable_mutex.lock();
-  pacmod_enable = msg->data;
-  enable_mutex.unlock();
+  state_change_mutex.lock();
+
+  if (!recent_state_change)
+  {
+    enable_mutex.lock();
+    pacmod_enable = msg->data;
+    enable_mutex.unlock();
+  }
+  else
+  {
+    state_change_debounce_count++;
+
+    if (state_change_debounce_count > STATE_CHANGE_DEBOUNCE_THRESHOLD)
+      recent_state_change = false;
+  }
+
+  state_change_mutex.unlock();
 }
 
 /*

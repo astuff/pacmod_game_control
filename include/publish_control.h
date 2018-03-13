@@ -66,6 +66,8 @@ protected:
   // state vectors
   std::vector<float> last_axes;
   std::vector<int> last_buttons;
+  static bool recent_state_change;
+  static uint8_t state_change_debounce_count;
   
 private:
 
