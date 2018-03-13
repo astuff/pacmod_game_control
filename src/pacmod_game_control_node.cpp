@@ -6,6 +6,7 @@
 */
 
 #include "publish_control_board_rev2.h"
+#include "publish_control_board_rev3.h"
 #include "globals.h"
 #include "startup_checks.h"
 
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
   if(run_startup_checks_error(&priv) == true)
     return 0;
 
-  PublishControlBoardRev2 publish_control_board_rev2;
+  PublishControlBoardRev3 publish_control_board_rev3;
 
   // TODO : add code for multiple board revs
 
