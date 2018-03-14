@@ -21,7 +21,7 @@ class PublishControlFactory
 {
 public:
     PublishControlFactory();
-    static PublishControl* create(bool is_pacmod_3);
+    static std::unique_ptr<PublishControl> create(int board_rev);
 };
 
 }

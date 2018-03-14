@@ -27,11 +27,20 @@ int main(int argc, char *argv[])
     return 0;
 
   // Check ROS params for board type
-  bool is_pacmod_3 = false;
-  priv.getParam("is_pacmod_3", is_pacmod_3);
+  int board_rev = 1;
+  priv.getParam("pacmod_board_rev", board_rev);
 
   // Create an instance of the appropriate board type
-  PublishControl* board = PublishControlFactory::create(is_pacmod_3);
+  std::unique_ptr<PublishControl> board;
+  try
+  {
+    board = PublishControlFactory::create(board_rev);
+  }
+  catch (const std::invalid_argument& ia)
+  {
+    ROS_ERROR("An invalid argument exception was caught. This probably means you entered an invalid PACMod board revision.");
+    return 0;
+  }
 
   spinner.start();
   ros::waitForShutdown();
