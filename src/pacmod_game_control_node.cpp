@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   }
   catch (const std::invalid_argument& ia)
   {
-    ROS_ERROR("An invalid argument exception was caught. This probably means you entered an invalid PACMod board revision.");
+    ROS_ERROR("Invalid PACMod Board Version received. Board requested was %d", board_rev);
     return 0;
   }
 
