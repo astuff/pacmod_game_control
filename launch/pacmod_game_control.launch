@@ -5,11 +5,7 @@
 
   <!-- PACMod Board Revision -->
   <arg name="pacmod_board_rev" default="2" />
-
-  <!--   PACMod Revision Boolean Arguments  -->
-  <!-- Used to launch appropriate PM Driver -->
-  <arg name="is_pacmod_1_or_2" value="$(eval pacmod_board_rev == 1 or pacmod_board_rev == 2)"/>
-  <arg name="is_pacmod_3" value="$(eval pacmod_board_rev == 3)"/>
+  <arg name="is_pacmod_3" default="false" />
 
   <!-- Vehicle types are:
        0: Polaris GEM/eLXD
@@ -51,7 +47,7 @@
   <!-- For GEM, 11.176m/s -->
   <arg name="max_veh_speed" default="11.176" />
 
-  <group if="$(arg is_pacmod_1_or_2)">
+  <group unless="$(arg is_pacmod_3)">
     <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)" ns="pacmod">
       <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
       <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
