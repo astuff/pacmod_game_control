@@ -9,16 +9,47 @@
 #define PUBLISH_CONTROL_BOARD_REV3_H
 
 #include "globals.h"
+#include "publish_control.h"
+
+#include <pacmod_msgs/SteerSystemCmd.h>
+#include <pacmod_msgs/SystemCmdBool.h>
+#include <pacmod_msgs/SystemCmdFloat.h>
+#include <pacmod_msgs/SystemCmdInt.h>
+#include <pacmod_msgs/SystemRptInt.h>
 
 namespace AS
 {
 namespace Joystick
 {
 
-/*
- * Called when a game controller message is received
- */
-void publish_control_board_rev3(const sensor_msgs::Joy::ConstPtr& msg);
+class PublishControlBoardRev3 :
+  public PublishControl
+{
+public:
+
+  PublishControlBoardRev3();
+  static void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+  static void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+
+  // Variables
+  static int last_shift_cmd;
+  static int last_turn_cmd;
+
+private:
+  
+  // private functions
+  void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
+
+  // ROS Subscribers
+  ros::Subscriber shift_sub;
+  ros::Subscriber turn_sub;
+
+};
 
 }
 }

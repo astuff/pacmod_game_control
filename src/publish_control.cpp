@@ -22,8 +22,60 @@ std::unordered_map<JoyAxis, int, EnumHash> PublishControl::axes;
 std::unordered_map<JoyButton, int, EnumHash> PublishControl::btns;
 pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
 bool PublishControl::pacmod_enable;
+bool PublishControl::prev_enable = false;
 bool PublishControl::recent_state_change = false;
 uint8_t PublishControl::state_change_debounce_count = 0;
+
+PublishControl::PublishControl()
+{
+  // Subscribe to messages
+  joy_sub = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
+  speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed);
+  enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &PublishControl::callback_pacmod_enable);
+
+  // Advertise published messages
+  enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
+}
+
+/*
+ * Called when a game controller message is received
+ */
+void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  try
+  {
+    // Only send messages when enabled, or when the state changes between enabled/disabled
+    bool curr_enable = check_is_enabled(msg);
+    if (curr_enable == true || curr_enable != prev_enable)
+    {
+      // Steering
+      publish_steering_message(msg);
+
+      // Turn signals
+      publish_turn_signal_message(msg);
+
+      // Shifting
+      publish_shifting_message(msg);
+
+      // Accelerator
+      publish_accelerator_message(msg);
+
+      // Brake
+      publish_brake_message(msg);
+
+      // Lights and horn
+      publish_lights_horn_wipers_message(msg);
+    }
+    prev_enable = curr_enable;
+  }
+  catch (const std::out_of_range& oor)
+  {
+    ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
+  }
+
+  last_axes.clear();
+  last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
+}
 
 /*
  * Called when the node receives a message from the enable topic
@@ -59,3 +111,59 @@ void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::Cons
   speed_mutex.unlock();
 }
 
+bool PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  bool local_enable = false;
+
+  enable_mutex.lock();
+  local_enable = pacmod_enable;
+  enable_mutex.unlock();
+
+  if (controller == HRI_SAFE_REMOTE)
+  {
+    // Enable
+    if (msg->axes[axes[DPAD_UD]] >= 0.9)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = true;
+      local_enable = true;
+      enable_pub.publish(bool_pub_msg);
+    }
+
+    // Disable
+    if (msg->axes[axes[DPAD_UD]] <= -0.9)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = false;
+      local_enable = false;
+      enable_pub.publish(bool_pub_msg);
+    }
+  }
+  else
+  {
+    // Enable
+    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN)
+    {
+
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = true;
+      local_enable = true;
+      enable_pub.publish(bool_pub_msg);
+    }
+
+    // Disable
+    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = false;
+      local_enable = false;
+      enable_pub.publish(bool_pub_msg);
+    }
+  }
+
+  enable_mutex.lock();
+  pacmod_enable = local_enable;
+  enable_mutex.unlock();
+
+  return local_enable;
+}

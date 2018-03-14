@@ -15,8 +15,6 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
-#include <pacmod_msgs/PositionWithSpeed.h>
-#include <pacmod_msgs/PacmodCmd.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
 
 namespace AS
@@ -120,6 +118,8 @@ static const uint16_t BUTTON_DOWN = 1;
 static std::mutex enable_mutex;
 static std::mutex speed_mutex;
 static std::mutex state_change_mutex;
+static std::mutex shift_mutex;
+static std::mutex turn_mutex;
 
 }
 }
