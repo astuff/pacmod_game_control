@@ -56,6 +56,10 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
 
   steer_msg.ignore_overrides = false;
 
+  // If the enable flag just went to true, send an override clear
+  if (!prev_enable && pacmod_enable)
+    steer_msg.clear_override = true;
+
   float range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
   float speed_scale = 1.0;
@@ -88,6 +92,10 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
   turn_signal_cmd_pub_msg.enable = pacmod_enable;
 
   turn_signal_cmd_pub_msg.ignore_overrides = false;
+
+  // If the enable flag just went to true, send an override clear
+  if (!prev_enable && pacmod_enable)
+    turn_signal_cmd_pub_msg.clear_override = true;
   
   if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
     turn_signal_cmd_pub_msg.command = SIGNAL_LEFT;
@@ -132,6 +140,9 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = pacmod_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && pacmod_enable)
+      shift_cmd_pub_msg.clear_override = true;
     shift_cmd_pub_msg.command = SHIFT_REVERSE;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -142,6 +153,9 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = pacmod_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && pacmod_enable)
+      shift_cmd_pub_msg.clear_override = true;
     shift_cmd_pub_msg.command = SHIFT_LOW;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -152,6 +166,9 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = pacmod_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && pacmod_enable)
+      shift_cmd_pub_msg.clear_override = true;
     shift_cmd_pub_msg.command = SHIFT_PARK;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -162,15 +179,22 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = pacmod_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && pacmod_enable)
+      shift_cmd_pub_msg.clear_override = true;
     shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
+  // If only an enable/disable button was pressed
   if (pacmod_enable != prev_enable)
   {
     pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = pacmod_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && pacmod_enable)
+      shift_cmd_pub_msg.clear_override = true;
     shift_cmd_pub_msg.command = last_shift_cmd;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -184,6 +208,10 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
   accelerator_cmd_pub_msg.enable = pacmod_enable;
 
   accelerator_cmd_pub_msg.ignore_overrides = false;
+
+  // If the enable flag just went to true, send an override clear
+  if (!prev_enable && pacmod_enable)
+    accelerator_cmd_pub_msg.clear_override = true;
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -246,6 +274,10 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
 
   brake_msg.ignore_overrides = false;
 
+  // If the enable flag just went to true, send an override clear
+  if (!prev_enable && pacmod_enable)
+    brake_msg.clear_override = true;
+
   if (controller == HRI_SAFE_REMOTE)
   {
     brake_msg.command = (msg->axes[axes[RIGHT_STICK_UD]] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
@@ -301,6 +333,9 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
       pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
       headlight_cmd_pub_msg.enable = pacmod_enable;
       headlight_cmd_pub_msg.ignore_overrides = false;
+      // If the enable flag just went to true, send an override clear
+      if (!prev_enable && pacmod_enable)
+        headlight_cmd_pub_msg.clear_override = true;
       headlight_cmd_pub_msg.command = headlight_state;
       headlight_cmd_pub.publish(headlight_cmd_pub_msg);
     }
@@ -309,6 +344,9 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     pacmod_msgs::SystemCmdBool horn_cmd_pub_msg;
     horn_cmd_pub_msg.enable = pacmod_enable;
     horn_cmd_pub_msg.ignore_overrides = false;
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && pacmod_enable)
+      horn_cmd_pub_msg.clear_override = true;
     if (msg->buttons[7] == 1)
       horn_cmd_pub_msg.command = 1;
     else
@@ -331,6 +369,9 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
       pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
       wiper_cmd_pub_msg.enable = pacmod_enable;
       wiper_cmd_pub_msg.ignore_overrides = false;
+      // If the enable flag just went to true, send an override clear
+      if (!prev_enable && pacmod_enable)
+        wiper_cmd_pub_msg.clear_override = true;
       wiper_cmd_pub_msg.command = wiper_state;
       wiper_cmd_pub.publish(wiper_cmd_pub_msg);
     }
