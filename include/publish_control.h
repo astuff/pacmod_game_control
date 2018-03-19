@@ -43,7 +43,7 @@ public:
 
 protected:
 
-  virtual bool check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
+  virtual void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
 
   // ROS node handle
   ros::NodeHandle n;
@@ -67,6 +67,9 @@ protected:
   // state vectors
   std::vector<float> last_axes;
   std::vector<int> last_buttons;
+
+  // Other Variables
+  static bool local_enable;
   static bool recent_state_change;
   static uint8_t state_change_debounce_count;
   
