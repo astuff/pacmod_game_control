@@ -128,6 +128,9 @@ bool PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
 
     // Disable
@@ -137,6 +140,9 @@ bool PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
   }
   else
@@ -144,11 +150,13 @@ bool PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     // Enable
     if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN)
     {
-
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
 
     // Disable
@@ -158,6 +166,9 @@ bool PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
   }
 
