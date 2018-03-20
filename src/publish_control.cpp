@@ -23,6 +23,7 @@ std::unordered_map<JoyButton, int, EnumHash> PublishControl::btns;
 pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
 bool PublishControl::pacmod_enable;
 bool PublishControl::prev_enable = false;
+bool PublishControl::local_enable = false;
 bool PublishControl::recent_state_change = false;
 uint8_t PublishControl::state_change_debounce_count = 0;
 
@@ -45,9 +46,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
   try
   {
     // Only send messages when enabled, or when the state changes between enabled/disabled
-    bool curr_enable = check_is_enabled(msg);
+    check_is_enabled(msg);
 
-    if (curr_enable == true || curr_enable != prev_enable)
+    if (local_enable == true || local_enable != prev_enable)
     {
       // Steering
       publish_steering_message(msg);
@@ -68,7 +69,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
       publish_lights_horn_wipers_message(msg);
     }
 
-    prev_enable = curr_enable;
+    prev_enable = local_enable;
   }
   catch (const std::out_of_range& oor)
   {
@@ -113,9 +114,9 @@ void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::Cons
   speed_mutex.unlock();
 }
 
-bool PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  bool local_enable = false;
+  bool state_changed = false;
 
   enable_mutex.lock();
   local_enable = pacmod_enable;
@@ -124,48 +125,52 @@ bool PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   if (controller == HRI_SAFE_REMOTE)
   {
     // Enable
-    if (msg->axes[axes[DPAD_UD]] >= 0.9)
+    if (msg->axes[axes[DPAD_UD]] >= 0.9 && !local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
+      state_changed = true;
     }
 
     // Disable
-    if (msg->axes[axes[DPAD_UD]] <= -0.9)
+    if (msg->axes[axes[DPAD_UD]] <= -0.9 && local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
+      state_changed = true;
     }
   }
   else
   {
     // Enable
-    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN)
+    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && !local_enable)
     {
-
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
+      state_changed = true;
     }
 
     // Disable
-    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
+    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
+      state_changed = true;
     }
   }
 
-  enable_mutex.lock();
-  pacmod_enable = local_enable;
-  enable_mutex.unlock();
-
-  return local_enable;
+  if (state_changed)
+  {
+    enable_mutex.lock();
+    pacmod_enable = local_enable;
+    enable_mutex.unlock();
+  }
 }
