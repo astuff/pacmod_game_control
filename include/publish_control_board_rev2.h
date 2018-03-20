@@ -23,19 +23,17 @@ namespace Joystick
 class PublishControlBoardRev2 :
   public PublishControl
 {
-public:
+  public:
+    PublishControlBoardRev2();
 
-  PublishControlBoardRev2();
-
-private:
-
-  // private functions
-  void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
+  private:
+    // private functions
+    void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
 };
 
 }
