@@ -7,28 +7,6 @@
 /*
 HRI joystick mappings as found by ROS Kinetic Joy node on Ubuntu 16.04
 Last modified 2-13-2018 by Lucas Buckland
-
-Left thumbstick:
-*Axis 0 is left (+1) to right (-1), centered=0.0
-*Axis 1 is up (+1) to down (-1), centered=0.0
-
-Triggers:
-*Axis 2 is left trigger: up=1.0, center=0.0, down=-1.0
-*Axis 5 is right trigger: up=1.0, center=0.0, down=-1.0
-
-Right thumbstick:
-*Axis 3 is left (+1) to right (-1), centered=0.0
-*Axis 4 is up (+1) to down (-1), centered=0.0
-
-Arrow buttons:
-*Axis 6 is left (+1.0) and right (-1.0) arrow buttons, not pressed = 0.0
-*Axis 7 is up (+1.0) and down (-1.0) arrow buttons, not pressed = 0.0
-
-Number buttons:
-"1" button pressed = button 0 = 1, not pressed = 0
-"2" button pressed = button 1 = 1, not pressed = 0
-"3" button pressed = button 2 = 1, not pressed = 0
-"4" button pressed = button 3 = 1, not pressed = 0
 */
 
 #include "publish_control_board_rev2.h"
@@ -56,7 +34,6 @@ void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::C
   pacmod_msgs::PositionWithSpeed steer_msg;
 
   float range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
-
   float speed_scale = 1.0;
   bool speed_valid = false;
   float current_speed = 0.0;
@@ -75,7 +52,6 @@ void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::C
     speed_scale = STEER_OFFSET - fabs((current_speed / (max_veh_speed * STEER_SCALE_FACTOR))); //Never want to reach 0 speed scale.
 
   steer_msg.angular_position = (range_scale * max_rot_rad) * msg->axes[axes[steering_axis]];
-
   steer_msg.angular_velocity_limit = steering_max_speed * speed_scale;
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }
@@ -97,8 +73,7 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
     if(msg->axes[2] < -0.5)
       turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_HAZARD;
 
-    if (last_axes.empty() ||
-        last_axes[2] != msg->axes[2])
+    if (last_axes.empty() || last_axes[2] != msg->axes[2])
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
   }
   else
@@ -195,8 +170,7 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
           (vehicle_type == VEHICLE_4))
         accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
       else
-        accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR
-          + ACCEL_OFFSET;
+        accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
     }
     else
     {
@@ -222,13 +196,9 @@ void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::Cons
       enable_brake = true;
 
     if (enable_brake)
-    {
       brake_msg.f64_cmd = ((msg->axes[axes[LEFT_TRIGGER_AXIS]] + 1.0) / 2.0) * brake_scale_val;
-    }
     else
-    {
       brake_msg.f64_cmd = 0;
-    }
   }
   else
   {
@@ -236,13 +206,9 @@ void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::Cons
       enable_brake = true;
 
     if (enable_brake)
-    {
       brake_msg.f64_cmd = -((msg->axes[axes[LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
-    }
     else
-    {
       brake_msg.f64_cmd = 0;
-    }
   }
 
   brake_set_position_pub.publish(brake_msg);
