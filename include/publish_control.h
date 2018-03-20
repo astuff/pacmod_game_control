@@ -66,15 +66,6 @@ class PublishControl
     std::vector<float> last_axes;
     std::vector<int> last_buttons;
 
-    // ROS subscribers
-    ros::Subscriber joy_sub;
-    ros::Subscriber speed_sub;
-    ros::Subscriber enable_sub;
-
-    // state vectors
-    std::vector<float> last_axes;
-    std::vector<int> last_buttons;
-
     // Other Variables
     static bool local_enable;
     static bool recent_state_change;
