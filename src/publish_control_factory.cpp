@@ -9,13 +9,15 @@
 
 using namespace AS::Joystick;
 
-PublishControlFactory::PublishControlFactory() { }
+PublishControlFactory::PublishControlFactory()
+{}
 
-std::unique_ptr<PublishControl> PublishControlFactory::create(int board_rev) {
+std::unique_ptr<PublishControl> PublishControlFactory::create(int board_rev)
+{
   if (board_rev == 1 || board_rev == 2)
-    return std::unique_ptr<PublishControlBoardRev2> {new PublishControlBoardRev2};
+    return std::unique_ptr<PublishControlBoardRev2>(new PublishControlBoardRev2);
   else if (board_rev == 3)
-    return std::unique_ptr<PublishControlBoardRev3> {new PublishControlBoardRev3};
+    return std::unique_ptr<PublishControlBoardRev3>(new PublishControlBoardRev3);
   else
     throw std::invalid_argument("Invalid option.");
 }

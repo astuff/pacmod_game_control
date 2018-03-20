@@ -25,30 +25,27 @@ namespace Joystick
 class PublishControlBoardRev3 :
   public PublishControl
 {
-public:
+  public:
+    PublishControlBoardRev3();
+    static void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+    static void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
 
-  PublishControlBoardRev3();
-  static void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
-  static void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+    // Variables
+    static int last_shift_cmd;
+    static int last_turn_cmd;
 
-  // Variables
-  static int last_shift_cmd;
-  static int last_turn_cmd;
+  private:
+    // private functions
+    void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
 
-private:
-  
-  // private functions
-  void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
-
-  // ROS Subscribers
-  ros::Subscriber shift_sub;
-  ros::Subscriber turn_sub;
-
+    // ROS Subscribers
+    ros::Subscriber shift_sub;
+    ros::Subscriber turn_sub;
 };
 
 }

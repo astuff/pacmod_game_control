@@ -46,6 +46,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
   {
     // Only send messages when enabled, or when the state changes between enabled/disabled
     bool curr_enable = check_is_enabled(msg);
+
     if (curr_enable == true || curr_enable != prev_enable)
     {
       // Steering
@@ -66,6 +67,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
       // Lights and horn
       publish_lights_horn_wipers_message(msg);
     }
+
     prev_enable = curr_enable;
   }
   catch (const std::out_of_range& oor)
