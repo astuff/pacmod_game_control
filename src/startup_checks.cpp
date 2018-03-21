@@ -58,7 +58,8 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
         vehicle_type != POLARIS_RANGER &&
         vehicle_type != LEXUS_RX_450H &&
         vehicle_type != INTERNATIONAL_PROSTAR &&
-        vehicle_type != VEHICLE_4)
+        vehicle_type != VEHICLE_4 &&
+        vehicle_type != VEHICLE_5)
     {
       ROS_ERROR("vehicle_type is invalid");
       exit = true;
@@ -72,9 +73,10 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
 
   if (vehicle_type == LEXUS_RX_450H)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE2;
-
-  if (vehicle_type == VEHICLE_4)
+  else if (vehicle_type == VEHICLE_4)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE4;
+  else if (vehicle_type == VEHICLE_5)
+    PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE5;
     
   PublishControl::vehicle_type = vehicle_type;
     
