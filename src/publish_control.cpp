@@ -131,7 +131,9 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
-      state_changed = true;
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
 
     // Disable
@@ -141,7 +143,9 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
-      state_changed = true;
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
   }
   else
@@ -153,7 +157,9 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       bool_pub_msg.data = true;
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
-      state_changed = true;
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
 
     // Disable
@@ -163,7 +169,9 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       bool_pub_msg.data = false;
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
-      state_changed = true;
+
+      recent_state_change = true;
+      state_change_debounce_count = 0;
     }
   }
 
