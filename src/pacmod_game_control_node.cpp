@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 
   // Create an instance of the appropriate board type
   std::unique_ptr<PublishControl> board;
+
   try
   {
     board = PublishControlFactory::create(board_rev);
