@@ -235,8 +235,9 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 
     if (enable_accel)
     {
-      if ((vehicle_type == LEXUS_RX_450H) ||
-          (vehicle_type == VEHICLE_4))
+      if (vehicle_type == LEXUS_RX_450H ||
+          vehicle_type == VEHICLE_4 ||
+          vehicle_type == VEHICLE_5)
         accelerator_cmd_pub_msg.command = (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
       else
         accelerator_cmd_pub_msg.command = (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
@@ -253,8 +254,9 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 
     if (enable_accel)
     {
-      if ((vehicle_type == LEXUS_RX_450H) ||
-          (vehicle_type == VEHICLE_4))
+      if (vehicle_type == LEXUS_RX_450H ||
+          vehicle_type == VEHICLE_4 ||
+          vehicle_type == VEHICLE_5)
         accelerator_cmd_pub_msg.command = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
       else
         accelerator_cmd_pub_msg.command = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
@@ -321,7 +323,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
   static uint16_t headlight_state = 0;
   static uint16_t wiper_state = 0;
   
-  if (vehicle_type == 2 && controller != HRI_SAFE_REMOTE)
+  if (vehicle_type == LEXUS_RX_450H && controller != HRI_SAFE_REMOTE)
   {
     // Headlights
     if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
@@ -360,7 +362,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     horn_cmd_pub.publish(horn_cmd_pub_msg);
   }
 
-  if (vehicle_type == 3 && controller != HRI_SAFE_REMOTE) // Semi
+  if (vehicle_type == INTERNATIONAL_PROSTAR && controller != HRI_SAFE_REMOTE) // Semi
   {
     // Windshield wipers
     if (msg->axes[7] == AXES_MAX)
