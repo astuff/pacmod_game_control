@@ -39,6 +39,7 @@ class PublishControl
     static pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt;
     static bool pacmod_enable;
     static bool prev_enable;
+    static bool last_pacmod_state;
 
   protected:
     virtual void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
