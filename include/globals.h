@@ -97,7 +97,6 @@ struct EnumHash
 };
 
 // static constants
-static const uint8_t STATE_CHANGE_DEBOUNCE_THRESHOLD = 4;
 static const float ROT_RANGE_SCALER_LB = 0.05;
 static const float ACCEL_SCALE_FACTOR = 0.6;
 static const float ACCEL_OFFSET = 0.21;

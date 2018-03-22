@@ -24,8 +24,7 @@ pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
 bool PublishControl::pacmod_enable;
 bool PublishControl::prev_enable = false;
 bool PublishControl::local_enable = false;
-bool PublishControl::recent_state_change = false;
-uint8_t PublishControl::state_change_debounce_count = 0;
+bool PublishControl::last_pacmod_state = false;
 
 PublishControl::PublishControl()
 {
@@ -85,23 +84,16 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
  */
 void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
-  state_change_mutex.lock();
-
-  if (!recent_state_change)
+  if (msg->data == false &&
+      PublishControl::last_pacmod_state == true)
   {
+    prev_enable = false;
     enable_mutex.lock();
     pacmod_enable = msg->data;
     enable_mutex.unlock();
   }
-  else
-  {
-    state_change_debounce_count++;
 
-    if (state_change_debounce_count > STATE_CHANGE_DEBOUNCE_THRESHOLD)
-      recent_state_change = false;
-  }
-
-  state_change_mutex.unlock();
+  PublishControl::last_pacmod_state = msg->data;
 }
 
 /*
@@ -132,8 +124,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
 
-      recent_state_change = true;
-      state_change_debounce_count = 0;
+      state_changed = true;
     }
 
     // Disable
@@ -144,8 +135,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
 
-      recent_state_change = true;
-      state_change_debounce_count = 0;
+      state_changed = true;
     }
   }
   else
@@ -158,8 +148,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       local_enable = true;
       enable_pub.publish(bool_pub_msg);
 
-      recent_state_change = true;
-      state_change_debounce_count = 0;
+      state_changed = true;
     }
 
     // Disable
@@ -170,8 +159,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       local_enable = false;
       enable_pub.publish(bool_pub_msg);
 
-      recent_state_change = true;
-      state_change_debounce_count = 0;
+      state_changed = true;
     }
   }
 
