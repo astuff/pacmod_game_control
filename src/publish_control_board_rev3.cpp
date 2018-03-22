@@ -16,6 +16,7 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   PublishControl()
 {
   // Subscribe to messages
+  enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, &PublishControl::callback_pacmod_enable);
   shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControlBoardRev3::callback_shift_rpt);
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
 
