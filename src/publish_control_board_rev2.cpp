@@ -16,6 +16,9 @@ using namespace AS::Joystick;
 PublishControlBoardRev2::PublishControlBoardRev2() :
   PublishControl()
 {
+  // Subscribe to messages
+  enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &PublishControl::callback_pacmod_enable);
+
   // Advertise published messages
   turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
   headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
