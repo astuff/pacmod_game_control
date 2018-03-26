@@ -25,6 +25,8 @@ bool PublishControl::pacmod_enable;
 bool PublishControl::prev_enable = false;
 bool PublishControl::local_enable = false;
 bool PublishControl::last_pacmod_state = false;
+bool PublishControl::accel_0_rcvd = false;
+bool PublishControl::brake_0_rcvd = false;
 
 PublishControl::PublishControl()
 {
