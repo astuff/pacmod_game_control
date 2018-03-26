@@ -211,7 +211,6 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
-  bool enable_accel;
 
   accelerator_cmd_pub_msg.enable = local_enable;
   accelerator_cmd_pub_msg.ignore_overrides = false;
@@ -232,9 +231,9 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
   else if(controller == LOGITECH_G29)
   {
     if (msg->axes[axes[RIGHT_TRIGGER_AXIS]] != 0)
-      enable_accel = true;
+      PublishControl::accel_0_rcvd = true;
 
-    if (enable_accel)
+    if (PublishControl::accel_0_rcvd)
     {
       if (vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
@@ -251,9 +250,9 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
   else
   {
     if (msg->axes[axes[RIGHT_TRIGGER_AXIS]] != 0)
-      enable_accel = true;
+      PublishControl::accel_0_rcvd = true;
 
-    if (enable_accel)
+    if (PublishControl::accel_0_rcvd)
     {
       if (vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
@@ -274,7 +273,6 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::SystemCmdFloat brake_msg;
-  bool enable_brake;
 
   brake_msg.enable = local_enable;
   brake_msg.ignore_overrides = false;
@@ -290,9 +288,9 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
   else if(controller == LOGITECH_G29)
   {
     if (msg->axes[axes[LEFT_TRIGGER_AXIS]] != 0)
-      enable_brake = true;
+      PublishControl::brake_0_rcvd = true;
 
-    if (enable_brake)
+    if (PublishControl::brake_0_rcvd)
     {
       brake_msg.command = ((msg->axes[axes[LEFT_TRIGGER_AXIS]] + 1.0) / 2.0) * brake_scale_val;
     }
@@ -304,9 +302,9 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
   else
   {
     if (msg->axes[axes[LEFT_TRIGGER_AXIS]] != 0)
-      enable_brake = true;
+      PublishControl::brake_0_rcvd = true;
 
-    if (enable_brake)
+    if (PublishControl::brake_0_rcvd)
     {
       brake_msg.command = -((msg->axes[axes[LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
     }

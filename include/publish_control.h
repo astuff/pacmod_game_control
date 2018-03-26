@@ -40,6 +40,8 @@ class PublishControl
     static bool pacmod_enable;
     static bool prev_enable;
     static bool last_pacmod_state;
+    static bool accel_0_rcvd;
+    static bool brake_0_rcvd;
 
   protected:
     virtual void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);

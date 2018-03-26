@@ -131,7 +131,6 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
 void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
-  bool enable_accel;
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -146,9 +145,9 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
   else if(controller == LOGITECH_G29)
   {
     if (msg->axes[axes[RIGHT_TRIGGER_AXIS]] != 0)
-      enable_accel = true;
+      PublishControl::accel_0_rcvd = true;
 
-    if (enable_accel)
+    if (PublishControl::accel_0_rcvd)
     {
       if ((vehicle_type == LEXUS_RX_450H) ||
           (vehicle_type == VEHICLE_4))
@@ -165,9 +164,9 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
   else
   {
     if (msg->axes[axes[RIGHT_TRIGGER_AXIS]] != 0)
-      enable_accel = true;
+      PublishControl::accel_0_rcvd = true;
 
-    if (enable_accel)
+    if (PublishControl::accel_0_rcvd)
     {
       if ((vehicle_type == LEXUS_RX_450H) ||
           (vehicle_type == VEHICLE_4))
@@ -187,7 +186,6 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
 void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd brake_msg;
-  bool enable_brake;
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -196,9 +194,9 @@ void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::Cons
   else if(controller == LOGITECH_G29)
   {
     if (msg->axes[axes[LEFT_TRIGGER_AXIS]] != 0)
-      enable_brake = true;
+      PublishControl::brake_0_rcvd = true;
 
-    if (enable_brake)
+    if (PublishControl::brake_0_rcvd)
       brake_msg.f64_cmd = ((msg->axes[axes[LEFT_TRIGGER_AXIS]] + 1.0) / 2.0) * brake_scale_val;
     else
       brake_msg.f64_cmd = 0;
@@ -206,9 +204,9 @@ void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::Cons
   else
   {
     if (msg->axes[axes[LEFT_TRIGGER_AXIS]] != 0)
-      enable_brake = true;
+      PublishControl::brake_0_rcvd = true;
 
-    if (enable_brake)
+    if (PublishControl::brake_0_rcvd)
       brake_msg.f64_cmd = -((msg->axes[axes[LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
     else
       brake_msg.f64_cmd = 0;
