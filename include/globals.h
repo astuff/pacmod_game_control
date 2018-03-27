@@ -97,13 +97,13 @@ struct EnumHash
 };
 
 // static constants
-static const float ROT_RANGE_SCALER_LB = 0.05;
+static const float ROT_RANGE_SCALER_LB = 0.0;//0.05;
 static const float ACCEL_SCALE_FACTOR = 0.6;
 static const float ACCEL_OFFSET = 0.21;
 static const float STEER_SCALE_FACTOR = 1.5;
 static const float STEER_OFFSET = 1.0;
 static const float MAX_ROT_RAD_VEHICLE2 = 6.5;
-static const float MAX_ROT_RAD_VEHICLE4 = 7.083;
+static const float MAX_ROT_RAD_VEHICLE4 = 8.5;//7.083;
 static const float MAX_ROT_RAD_VEHICLE5 = 9.285;
 static const float MAX_ROT_RAD_DEFAULT = 10.9956;
 static const float AXES_MIN = -1.0;
