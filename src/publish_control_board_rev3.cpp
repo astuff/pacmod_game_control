@@ -322,7 +322,9 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
   static uint16_t headlight_state = 0;
   static uint16_t wiper_state = 0;
   
-  if (vehicle_type == LEXUS_RX_450H && controller != HRI_SAFE_REMOTE)
+  if ((vehicle_type == LEXUS_RX_450H ||
+       vehicle_type == VEHICLE_5) &&
+      controller != HRI_SAFE_REMOTE)
   {
     // Headlights
     if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
@@ -353,7 +355,8 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     // If the enable flag just went to true, send an override clear
     if (!prev_enable && local_enable)
       horn_cmd_pub_msg.clear_override = true;
-    if (msg->buttons[7] == 1)
+
+    if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
       horn_cmd_pub_msg.command = 1;
     else
       horn_cmd_pub_msg.command = 0;
