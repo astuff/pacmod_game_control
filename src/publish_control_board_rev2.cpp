@@ -239,7 +239,7 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
     // Horn
     pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
 
-    if (msg->buttons[7] == 1)
+    if (msg->buttons[btns[RIGHT_BUMPER]] == BUTTON_DOWN)
       horn_cmd_pub_msg.ui16_cmd = 1;
     else
       horn_cmd_pub_msg.ui16_cmd = 0;
@@ -250,7 +250,7 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
   if (vehicle_type == 3 && controller != HRI_SAFE_REMOTE) // Semi
   {
     // Windshield wipers
-    if (msg->axes[7] == AXES_MAX)
+    if (msg->buttons[btns[LEFT_BUMPER]] == BUTTON_DOWN)
     {
       // Rotate through wiper states as button is pressed 
       wiper_state++;
