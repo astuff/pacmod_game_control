@@ -135,7 +135,9 @@ bool AS::Joystick::check_controller_type(ros::NodeHandle * nodeH)
     else if (controller_string == "LOGITECH_G29")
     {
       PublishControl::controller = LOGITECH_G29;
-
+			
+			PublishControl::max_rot_rad = 7.85;
+			
       // steering wheel, not right stick
       PublishControl::axes[RIGHT_STICK_LR] = 0;
       // throttle pedal, not right trigger

@@ -12,9 +12,9 @@
        1: Polaris Ranger
        2: Lexus RX 450H
        3: International Prostar+ 122 -->
-  <arg name="vehicle_type" default="0"/>
+  <arg name="vehicle_type" default="2"/>
 
-  <arg name="pacmod_can_hardware_id" default="12345" />
+  <arg name="pacmod_can_hardware_id" default="41316" />
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
 
@@ -23,7 +23,7 @@
        POLARIS_RANGER
        LEXUS_RX_450H
        INTERNATIONAL_PROSTAR_122 -->
-  <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
+  <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
     
   <arg name="steering_stick" default="LEFT"/>
 
@@ -74,6 +74,7 @@
       <param name="coalesce_interval" type="double" value="0.02"/>
       <param name="default_trig_val" value="true"/>
       <param name="dev" value="/dev/input/js0"/>
+      <param name="deadzone" value="0.0"/>
     </node>
 
     <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
