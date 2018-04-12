@@ -74,7 +74,6 @@
       <param name="coalesce_interval" type="double" value="0.02"/>
       <param name="default_trig_val" value="true"/>
       <param name="dev" value="/dev/input/js0"/>
-      <param name="deadzone" value="0.0"/>
     </node>
 
     <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
