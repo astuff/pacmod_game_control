@@ -60,7 +60,11 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
   if (!prev_enable && local_enable)
     steer_msg.clear_override = true;
 
-  float range_scale = 1.0;//fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+  float range_scale;
+  if (vehicle_type == VEHICLE_4)
+    range_scale = 1.0;
+  else
+    range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
   float speed_scale = 1.0;
   bool speed_valid = false;

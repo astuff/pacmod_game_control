@@ -4,17 +4,17 @@
   <arg name="use_socketcan" default="false" />
 
   <!-- PACMod Board Revision -->
-  <arg name="pacmod_board_rev" default="3" />
-  <arg name="is_pacmod_3" default="true" />
+  <arg name="pacmod_board_rev" default="2" />
+  <arg name="is_pacmod_3" default="false" />
 
   <!-- Vehicle types are:
        0: Polaris GEM/eLXD
        1: Polaris Ranger
        2: Lexus RX 450H
        3: International Prostar+ 122 -->
-  <arg name="vehicle_type" default="4"/>
+  <arg name="vehicle_type" default="0"/>
 
-  <arg name="pacmod_can_hardware_id" default="43069" />
+  <arg name="pacmod_can_hardware_id" default="12345" />
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
 
@@ -23,7 +23,7 @@
        POLARIS_RANGER
        LEXUS_RX_450H
        INTERNATIONAL_PROSTAR_122 -->
-  <arg name="pacmod_vehicle_type" default="AUDI_A3_ETRON" />
+  <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
     
   <arg name="steering_stick" default="LEFT"/>
 
@@ -33,7 +33,7 @@
        LOGITECH_G29 (steering wheel and pedals)
        NINTENDO_SWITCH_WIRED_PLUS
        XBOX_ONE -->
-  <arg name="controller_type" default="LOGITECH_G29"/>
+  <arg name="controller_type" default="LOGITECH_F310"/>
         
   <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
   <arg name="steering_max_speed" default="3.3"/>
