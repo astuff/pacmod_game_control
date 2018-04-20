@@ -46,28 +46,34 @@ bool AS::Joystick::check_steering_stick_left_right(ros::NodeHandle * nodeH)
 bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
 {
   bool exit = false;
+  std::string vehicle_type_string;
   int vehicle_type = -1;
-  
-  // Vehicle type 0 is Polaris GEM, type 1 is Polaris Ranger, type 3 is semi
-  if (nodeH->getParam("vehicle_type", vehicle_type))
-  {
-    ROS_INFO("Got vehicle_type: %d", vehicle_type);
 
-    // TODO : macro for vehicle type
-    if (vehicle_type != POLARIS_GEM &&
-        vehicle_type != POLARIS_RANGER &&
-        vehicle_type != LEXUS_RX_450H &&
-        vehicle_type != INTERNATIONAL_PROSTAR &&
-        vehicle_type != VEHICLE_4 &&
-        vehicle_type != VEHICLE_5)
+  if (nodeH->getParam("pacmod_vehicle_type", vehicle_type_string))
+  {
+    ROS_INFO("Got pacmod_vehicle_type: %s", vehicle_type_string.c_str());
+
+    if(vehicle_type_string == "POLARIS_GEM")
+      vehicle_type = POLARIS_GEM;
+    else if(vehicle_type_string == "POLARIS_RANGER")
+      vehicle_type = POLARIS_RANGER;
+    else if(vehicle_type_string == "LEXUS_RX_450H")
+      vehicle_type = LEXUS_RX_450H;
+    else if(vehicle_type_string == "INTERNATIONAL_PROSTAR_122")
+      vehicle_type = INTERNATIONAL_PROSTAR;
+    else if(vehicle_type_string == "VEHICLE_4")
+      vehicle_type = VEHICLE_4;
+    else if(vehicle_type_string == "VEHICLE_5")
+      vehicle_type = VEHICLE_5;
+    else
     {
-      ROS_ERROR("vehicle_type is invalid");
+      ROS_ERROR("pacmod_vehicle_type is invalid");
       exit = true;
     }
   }
   else
   {
-    ROS_ERROR("Parameter vehicle_type is missing. Exiting.");
+    ROS_ERROR("Parameter pacmod_vehicle_type is missing. Exiting.");
     exit = true;
   }
 

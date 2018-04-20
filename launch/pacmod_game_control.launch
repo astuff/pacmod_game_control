@@ -7,14 +7,7 @@
   <arg name="pacmod_board_rev" default="2" />
   <arg name="is_pacmod_3" default="false" />
 
-  <!-- Vehicle types are:
-       0: Polaris GEM/eLXD
-       1: Polaris Ranger
-       2: Lexus RX 450H
-       3: International Prostar+ 122 -->
-  <arg name="vehicle_type" default="2"/>
-
-  <arg name="pacmod_can_hardware_id" default="41316" />
+  <arg name="pacmod_can_hardware_id" default="12345" />
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
 
@@ -22,7 +15,9 @@
        POLARIS_GEM (also covers eLXD)
        POLARIS_RANGER
        LEXUS_RX_450H
-       INTERNATIONAL_PROSTAR_122 -->
+       INTERNATIONAL_PROSTAR_122
+       VEHICLE_4
+       VEHICLE_5 -->
   <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
     
   <arg name="steering_stick" default="LEFT"/>
@@ -78,7 +73,7 @@
 
     <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
       <param name="pacmod_board_rev" value="$(arg pacmod_board_rev)"/>
-      <param name="vehicle_type" value="$(arg vehicle_type)"/>
+      <param name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)"/>
       <param name="steering_stick" value="$(arg steering_stick)"/>
       <param name="controller_type" value="$(arg controller_type)"/>            
       <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
