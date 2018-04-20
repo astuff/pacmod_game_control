@@ -15,7 +15,9 @@
        POLARIS_GEM (also covers eLXD)
        POLARIS_RANGER
        LEXUS_RX_450H
-       INTERNATIONAL_PROSTAR_122 -->
+       INTERNATIONAL_PROSTAR_122
+       VEHICLE_4
+       VEHICLE_5 -->
   <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
     
   <arg name="steering_stick" default="LEFT"/>
