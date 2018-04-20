@@ -16,7 +16,7 @@
        POLARIS_RANGER
        LEXUS_RX_450H
        INTERNATIONAL_PROSTAR_122 -->
-  <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
+  <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
     
   <arg name="steering_stick" default="LEFT"/>
 
