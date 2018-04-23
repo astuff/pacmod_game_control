@@ -4,8 +4,13 @@
   <arg name="use_socketcan" default="false" />
 
   <!-- PACMod Board Revision -->
-  <arg name="pacmod_board_rev" default="2" />
   <arg name="is_pacmod_3" default="false" />
+
+  <!-- You do not need to set the pacmod_board_rev
+       argument below. It will be set automatically
+       based on the value of is_pacmod_x. -->
+  <arg name="pacmod_board_rev" value="2" unless="$(arg is_pacmod_3)" />
+  <arg name="pacmod_board_rev" value="3" if="$(arg is_pacmod_3)" />
 
   <arg name="pacmod_can_hardware_id" default="12345" />
   <arg name="pacmod_can_circuit_id" default="0" />
