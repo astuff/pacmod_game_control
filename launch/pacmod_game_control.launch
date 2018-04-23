@@ -12,7 +12,8 @@
   <arg name="pacmod_board_rev" value="2" unless="$(arg is_pacmod_3)" />
   <arg name="pacmod_board_rev" value="3" if="$(arg is_pacmod_3)" />
 
-  <arg name="pacmod_can_hardware_id" default="12345" />
+  <arg name="pacmod_can_hardware_id" default="43069" />
+
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
 
@@ -23,8 +24,8 @@
        INTERNATIONAL_PROSTAR_122
        VEHICLE_4
        VEHICLE_5 -->
-  <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
-    
+  <arg name="pacmod_vehicle_type" default="AUDI_A3_ETRON" />
+      
   <arg name="steering_stick" default="LEFT"/>
 
   <!-- Supported types are:
@@ -33,7 +34,7 @@
        LOGITECH_G29 (steering wheel and pedals)
        NINTENDO_SWITCH_WIRED_PLUS
        XBOX_ONE -->
-  <arg name="controller_type" default="LOGITECH_F310"/>
+  <arg name="controller_type" default="LOGITECH_G29"/>
         
   <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
   <arg name="steering_max_speed" default="3.3"/>
@@ -73,7 +74,7 @@
     <node pkg="joy" type="joy_node" name="joy">
       <param name="coalesce_interval" type="double" value="0.02"/>
       <param name="default_trig_val" value="true"/>
-      <param name="dev" value="/dev/input/js0"/>
+      <param name="deadzone" value="0.0"/>
     </node>
 
     <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
