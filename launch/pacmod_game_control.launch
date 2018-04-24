@@ -12,7 +12,7 @@
   <arg name="pacmod_board_rev" value="2" unless="$(arg is_pacmod_3)" />
   <arg name="pacmod_board_rev" value="3" if="$(arg is_pacmod_3)" />
 
-  <arg name="pacmod_can_hardware_id" default="43069" />
+  <arg name="pacmod_can_hardware_id" default="12345" />
 
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
@@ -24,7 +24,7 @@
        INTERNATIONAL_PROSTAR_122
        VEHICLE_4
        VEHICLE_5 -->
-  <arg name="pacmod_vehicle_type" default="AUDI_A3_ETRON" />
+  <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
       
   <arg name="steering_stick" default="LEFT"/>
 
@@ -34,7 +34,7 @@
        LOGITECH_G29 (steering wheel and pedals)
        NINTENDO_SWITCH_WIRED_PLUS
        XBOX_ONE -->
-  <arg name="controller_type" default="LOGITECH_G29"/>
+  <arg name="controller_type" default="LOGITECH_F310"/>
         
   <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
   <arg name="steering_max_speed" default="3.3"/>
