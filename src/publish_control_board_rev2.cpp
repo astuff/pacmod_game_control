@@ -151,9 +151,9 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
     {
       if ((vehicle_type == LEXUS_RX_450H) ||
           (vehicle_type == VEHICLE_4))
-        accelerator_cmd_pub_msg.f64_cmd = (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
+        accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
       else
-        accelerator_cmd_pub_msg.f64_cmd = (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR
+        accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR
           + ACCEL_OFFSET;
     }
     else
@@ -170,9 +170,9 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
     {
       if ((vehicle_type == LEXUS_RX_450H) ||
           (vehicle_type == VEHICLE_4))
-        accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
+        accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
       else
-        accelerator_cmd_pub_msg.f64_cmd = (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+        accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
     }
     else
     {
