@@ -333,11 +333,21 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     // Headlights
     if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
     {
-      // Rotate through headlight states as button is pressed 
-      headlight_state++;
+      if (vehicle_type == VEHICLE_5)
+      {
+        if (headlight_state == 4)
+          headlight_state = 5;
+        else
+          headlight_state = 4;
+      }
+      else
+      {
+        // Rotate through headlight states as button is pressed 
+        headlight_state++;
 
-      if(headlight_state >= NUM_HEADLIGHT_STATES)
-        headlight_state = HEADLIGHT_STATE_START_VALUE;
+        if(headlight_state >= NUM_HEADLIGHT_STATES)
+          headlight_state = HEADLIGHT_STATE_START_VALUE;
+      }
 
       pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
       headlight_cmd_pub_msg.enable = local_enable;
