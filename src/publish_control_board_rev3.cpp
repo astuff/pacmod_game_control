@@ -337,6 +337,10 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
        vehicle_type == VEHICLE_5) &&
       controller != HRI_SAFE_REMOTE)
   {
+    pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
+    headlight_cmd_pub_msg.enable = local_enable;
+    headlight_cmd_pub_msg.ignore_overrides = false;
+
     // Headlights
     if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
     {
@@ -356,17 +360,17 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
           headlight_state = HEADLIGHT_STATE_START_VALUE;
       }
 
-      pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
-      headlight_cmd_pub_msg.enable = local_enable;
-      headlight_cmd_pub_msg.ignore_overrides = false;
-
       // If the enable flag just went to true, send an override clear
       if (!prev_enable && local_enable)
+      {
         headlight_cmd_pub_msg.clear_override = true;
+        headlight_state = HEADLIGHT_STATE_START_VALUE;
+      }
 
       headlight_cmd_pub_msg.command = headlight_state;
-      headlight_cmd_pub.publish(headlight_cmd_pub_msg);
     }
+
+    headlight_cmd_pub.publish(headlight_cmd_pub_msg);
 
     // Horn
     pacmod_msgs::SystemCmdBool horn_cmd_pub_msg;
@@ -387,25 +391,29 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
 
   if (vehicle_type == INTERNATIONAL_PROSTAR && controller != HRI_SAFE_REMOTE) // Semi
   {
+    pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
+    wiper_cmd_pub_msg.enable = local_enable;
+    wiper_cmd_pub_msg.ignore_overrides = false;
+
     // Windshield wipers
     if (msg->axes[7] == AXES_MAX)
     {
       // Rotate through wiper states as button is pressed 
       wiper_state++;
 
-      if(wiper_state >= NUM_WIPER_STATES)
+      if (wiper_state >= NUM_WIPER_STATES)
         wiper_state = WIPER_STATE_START_VALUE;
-
-      pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
-      wiper_cmd_pub_msg.enable = local_enable;
-      wiper_cmd_pub_msg.ignore_overrides = false;
 
       // If the enable flag just went to true, send an override clear
       if (!prev_enable && local_enable)
+      {
         wiper_cmd_pub_msg.clear_override = true;
+        wiper_state = WIPER_STATE_START_VALUE;
+      }
 
       wiper_cmd_pub_msg.command = wiper_state;
-      wiper_cmd_pub.publish(wiper_cmd_pub_msg);
     }
+
+    wiper_cmd_pub.publish(wiper_cmd_pub_msg);
   }
 }
