@@ -27,6 +27,8 @@ bool PublishControl::local_enable = false;
 bool PublishControl::last_pacmod_state = false;
 bool PublishControl::accel_0_rcvd = false;
 bool PublishControl::brake_0_rcvd = false;
+int PublishControl::headlight_state = 0;
+int PublishControl::wiper_state = 0;
 
 PublishControl::PublishControl()
 {

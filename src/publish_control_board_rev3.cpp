@@ -330,9 +330,6 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
 
 void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  static uint16_t headlight_state = 0;
-  static uint16_t wiper_state = 0;
-  
   if ((vehicle_type == LEXUS_RX_450H ||
        vehicle_type == VEHICLE_5) &&
       controller != HRI_SAFE_REMOTE)
@@ -346,28 +343,28 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     {
       if (vehicle_type == VEHICLE_5)
       {
-        if (headlight_state == 4)
-          headlight_state = 5;
+        if (PublishControl::headlight_state == 4)
+          PublishControl::headlight_state = 5;
         else
-          headlight_state = 4;
+          PublishControl::headlight_state = 4;
       }
       else
       {
         // Rotate through headlight states as button is pressed 
-        headlight_state++;
+        PublishControl::headlight_state++;
 
-        if(headlight_state >= NUM_HEADLIGHT_STATES)
-          headlight_state = HEADLIGHT_STATE_START_VALUE;
+        if (PublishControl::headlight_state >= NUM_HEADLIGHT_STATES)
+          PublishControl::headlight_state = HEADLIGHT_STATE_START_VALUE;
       }
 
       // If the enable flag just went to true, send an override clear
       if (!prev_enable && local_enable)
       {
         headlight_cmd_pub_msg.clear_override = true;
-        headlight_state = HEADLIGHT_STATE_START_VALUE;
+        PublishControl::headlight_state = HEADLIGHT_STATE_START_VALUE;
       }
 
-      headlight_cmd_pub_msg.command = headlight_state;
+      headlight_cmd_pub_msg.command = PublishControl::headlight_state;
     }
 
     headlight_cmd_pub.publish(headlight_cmd_pub_msg);
@@ -399,19 +396,19 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     if (msg->axes[7] == AXES_MAX)
     {
       // Rotate through wiper states as button is pressed 
-      wiper_state++;
+      PublishControl::wiper_state++;
 
-      if (wiper_state >= NUM_WIPER_STATES)
-        wiper_state = WIPER_STATE_START_VALUE;
+      if (PublishControl::wiper_state >= NUM_WIPER_STATES)
+        PublishControl::wiper_state = WIPER_STATE_START_VALUE;
 
       // If the enable flag just went to true, send an override clear
       if (!prev_enable && local_enable)
       {
         wiper_cmd_pub_msg.clear_override = true;
-        wiper_state = WIPER_STATE_START_VALUE;
+        PublishControl::wiper_state = WIPER_STATE_START_VALUE;
       }
 
-      wiper_cmd_pub_msg.command = wiper_state;
+      wiper_cmd_pub_msg.command = PublishControl::wiper_state;
     }
 
     wiper_cmd_pub.publish(wiper_cmd_pub_msg);
