@@ -378,7 +378,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     if (!prev_enable && local_enable)
       horn_cmd_pub_msg.clear_override = true;
 
-    if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
+    if (msg->buttons[btns[RIGHT_BUMPER]] == BUTTON_DOWN)
       horn_cmd_pub_msg.command = 1;
     else
       horn_cmd_pub_msg.command = 0;
