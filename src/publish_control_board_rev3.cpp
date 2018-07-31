@@ -352,16 +352,16 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
       else
       {	
         // Rotate through headlight states as button is pressed 
-        if(PublishControl::headlight_state_change == false){
-        	PublishControl::headlight_state++;
-					PublishControl::headlight_state_change = true;
+        if (!PublishControl::headlight_state_change)
+        {
+          PublishControl::headlight_state++;
+          PublishControl::headlight_state_change = true;
 					
-					ROS_INFO("headlight=%d, headligh_state_change=%d\r\n", headlight_state, headlight_state_change);
-				}        
-        
+          ROS_INFO("headlight=%d, headligh_state_change=%d\r\n", headlight_state, headlight_state_change);
 
-        if (PublishControl::headlight_state >= NUM_HEADLIGHT_STATES)
-          PublishControl::headlight_state = HEADLIGHT_STATE_START_VALUE;
+          if (PublishControl::headlight_state >= NUM_HEADLIGHT_STATES)
+            PublishControl::headlight_state = HEADLIGHT_STATE_START_VALUE;
+        }
       }
 
       // If the enable flag just went to true, send an override clear
