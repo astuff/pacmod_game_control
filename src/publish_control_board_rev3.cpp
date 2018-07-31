@@ -6,6 +6,7 @@
 */
 
 #include "publish_control_board_rev3.h"
+#include <ros/console.h>
 
 using namespace AS::Joystick;
 
@@ -349,9 +350,15 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
           PublishControl::headlight_state = 4;
       }
       else
-      {
+      {	
         // Rotate through headlight states as button is pressed 
-        PublishControl::headlight_state++;
+        if(PublishControl::headlight_state_change == false){
+        	PublishControl::headlight_state++;
+					PublishControl::headlight_state_change = true;
+					
+					ROS_INFO("headlight=%d, headligh_state_change=%d\r\n", headlight_state, headlight_state_change);
+				}        
+        
 
         if (PublishControl::headlight_state >= NUM_HEADLIGHT_STATES)
           PublishControl::headlight_state = HEADLIGHT_STATE_START_VALUE;
@@ -365,6 +372,10 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
       }
 
       headlight_cmd_pub_msg.command = PublishControl::headlight_state;
+    }
+    else
+    {
+    	PublishControl::headlight_state_change = false;	
     }
 
     headlight_cmd_pub.publish(headlight_cmd_pub_msg);

@@ -43,6 +43,7 @@ class PublishControl
     static bool accel_0_rcvd;
     static bool brake_0_rcvd;
     static int headlight_state;
+    static bool headlight_state_change;
     static int wiper_state;
 
   protected:
