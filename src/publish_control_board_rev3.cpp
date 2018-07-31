@@ -6,7 +6,6 @@
 */
 
 #include "publish_control_board_rev3.h"
-#include <ros/console.h>
 
 using namespace AS::Joystick;
 
@@ -355,9 +354,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
         if (!PublishControl::headlight_state_change)
         {
           PublishControl::headlight_state++;
-          PublishControl::headlight_state_change = true;
-					
-          ROS_INFO("headlight=%d, headligh_state_change=%d\r\n", headlight_state, headlight_state_change);
+          PublishControl::headlight_state_change = true;					
         }
 
         if (PublishControl::headlight_state >= NUM_HEADLIGHT_STATES)
