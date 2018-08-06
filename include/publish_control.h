@@ -42,6 +42,9 @@ class PublishControl
     static bool last_pacmod_state;
     static bool accel_0_rcvd;
     static bool brake_0_rcvd;
+    static int headlight_state;
+    static bool headlight_state_change;
+    static int wiper_state;
 
   protected:
     virtual void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);

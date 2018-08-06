@@ -4,7 +4,7 @@
   <arg name="use_socketcan" default="false" />
 
   <!-- PACMod Board Revision -->
-  <arg name="is_pacmod_3" default="false" />
+  <arg name="is_pacmod_3" default="true" />
 
   <!-- You do not need to set the pacmod_board_rev
        argument below. It will be set automatically
@@ -12,7 +12,7 @@
   <arg name="pacmod_board_rev" value="2" unless="$(arg is_pacmod_3)" />
   <arg name="pacmod_board_rev" value="3" if="$(arg is_pacmod_3)" />
 
-  <arg name="pacmod_can_hardware_id" default="12345" />
+  <arg name="pacmod_can_hardware_id" default="43029" />
 
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
@@ -25,7 +25,7 @@
        VEHICLE_4
        VEHICLE_5
        VEHICLE_6 -->
-  <arg name="pacmod_vehicle_type" default="POLARIS_GEM" />
+  <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
       
   <arg name="steering_stick" default="LEFT"/>
 
