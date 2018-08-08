@@ -11,6 +11,7 @@ using namespace AS::Joystick;
 
 int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
 int PublishControlBoardRev3::last_turn_cmd = SIGNAL_OFF;
+float PublishControlBoardRev3::last_brake_cmd = 0.0;
 
 PublishControlBoardRev3::PublishControlBoardRev3() :
   PublishControl()
@@ -141,64 +142,68 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
 
 void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  // Shifting: reverse
-  if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
+  // Only shift if brake command is higher than 50%
+  if (last_brake_cmd > 0.5)
   {
-    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable;
-    shift_cmd_pub_msg.ignore_overrides = false;
+    // Shifting: reverse
+    if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
+    {
+      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
 
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable && local_enable)
-      shift_cmd_pub_msg.clear_override = true;
+      // If the enable flag just went to true, send an override clear
+      if (!prev_enable && local_enable)
+        shift_cmd_pub_msg.clear_override = true;
 
-    shift_cmd_pub_msg.command = SHIFT_REVERSE;
-    shift_cmd_pub.publish(shift_cmd_pub_msg);
-  }
+      shift_cmd_pub_msg.command = SHIFT_REVERSE;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
 
-  // Shifting: drive/high
-  if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
-  {
-    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable;
-    shift_cmd_pub_msg.ignore_overrides = false;
+    // Shifting: drive/high
+    if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
+    {
+      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
 
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable && local_enable)
-      shift_cmd_pub_msg.clear_override = true;
+      // If the enable flag just went to true, send an override clear
+      if (!prev_enable && local_enable)
+        shift_cmd_pub_msg.clear_override = true;
 
-    shift_cmd_pub_msg.command = SHIFT_LOW;
-    shift_cmd_pub.publish(shift_cmd_pub_msg);
-  }
+      shift_cmd_pub_msg.command = SHIFT_LOW;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
 
-  // Shifting: park
-  if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
-  {
-    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable;
-    shift_cmd_pub_msg.ignore_overrides = false;
+    // Shifting: park
+    if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
+    {
+      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
 
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable && local_enable)
-      shift_cmd_pub_msg.clear_override = true;
+      // If the enable flag just went to true, send an override clear
+      if (!prev_enable && local_enable)
+        shift_cmd_pub_msg.clear_override = true;
 
-    shift_cmd_pub_msg.command = SHIFT_PARK;
-    shift_cmd_pub.publish(shift_cmd_pub_msg);
-  }
+      shift_cmd_pub_msg.command = SHIFT_PARK;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
 
-  // Shifting: neutral
-  if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
-  {
-    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable;
-    shift_cmd_pub_msg.ignore_overrides = false;
+    // Shifting: neutral
+    if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
+    {
+      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
 
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable && local_enable)
-      shift_cmd_pub_msg.clear_override = true;
+      // If the enable flag just went to true, send an override clear
+      if (!prev_enable && local_enable)
+        shift_cmd_pub_msg.clear_override = true;
 
-    shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
-    shift_cmd_pub.publish(shift_cmd_pub_msg);
+      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
   }
 
   // If only an enable/disable button was pressed
@@ -324,6 +329,8 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
       brake_msg.command = 0;
     }
   }
+
+  last_brake_cmd = brake_msg.command;
 
   brake_set_position_pub.publish(brake_msg);
 }
