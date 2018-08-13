@@ -1,6 +1,0 @@
-- git:
-    local-name: astuff_sensor_msgs
-    uri: https://github.com/astuff/astuff_sensor_msgs
-- git:
-    local-name: joystick_drivers
-    uri: https://github.com/ros-drivers/joystick_drivers
