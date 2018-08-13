@@ -33,6 +33,7 @@ class PublishControlBoardRev3 :
     // Variables
     static int last_shift_cmd;
     static int last_turn_cmd;
+    static float last_brake_cmd;
 
   private:
     // private functions
