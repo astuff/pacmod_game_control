@@ -142,8 +142,8 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
 
 void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  // Only shift if brake command is higher than 50%
-  if (last_brake_cmd > 0.5)
+  // Only shift if brake command is higher than 25%
+  if (last_brake_cmd > 0.25)
   {
     // Shifting: reverse
     if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
