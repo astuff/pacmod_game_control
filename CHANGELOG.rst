@@ -161,7 +161,7 @@ Changelog for package pacmod_game_control
   This commit reorganizes the pacmod game control code into seperate files and functions. It is designed to maintain functionality while breaking the code up into pieces to make it more readible.
 * Contributors: Chris, Daniel-Stanek, Joe Driscoll, Joshua Whitley, Kyle Rector, Lucas Buckland, Nate Imig, Nishanth Samala, Samuel Rustan, Zach Oakes
 
-1.0.0 (2018-05-14)
+2.0.0 (2018-05-14)
 ------------------
 * Add minor bug fixes
   Prior to this commit there were minor bugs due to the changes for easier joystick support. This commit fixes those bugs.
