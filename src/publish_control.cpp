@@ -90,12 +90,11 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
   if (msg->data == false &&
       PublishControl::last_pacmod_state == true)
-  {
     prev_enable = false;
-    enable_mutex.lock();
-    pacmod_enable = msg->data;
-    enable_mutex.unlock();
-  }
+    
+  enable_mutex.lock();
+  pacmod_enable = msg->data;
+  enable_mutex.unlock();
 
   PublishControl::last_pacmod_state = msg->data;
 }
