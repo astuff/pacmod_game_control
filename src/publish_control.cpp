@@ -91,7 +91,7 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
   if (msg->data == false &&
       PublishControl::last_pacmod_state == true)
     prev_enable = false;
-    
+
   enable_mutex.lock();
   pacmod_enable = msg->data;
   enable_mutex.unlock();
@@ -144,7 +144,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   else
   {
     // Enable
-    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && !local_enable)
+    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && msg->buttons[btns[BACK_SELECT_MINUS]] && !local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
