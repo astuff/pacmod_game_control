@@ -322,7 +322,16 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
 
     if (PublishControl::brake_0_rcvd)
     {
-      brake_msg.command = -((msg->axes[axes[LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
+      float brake_value = -((msg->axes[axes[LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
+      if(vehicle_type == LEXUS_RX_450H)
+      {
+        // These constants came from playing around in excel until stuff looked good. Seems to work okay
+        brake_msg.command = fmin(pow(brake_value, 3) * 2.0F - pow(brake_value, 2) * 1.5F + brake_value * 0.625F, 1.0F);
+      }
+      else
+      {
+        brake_msg.command = brake_value;
+      }
     }
     else
     {
