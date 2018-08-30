@@ -2,8 +2,8 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2018-08-30)
+------------------
 * Merge pull request `#44 <https://github.com/astuff/pacmod_game_control/issues/44>`_ from astuff/feat/lexus_braking_curve
 * 0.625 and 6.25 are not the same value
 * Added cubic braking curve
