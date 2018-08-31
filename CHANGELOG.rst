@@ -2,6 +2,17 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.2.0 (2018-08-30)
+------------------
+* Merge pull request `#44 <https://github.com/astuff/pacmod_game_control/issues/44>`_ from astuff/feat/lexus_braking_curve
+* 0.625 and 6.25 are not the same value
+* Added cubic braking curve
+* Merge pull request `#43 <https://github.com/astuff/pacmod_game_control/issues/43>`_ from astuff/feat/multiple_button_enable
+* Press start AND select to enable
+* Merge pull request `#42 <https://github.com/astuff/pacmod_game_control/issues/42>`_ from astuff/fix/resume_control_after_estop
+* Changing pacmod_enable flag after return form e-stop
+* Contributors: Joshua Whitley, Kyle Rector, Sam Rustan, Zach Oakes
+
 2.1.0 (2018-08-15)
 ------------------
 * Removing clone of joystick_drivers from Melodic build.

@@ -1,6 +1,6 @@
 ## PACMod Game Controller ##
 
-[![Build Status](https://travis-ci.org/astuff/pacmod_game_control.svg?branch=master)](https://travis-ci.org/astuff/pacmod_game_control)
+[![CircleCI](https://circleci.com/gh/astuff/pacmod_game_control/tree/master.svg?style=svg)](https://circleci.com/gh/astuff/pacmod_game_control/tree/master)
 
 An interface node to allow control of the PACMod system with a game controller
 that is represented in ROS by a Joy node.
