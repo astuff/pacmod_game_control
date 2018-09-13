@@ -347,7 +347,8 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
 void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   if ((vehicle_type == LEXUS_RX_450H ||
-       vehicle_type == VEHICLE_5) &&
+       vehicle_type == VEHICLE_5 ||
+       vehicle_type == VEHICLE_6) &&
       controller != HRI_SAFE_REMOTE)
   {
     pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
