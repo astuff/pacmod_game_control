@@ -25,7 +25,7 @@
        VEHICLE_4
        VEHICLE_5
        VEHICLE_6 -->
-  <arg name="pacmod_vehicle_type" default="VEHICLE_6" />
+  <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
       
   <arg name="steering_stick" default="LEFT"/>
 
