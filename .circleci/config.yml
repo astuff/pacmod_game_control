@@ -61,6 +61,7 @@ jobs:
           name: Set Up Container
           command: |
             apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
+            git init astuff_sensor_msgs && cd astuff_sensor_msgs && git remote add origin https://github.com/astuff/astuff_sensor_msgs && git config core.sparsecheckout true && echo "pacmod_msgs/*" >> .git/info/sparse-checkout && git pull --depth=1 && cd ../..
             source `find /opt/ros -name setup.bash | sort | head -1`
             rosdep install --from-paths . --ignore-src -y
             cd ..
@@ -87,6 +88,7 @@ jobs:
           name: Set Up Container
           command: |
             apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
+            git init astuff_sensor_msgs && cd astuff_sensor_msgs && git remote add origin https://github.com/astuff/astuff_sensor_msgs && git config core.sparsecheckout true && echo "pacmod_msgs/*" >> .git/info/sparse-checkout && git pull --depth=1 && cd ../..
             source `find /opt/ros -name setup.bash | sort | head -1`
             rosdep install --from-paths . --ignore-src -y
             cd ..
