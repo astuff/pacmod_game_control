@@ -151,81 +151,42 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
   // Only shift if brake command is higher than 25%
   if (last_brake_cmd > 0.25)
   {
-    // Shifting: reverse
-    if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
+    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+    shift_cmd_pub_msg.enable = local_enable;
+    shift_cmd_pub_msg.ignore_overrides = false;
+
+    // If the enable flag just went to true, send an override clear and a faults_clear
+    if (!prev_enable && local_enable)
     {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-      shift_cmd_pub_msg.enable = local_enable;
-      shift_cmd_pub_msg.ignore_overrides = false;
-
-      // If the enable flag just went to true, send an override clear
-      if (!prev_enable && local_enable)
-      {
-        shift_cmd_pub_msg.clear_override = true;
-        shift_cmd_pub_msg.clear_faults = true;
-      }
-
-      shift_cmd_pub_msg.command = SHIFT_REVERSE;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
+      shift_cmd_pub_msg.clear_override = true;
+      shift_cmd_pub_msg.clear_faults = true;
     }
 
-    // Shifting: drive/high
-    if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
-    {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-      shift_cmd_pub_msg.enable = local_enable;
-      shift_cmd_pub_msg.ignore_overrides = false;
+    uint8_t desired_gear = 0x0;
+    desired_gear |= (msg->buttons[btns[RIGHT_BTN]]  == BUTTON_DOWN) << SHIFT_REVERSE
+                  | (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN) << SHIFT_LOW
+                  | (msg->buttons[btns[TOP_BTN]]    == BUTTON_DOWN) << SHIFT_PARK
+                  | (msg->buttons[btns[LEFT_BTN]]   == BUTTON_DOWN) << SHIFT_NEUTRAL;
 
-      // If the enable flag just went to true, send an override clear
-      if (!prev_enable && local_enable)
-      {
-        shift_cmd_pub_msg.clear_override = true;
-        shift_cmd_pub_msg.clear_faults = true;
-      }
-
-      shift_cmd_pub_msg.command = SHIFT_LOW;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    switch(desired_gear){
+      case 1<<SHIFT_REVERSE:
+        shift_cmd_pub_msg.command = SHIFT_REVERSE;
+        break;
+      case 1<<SHIFT_LOW:
+        shift_cmd_pub_msg.command = SHIFT_LOW;
+        break;
+      case 1<<SHIFT_PARK:
+        shift_cmd_pub_msg.command = SHIFT_PARK;
+        break;
+      case 1<<SHIFT_NEUTRAL:
+        shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+        break;
+      //If we've got an invalid command (or multiple buttons pressed) return and don't publish the message
+      default: return;
     }
-
-    // Shifting: park
-    if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
-    {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-      shift_cmd_pub_msg.enable = local_enable;
-      shift_cmd_pub_msg.ignore_overrides = false;
-
-      // If the enable flag just went to true, send an override clear
-      if (!prev_enable && local_enable)
-      {
-        shift_cmd_pub_msg.clear_override = true;
-        shift_cmd_pub_msg.clear_faults = true;
-      }
-
-      shift_cmd_pub_msg.command = SHIFT_PARK;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
-    }
-
-    // Shifting: neutral
-    if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
-    {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
-      shift_cmd_pub_msg.enable = local_enable;
-      shift_cmd_pub_msg.ignore_overrides = false;
-
-      // If the enable flag just went to true, send an override clear
-      if (!prev_enable && local_enable)
-      {
-        shift_cmd_pub_msg.clear_override = true;
-        shift_cmd_pub_msg.clear_faults = true;
-      }
-
-      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
-    }
+     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
-
-  // If only an enable/disable button was pressed
-  if (local_enable != prev_enable)
+  else if (local_enable != prev_enable)   // If only an enable/disable button was pressed
   {
     pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable;
