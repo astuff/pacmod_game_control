@@ -2,7 +2,7 @@ version: 2
 jobs:
   indigo:
     docker:
-      - image: autonomoustuff/docker-builds:indigo-ros-core
+      - image: autonomoustuff/docker-builds:indigo-ros-base
     steps:
       - checkout
       - run:
@@ -28,7 +28,7 @@ jobs:
 
   kinetic:
     docker:
-      - image: autonomoustuff/docker-builds:kinetic-ros-core
+      - image: autonomoustuff/docker-builds:kinetic-ros-base
     steps:
       - checkout
       - run:
@@ -54,7 +54,7 @@ jobs:
 
   lunar:
     docker:
-      - image: autonomoustuff/docker-builds:lunar-ros-core
+      - image: autonomoustuff/docker-builds:lunar-ros-base
     steps:
       - checkout
       - run:
@@ -80,7 +80,7 @@ jobs:
 
   melodic:
     docker:
-      - image: autonomoustuff/docker-builds:melodic-ros-core
+      - image: autonomoustuff/docker-builds:melodic-ros-base
     steps:
       - checkout
       - run:
