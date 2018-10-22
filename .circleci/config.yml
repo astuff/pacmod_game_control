@@ -2,13 +2,13 @@ version: 2
 jobs:
   indigo:
     docker:
-      - image: ros:indigo-ros-core
+      - image: autonomoustuff/docker-builds:indigo-ros-core
     steps:
       - checkout
       - run:
           name: Set Up Container
           command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
+            apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
             rosdep install --from-paths . --ignore-src -y
             cd ..
@@ -28,13 +28,13 @@ jobs:
 
   kinetic:
     docker:
-      - image: ros:kinetic-ros-core
+      - image: autonomoustuff/docker-builds:kinetic-ros-core
     steps:
       - checkout
       - run:
           name: Set Up Container
           command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
+            apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
             rosdep install --from-paths . --ignore-src -y
             cd ..
@@ -54,17 +54,13 @@ jobs:
 
   lunar:
     docker:
-      - image: ros:lunar-ros-core
+      - image: autonomoustuff/docker-builds:lunar-ros-core
     steps:
       - checkout
       - run:
           name: Set Up Container
           command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
-            mkdir src_tmp && mv `find -maxdepth 1 -not -name . -not -name src_tmp` src_tmp/ && mv src_tmp src
-            git init astuff_sensor_msgs && cd astuff_sensor_msgs && git remote add origin https://github.com/astuff/astuff_sensor_msgs && git config core.sparsecheckout true
-            echo "pacmod_msgs/*" >> .git/info/sparse-checkout && git pull origin master --depth=1
-            cd ..
+            apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
             rosdep install --from-paths . --ignore-src -y
             cd ..
@@ -84,17 +80,13 @@ jobs:
 
   melodic:
     docker:
-      - image: ros:melodic-ros-core
+      - image: autonomoustuff/docker-builds:melodic-ros-core
     steps:
       - checkout
       - run:
           name: Set Up Container
           command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
-            mkdir src_tmp && mv `find -maxdepth 1 -not -name . -not -name src_tmp` src_tmp/ && mv src_tmp src
-            git init astuff_sensor_msgs && cd astuff_sensor_msgs && git remote add origin https://github.com/astuff/astuff_sensor_msgs && git config core.sparsecheckout true
-            echo "pacmod_msgs/*" >> .git/info/sparse-checkout && git pull origin master --depth=1
-            cd ..
+            apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
             rosdep install --from-paths . --ignore-src -y
             cd ..
