@@ -249,7 +249,8 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 
     if (PublishControl::accel_0_rcvd)
     {
-      if (vehicle_type == LEXUS_RX_450H ||
+      if (vehicle_type == POLARIS_RANGER ||
+          vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
@@ -269,7 +270,8 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 
     if (PublishControl::accel_0_rcvd)
     {
-      if (vehicle_type == LEXUS_RX_450H ||
+      if (vehicle_type == POLARIS_RANGER ||
+          vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||          
           vehicle_type == VEHICLE_6)
