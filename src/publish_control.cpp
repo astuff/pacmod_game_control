@@ -141,6 +141,30 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       state_changed = true;
     }
   }
+  else if (controller == LOGITECH_G29)
+  {
+    // Enable
+    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && !local_enable)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = true;
+      local_enable = true;
+      enable_pub.publish(bool_pub_msg);
+
+      state_changed = true;
+    }
+
+    // Disable
+    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && local_enable)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = false;
+      local_enable = false;
+      enable_pub.publish(bool_pub_msg);
+
+      state_changed = true;
+    }
+  }
   else
   {
     // Enable
