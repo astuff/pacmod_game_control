@@ -62,19 +62,17 @@ void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::C
 void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
-  
-  if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
-    turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_LEFT;
-  else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
-    turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_RIGHT;
-  else
-    turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
-
   // Hazard lights (both left and right turn signals)
   if (controller == HRI_SAFE_REMOTE)
   {
     if(msg->axes[2] < -0.5)
       turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_HAZARD;
+    else if(msg->axes[5] > 0.5)
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_LEFT;
+    else if(msg->axes[5] < -0.5)
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_RIGHT;
+    else
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
 
     if (last_axes.empty() || last_axes[2] != msg->axes[2])
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
@@ -83,6 +81,12 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
   {
     if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
       turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_HAZARD;
+    else if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_LEFT;
+    else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_RIGHT;
+    else
+      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
 
     if (last_axes.empty() ||
         last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||

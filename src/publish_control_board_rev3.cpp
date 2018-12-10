@@ -106,40 +106,46 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
     turn_signal_cmd_pub_msg.clear_faults = true;
   }
 
-  if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
-    turn_signal_cmd_pub_msg.command = SIGNAL_LEFT;
-  else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
-    turn_signal_cmd_pub_msg.command = SIGNAL_RIGHT;
-  else if (local_enable != prev_enable)
-  {
-    if (vehicle_type == VEHICLE_6)
-      turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
-    else
-      turn_signal_cmd_pub_msg.command = last_turn_cmd;
-  }
-  else
-    turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
-
-  // Hazard lights (both left and right turn signals)
+  // Hazard lights (both left and right turn signals), and HRI support
   if (controller == HRI_SAFE_REMOTE)
   {
     if(msg->axes[2] < -0.5)
       turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
+    else if(msg->axes[5] > 0.5)
+      turn_signal_cmd_pub_msg.command = SIGNAL_LEFT;
+    else if(msg->axes[5] < -0.5)
+      turn_signal_cmd_pub_msg.command = SIGNAL_RIGHT;
+    else
+      turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
 
-    if ((last_axes.empty() ||
-        last_axes[2] != msg->axes[2]) ||
-        (local_enable != prev_enable))
+    if (last_axes.empty() ||
+        last_axes[2] != msg->axes[2] ||
+        last_axes[5] != msg->axes[5] ||
+        local_enable != prev_enable)
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
   }
-  else
+  else //Every other controller
   {
-    if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
+    if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
+      turn_signal_cmd_pub_msg.command = SIGNAL_LEFT;
+    else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
+      turn_signal_cmd_pub_msg.command = SIGNAL_RIGHT;
+    else if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
       turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
+    else if (local_enable != prev_enable)
+    {
+      if (vehicle_type == VEHICLE_6)
+        turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
+      else
+        turn_signal_cmd_pub_msg.command = last_turn_cmd;
+    }
+    else
+      turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
 
     if ((last_axes.empty() ||
         last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
-        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]]) ||
-        (local_enable != prev_enable))
+        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
+        local_enable != prev_enable)
     {
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
     }
