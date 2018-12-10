@@ -142,7 +142,7 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
     else
       turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
 
-    if ((last_axes.empty() ||
+    if (last_axes.empty() ||
         last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
         last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
         local_enable != prev_enable)
