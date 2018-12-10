@@ -120,7 +120,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   if (controller == HRI_SAFE_REMOTE)
   {
     // Enable
-    if (msg->axes[axes[DPAD_UD]] >= 0.9 && !local_enable)
+    if (msg->axes[axes[DPAD_LR]] <= -0.9 && !local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
@@ -131,7 +131,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Disable
-    if (msg->axes[axes[DPAD_UD]] <= -0.9 && local_enable)
+    if (msg->axes[axes[DPAD_LR]] >= +0.9 && local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
