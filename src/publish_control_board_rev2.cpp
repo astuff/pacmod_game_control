@@ -74,7 +74,7 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
     else
       turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
 
-    if (last_axes.empty() || last_axes[2] != msg->axes[2])
+    if (last_axes.empty() || last_axes[2] != msg->axes[2] || last_axes[5] != msg->axes[5])
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
   }
   else
