@@ -2,6 +2,27 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#54 <https://github.com/astuff/pacmod_game_control/issues/54>`_ from astuff/maint/hri_remap_part_two
+* A comment explaining the axes
+* Fixed not publishing turn signal command on board rev 2
+* Handle HRI turn signals seperately from the other controllers
+* Merge pull request `#53 <https://github.com/astuff/pacmod_game_control/issues/53>`_ from astuff/maint/hri_remap
+* Changed mapping of HRI enable/disable from U/D to R/L
+  This fixes some aberrant behavior that we were seeing with
+  EMI in the remote system
+* Merge pull request `#51 <https://github.com/astuff/pacmod_game_control/issues/51>`_ from astuff/maint/update_url
+* Updating README and adding URLs to package.xml.
+* Merge pull request `#48 <https://github.com/astuff/pacmod_game_control/issues/48>`_ from astuff/feature/clear_fault
+* Refactoring of how we're handling the shifter command
+  Mostly just to get rid of repeated code, but also I think
+  it's significantly more readable this way.
+* When sending clear_overrides, also send clear_faults
+  This update is req'd for Lexus 1.1 and later
+* Merge pull request `#47 <https://github.com/astuff/pacmod_game_control/issues/47>`_ from astuff/maint/add_veh_6
+* Contributors: Daniel-Stanek, Joshua Whitley, Mike Lemm, Sam Rustan, Zach Oakes
+
 2.2.0 (2018-08-30)
 ------------------
 * Merge pull request `#44 <https://github.com/astuff/pacmod_game_control/issues/44>`_ from astuff/feat/lexus_braking_curve
