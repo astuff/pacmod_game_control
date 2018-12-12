@@ -2,8 +2,8 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2018-12-12)
+------------------
 * Merge pull request `#54 <https://github.com/astuff/pacmod_game_control/issues/54>`_ from astuff/maint/hri_remap_part_two
 * A comment explaining the axes
 * Fixed not publishing turn signal command on board rev 2
