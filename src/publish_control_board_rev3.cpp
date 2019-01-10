@@ -239,7 +239,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     if (msg->axes[axes[RIGHT_STICK_UD]] >= 0.0)
     {
       // only consider center-to-up range as accelerator motion
-      accelerator_cmd_pub_msg.command = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+      accelerator_cmd_pub_msg.command = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]);
     }
   }
   else if(controller == LOGITECH_G29)
