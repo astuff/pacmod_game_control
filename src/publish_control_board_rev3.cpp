@@ -232,7 +232,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     if (msg->axes[axes[RIGHT_STICK_UD]] >= 0.0)
     {
       // only consider center-to-up range as accelerator motion
-      accelerator_cmd_pub_msg.command = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+      accelerator_cmd_pub_msg.command = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]);
     }
   }
   else if(controller == LOGITECH_G29)
@@ -242,7 +242,8 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 
     if (PublishControl::accel_0_rcvd)
     {
-      if (vehicle_type == LEXUS_RX_450H ||
+      if (vehicle_type == POLARIS_RANGER ||
+          vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
@@ -262,7 +263,8 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 
     if (PublishControl::accel_0_rcvd)
     {
-      if (vehicle_type == LEXUS_RX_450H ||
+      if (vehicle_type == POLARIS_RANGER ||
+          vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
