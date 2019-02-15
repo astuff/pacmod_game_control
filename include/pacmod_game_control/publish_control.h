@@ -5,10 +5,12 @@
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
 
-#ifndef PUBLISH_CONTROL_H
-#define PUBLISH_CONTROL_H
+#ifndef PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
+#define PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
 
-#include "globals.h"
+#include "pacmod_game_control/globals.h"
+
+#include <vector>
 
 namespace AS
 {
@@ -23,7 +25,7 @@ class PublishControl
     virtual void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
     static void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg);
     static void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
-    
+
     // public variables
     static JoyAxis steering_axis;
     static float max_rot_rad;
@@ -76,7 +78,7 @@ class PublishControl
     static bool local_enable;
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;
-    
+
   private:
     // private functions
     virtual void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
@@ -87,7 +89,7 @@ class PublishControl
     virtual void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
 };
 
-}
-}
+}  // namespace Joystick
+}  // namespace AS
 
-#endif
+#endif  // PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H

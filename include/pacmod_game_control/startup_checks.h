@@ -8,11 +8,11 @@
  * Series of startup checks for the pacmod game control node.
  */
 
-#ifndef STARTUP_CHECKS_H
-#define STARTUP_CHECKS_H
+#ifndef PACMOD_GAME_CONTROL_STARTUP_CHECKS_H
+#define PACMOD_GAME_CONTROL_STARTUP_CHECKS_H
 
-#include "globals.h"
-#include "publish_control.h"
+#include "pacmod_game_control/globals.h"
+#include "pacmod_game_control/publish_control.h"
 
 namespace AS
 {
@@ -25,7 +25,7 @@ bool check_controller_type(ros::NodeHandle * nodeH);
 bool check_scale_values(ros::NodeHandle * nodeH);
 bool run_startup_checks_error(ros::NodeHandle * nodeH);
 
-}
-}
+}  // namespace Joystick
+}  // namespace AS
 
-#endif
+#endif  // PACMOD_GAME_CONTROL_STARTUP_CHECKS_H

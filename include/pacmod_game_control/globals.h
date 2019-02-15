@@ -5,8 +5,8 @@
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
 
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#ifndef PACMOD_GAME_CONTROL_GLOBALS_H
+#define PACMOD_GAME_CONTROL_GLOBALS_H
 
 #include <cstdio>
 #include <mutex>
@@ -124,7 +124,7 @@ static std::mutex state_change_mutex;
 static std::mutex shift_mutex;
 static std::mutex turn_mutex;
 
-}
-}
+}  // namespace Joystick
+}  // namespace AS
 
-#endif
+#endif  // PACMOD_GAME_CONTROL_GLOBALS_H
