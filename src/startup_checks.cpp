@@ -8,7 +8,9 @@
  * Series of startup checks for the pacmod game control node.
  */
 
-#include "startup_checks.h"
+#include "pacmod_game_control/startup_checks.h"
+
+#include <string>
 
 // Check which steering stick we should use on the joypad
 bool AS::Joystick::check_steering_stick_left_right(ros::NodeHandle * nodeH)
@@ -39,7 +41,7 @@ bool AS::Joystick::check_steering_stick_left_right(ros::NodeHandle * nodeH)
     ROS_ERROR("Parameter steering_stick is missing. Exiting.");
     exit = true;
   }
-  
+
   return exit;
 }
 
@@ -53,20 +55,20 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
   {
     ROS_INFO("Got pacmod_vehicle_type: %s", vehicle_type_string.c_str());
 
-    if(vehicle_type_string == "POLARIS_GEM")
+    if (vehicle_type_string == "POLARIS_GEM")
       vehicle_type = POLARIS_GEM;
-    else if(vehicle_type_string == "POLARIS_RANGER")
+    else if (vehicle_type_string == "POLARIS_RANGER")
       vehicle_type = POLARIS_RANGER;
-    else if(vehicle_type_string == "LEXUS_RX_450H")
+    else if (vehicle_type_string == "LEXUS_RX_450H")
       vehicle_type = LEXUS_RX_450H;
-    else if(vehicle_type_string == "INTERNATIONAL_PROSTAR_122")
+    else if (vehicle_type_string == "INTERNATIONAL_PROSTAR_122")
       vehicle_type = INTERNATIONAL_PROSTAR;
-    else if(vehicle_type_string == "VEHICLE_4")
+    else if (vehicle_type_string == "VEHICLE_4")
       vehicle_type = VEHICLE_4;
-    else if(vehicle_type_string == "VEHICLE_5")
+    else if (vehicle_type_string == "VEHICLE_5")
       vehicle_type = VEHICLE_5;
-    else if(vehicle_type_string == "VEHICLE_6")
-      vehicle_type = VEHICLE_6;      
+    else if (vehicle_type_string == "VEHICLE_6")
+      vehicle_type = VEHICLE_6;
     else
     {
       ROS_ERROR("pacmod_vehicle_type is invalid");
@@ -87,9 +89,9 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE5;
   else if (vehicle_type == VEHICLE_6)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE6;
-        
+
   PublishControl::vehicle_type = vehicle_type;
-    
+
   return exit;
 }
 
@@ -130,7 +132,7 @@ bool AS::Joystick::check_controller_type(ros::NodeHandle * nodeH)
     {
       PublishControl::controller = HRI_SAFE_REMOTE;
 
-      // TODO: Complete missing buttons
+      // TODO(jwhitleyastuff): Complete missing buttons
       PublishControl::axes[LEFT_STICK_LR] = 0;
       PublishControl::axes[RIGHT_STICK_LR] = 3;
       PublishControl::axes[RIGHT_STICK_UD] = 4;
@@ -145,13 +147,9 @@ bool AS::Joystick::check_controller_type(ros::NodeHandle * nodeH)
     else if (controller_string == "LOGITECH_G29")
     {
       PublishControl::controller = LOGITECH_G29;
-			
+
       // Set to match the G29 controller's max center-to-lock steering angle (radians).
       PublishControl::max_rot_rad = 7.85;
-      
-
-
-
       // steering wheel, not right stick
       PublishControl::axes[RIGHT_STICK_LR] = 0;
       // throttle pedal, not right trigger
@@ -172,7 +170,6 @@ bool AS::Joystick::check_controller_type(ros::NodeHandle * nodeH)
       // Following two are two blue buttons on the right
       PublishControl::btns[RIGHT_BUMPER] = 6;
       PublishControl::btns[START_PLUS] = 10;
-
     }
     else if (controller_string == "NINTENDO_SWITCH_WIRED_PLUS")
     {
@@ -209,14 +206,14 @@ bool AS::Joystick::check_controller_type(ros::NodeHandle * nodeH)
     ROS_ERROR("Parameter controller_type is missing. Exiting.");
     exit = true;
   }
-  
+
   return exit;
 }
 
 bool AS::Joystick::check_scale_values(ros::NodeHandle * nodeH)
 {
   bool exit = false;
-  
+
   if (nodeH->getParam("steering_max_speed", PublishControl::steering_max_speed))
   {
     ROS_INFO("Got steering_max_speed: %f", PublishControl::steering_max_speed);
@@ -282,19 +279,19 @@ bool AS::Joystick::check_scale_values(ros::NodeHandle * nodeH)
     ROS_ERROR("Parameter brake_scale_val is missing. Exiting.");
     exit = true;
   }
-  
+
   return exit;
 }
 
 bool AS::Joystick::run_startup_checks_error(ros::NodeHandle * nodeH)
 {
   bool willExit = false;
-  
+
   // Run startup checks
   willExit = check_steering_stick_left_right(nodeH);
   willExit = check_vehicle_type(nodeH);
   willExit = check_controller_type(nodeH);
   willExit = check_scale_values(nodeH);
-  
+
   return willExit;
 }

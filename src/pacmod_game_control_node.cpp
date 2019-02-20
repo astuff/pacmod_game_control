@@ -5,11 +5,11 @@
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
 
-#include "publish_control_factory.h"
-#include "globals.h"
-#include "startup_checks.h"
+#include "pacmod_game_control/publish_control_factory.h"
+#include "pacmod_game_control/globals.h"
+#include "pacmod_game_control/startup_checks.h"
 
-using namespace AS::Joystick;
+using namespace AS::Joystick;  // NOLINT
 
 /*
  * Main method running the ROS Node
@@ -21,9 +21,9 @@ int main(int argc, char *argv[])
   ros::NodeHandle priv("~");
 
   // Wait for time to be valid
-  while (ros::Time::now().nsec == 0);
-  
-  if(run_startup_checks_error(&priv) == true)
+  ros::Time::waitForValid();
+
+  if (run_startup_checks_error(&priv) == true)
     return 0;
 
   // Check ROS params for board type
@@ -48,4 +48,3 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-

@@ -4,6 +4,7 @@ project(pacmod_game_control)
 add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  roslint
   roscpp
   std_msgs
   sensor_msgs
@@ -18,9 +19,8 @@ catkin_package(CATKIN_DEPENDS
   joy
 )
 
-include_directories(
+include_directories(include
   ${catkin_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 add_executable(pacmod_game_control_node 
@@ -39,6 +39,9 @@ add_dependencies(pacmod_game_control_node
 target_link_libraries(pacmod_game_control_node
   ${catkin_LIBRARIES}
 )
+
+set(ROSLINT_CPP_OPTS "--filter=-build/namespaces,-build/c++11")
+roslint_cpp()
 
 install(TARGETS pacmod_game_control_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

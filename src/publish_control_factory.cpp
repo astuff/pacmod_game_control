@@ -5,9 +5,9 @@
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
 
-#include "publish_control_factory.h"
+#include "pacmod_game_control/publish_control_factory.h"
 
-using namespace AS::Joystick;
+using namespace AS::Joystick;  // NOLINT
 
 PublishControlFactory::PublishControlFactory()
 {}

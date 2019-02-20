@@ -5,12 +5,12 @@
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
 
-#ifndef PUBLISH_CONTROL_FACTORY_H
-#define PUBLISH_CONTROL_FACTORY_H
+#ifndef PACMOD_GAME_CONTROL_PUBLISH_CONTROL_FACTORY_H
+#define PACMOD_GAME_CONTROL_PUBLISH_CONTROL_FACTORY_H
 
-#include "publish_control.h"
-#include "publish_control_board_rev2.h"
-#include "publish_control_board_rev3.h"
+#include "pacmod_game_control/publish_control.h"
+#include "pacmod_game_control/publish_control_board_rev2.h"
+#include "pacmod_game_control/publish_control_board_rev3.h"
 
 namespace AS
 {
@@ -24,7 +24,7 @@ public:
     static std::unique_ptr<PublishControl> create(int board_rev);
 };
 
-}
-}
+}  // namespace Joystick
+}  // namespace AS
 
-#endif
+#endif  // PACMOD_GAME_CONTROL_PUBLISH_CONTROL_FACTORY_H
