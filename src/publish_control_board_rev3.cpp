@@ -363,10 +363,10 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     {
       if (vehicle_type == VEHICLE_5)
       {
-        if (PublishControl::headlight_state == 4)
-          PublishControl::headlight_state = 5;
+        if (PublishControl::headlight_state == 1)
+          PublishControl::headlight_state = 2;
         else
-          PublishControl::headlight_state = 4;
+          PublishControl::headlight_state = 1;
       }
       else
       {
