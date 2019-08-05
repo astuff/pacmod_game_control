@@ -56,9 +56,9 @@ void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::C
   if (speed_valid)
     if (current_speed < max_veh_speed)
       speed_scale = STEER_OFFSET - fabs(
-        (current_speed / (max_veh_speed * STEER_SCALE_FACTOR)));  // if max_veh_speed is set incorrectly this will go negative.
+        (current_speed / (max_veh_speed * STEER_SCALE_FACTOR)));  // this could go negative.
     else
-       speed_scale = 0.33333;   //clips the equation assuming 1 offset and 1.5 scale_factor
+       speed_scale = 0.33333;   // clips the equation assuming 1 offset and 1.5 scale_factor
 
   steer_msg.angular_position = (range_scale * max_rot_rad) * msg->axes[axes[steering_axis]];
   steer_msg.angular_velocity_limit = steering_max_speed * speed_scale;
