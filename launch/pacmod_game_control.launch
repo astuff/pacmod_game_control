@@ -12,7 +12,7 @@
   <arg name="pacmod_board_rev" value="2" unless="$(arg is_pacmod_3)" />
   <arg name="pacmod_board_rev" value="3" if="$(arg is_pacmod_3)" />
 
-  <arg name="pacmod_can_hardware_id" default="43029" />
+  <arg name="pacmod_can_hardware_id" default="41317" />
 
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
@@ -24,8 +24,9 @@
        INTERNATIONAL_PROSTAR_122
        VEHICLE_4
        VEHICLE_5
-       VEHICLE_6 -->
-  <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
+       VEHICLE_6
+       JUPITER_SPIRIT -->
+  <arg name="pacmod_vehicle_type" default="JUPITER_SPIRIT" />
       
   <arg name="steering_stick" default="LEFT"/>
 
@@ -44,7 +45,7 @@
   <arg name="accel_scale_val" default="1.0"/>
 
   <!-- Scales raw joystick input -->
-  <arg name="brake_scale_val" default="1.0"/>
+  <arg name="brake_scale_val" default="0.7"/>
 
   <!-- For GEM, 11.176m/s -->
   <arg name="max_veh_speed" default="11.176" />

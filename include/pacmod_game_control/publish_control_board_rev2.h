@@ -30,6 +30,7 @@ class PublishControlBoardRev2 :
     // private functions
     void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_door_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
