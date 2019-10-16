@@ -365,7 +365,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     headlight_cmd_pub_msg.ignore_overrides = false;
 
     // Headlights
-    if (msg->axes[axes[DPAD_UD]] == AXES_MAX && msg->buttons[btns[LEFT_BUMPER]] != BUTTON_DOWN)
+    if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
     {
       if (vehicle_type == VEHICLE_5)
       {

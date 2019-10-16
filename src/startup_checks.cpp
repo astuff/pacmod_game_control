@@ -86,7 +86,7 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
   if (vehicle_type == LEXUS_RX_450H)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE2;
   else if (vehicle_type == JUPITER_SPIRIT)
-    PublishControl::max_rot_rad = JUPITER_SPIRIT;
+    PublishControl::max_rot_rad = MAX_ROT_RAD_JUPITER_SPIRIT;
   else if (vehicle_type == VEHICLE_4)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE4;
   else if (vehicle_type == VEHICLE_5)
