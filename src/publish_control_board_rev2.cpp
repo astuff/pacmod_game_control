@@ -282,8 +282,3 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
     }
   }
 }
-
-void PublishControlBoardRev2::publish_door_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
-{
-
-}
