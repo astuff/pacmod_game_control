@@ -63,6 +63,8 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
       vehicle_type = LEXUS_RX_450H;
     else if (vehicle_type_string == "INTERNATIONAL_PROSTAR_122")
       vehicle_type = INTERNATIONAL_PROSTAR;
+    else if (vehicle_type_string == "FREIGHTLINER_CASCADIA")
+      vehicle_type = FREIGHTLINER_CASCADIA;
     else if (vehicle_type_string == "VEHICLE_4")
       vehicle_type = VEHICLE_4;
     else if (vehicle_type_string == "VEHICLE_5")
@@ -83,6 +85,8 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
 
   if (vehicle_type == LEXUS_RX_450H)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE2;
+  else if (vehicle_type == FREIGHTLINER_CASCADIA)
+    PublishControl::max_rot_rad = MAX_ROT_RAD_FREIGHTLINER_CASCADIA;
   else if (vehicle_type == VEHICLE_4)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE4;
   else if (vehicle_type == VEHICLE_5)
