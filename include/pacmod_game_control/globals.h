@@ -130,3 +130,4 @@ static std::mutex turn_mutex;
 }  // namespace AS
 
 #endif  // PACMOD_GAME_CONTROL_GLOBALS_H
+
