@@ -59,6 +59,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
       // Turn signals
       publish_turn_signal_message(msg);
 
+      // Door signals
+      publish_door_signal_message(msg);
+
       // Shifting
       publish_shifting_message(msg);
 

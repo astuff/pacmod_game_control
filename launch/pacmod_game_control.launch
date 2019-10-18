@@ -13,7 +13,7 @@
   <arg name="pacmod_board_rev" value="3" if="$(arg is_pacmod_3)" />
 
   <!-- <arg name="pacmod_can_hardware_id" default="43029" /> -->
-   <arg name="pacmod_can_hardware_id" default="31231" />
+   <arg name="pacmod_can_hardware_id" default="42913" />
 
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
@@ -28,7 +28,7 @@
        VEHICLE_6
        JUPITER_SPIRIT -->
   <!-- <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" /> -->
-   <arg name="pacmod_vehicle_type" default="VEHICLE_5" />
+   <arg name="pacmod_vehicle_type" default="JUPITER_SPIRIT" />
       
   <arg name="steering_stick" default="LEFT"/>
 
