@@ -65,7 +65,10 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
   }
 
   float range_scale;
-  if (vehicle_type == VEHICLE_4 || vehicle_type == VEHICLE_6 || vehicle_type == LEXUS_RX_450H)
+  if (vehicle_type == VEHICLE_4 ||
+      vehicle_type == VEHICLE_6 ||
+      vehicle_type == LEXUS_RX_450H ||
+      vehicle_type == JUPITER_SPIRIT)
     range_scale = 1.0;
   else
     range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
@@ -249,6 +252,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     {
       if (vehicle_type == POLARIS_RANGER ||
           vehicle_type == LEXUS_RX_450H ||
+          vehicle_type == JUPITER_SPIRIT ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
@@ -272,6 +276,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     {
       if (vehicle_type == POLARIS_RANGER ||
           vehicle_type == LEXUS_RX_450H ||
+          vehicle_type == JUPITER_SPIRIT ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
@@ -354,7 +359,8 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
 {
   if ((vehicle_type == LEXUS_RX_450H ||
        vehicle_type == VEHICLE_5 ||
-       vehicle_type == VEHICLE_6) &&
+       vehicle_type == VEHICLE_6 ||
+       vehicle_type == JUPITER_SPIRIT) &&
       controller != HRI_SAFE_REMOTE)
   {
     pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;

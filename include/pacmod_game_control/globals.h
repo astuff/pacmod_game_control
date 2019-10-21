@@ -57,7 +57,8 @@ enum VehicleType
   INTERNATIONAL_PROSTAR,
   VEHICLE_4,
   VEHICLE_5,
-  VEHICLE_6
+  VEHICLE_6,
+  JUPITER_SPIRIT
 };
 
 enum JoyAxis
@@ -107,6 +108,7 @@ static const float MAX_ROT_RAD_VEHICLE2 = 8.5;
 static const float MAX_ROT_RAD_VEHICLE4 = 8.5;
 static const float MAX_ROT_RAD_VEHICLE5 = 8.1;
 static const float MAX_ROT_RAD_VEHICLE6 = 8.5;
+static const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
 static const float MAX_ROT_RAD_DEFAULT = 10.9956;
 static const float AXES_MIN = -1.0;
 static const float AXES_MAX = 1.0;

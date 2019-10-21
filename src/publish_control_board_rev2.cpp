@@ -162,6 +162,7 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
     if (PublishControl::accel_0_rcvd)
     {
       if ((vehicle_type == LEXUS_RX_450H) ||
+          (vehicle_type == JUPITER_SPIRIT) ||
           (vehicle_type == VEHICLE_4))
         accelerator_cmd_pub_msg.f64_cmd =
           accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
@@ -183,6 +184,7 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
     if (PublishControl::accel_0_rcvd)
     {
       if ((vehicle_type == LEXUS_RX_450H) ||
+          (vehicle_type == JUPITER_SPIRIT) ||
           (vehicle_type == VEHICLE_4))
         accelerator_cmd_pub_msg.f64_cmd =
           accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
