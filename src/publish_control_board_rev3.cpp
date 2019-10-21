@@ -65,8 +65,10 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
   }
 
   float range_scale;
-  if (vehicle_type == VEHICLE_4 || vehicle_type == VEHICLE_6 || vehicle_type == LEXUS_RX_450H
-                                || vehicle_type == JUPITER_SPIRIT)
+  if (vehicle_type == VEHICLE_4 ||
+      vehicle_type == VEHICLE_6 ||
+      vehicle_type == LEXUS_RX_450H ||
+      vehicle_type == JUPITER_SPIRIT)
     range_scale = 1.0;
   else
     range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
