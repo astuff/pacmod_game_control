@@ -491,10 +491,10 @@ void PublishControlBoardRev3::publish_door_signal_message(const sensor_msgs::Joy
         door_signal_cmd_pub_msg.command = last_door_cmd;
       else
         door_signal_cmd_pub_msg.command = SLIDING_DOOR_NEUTRAL;
-
+// Send messages when enabled, or when the state changes between axes[DPAD_UD], or between enabled/disabled
       if (last_axes.empty() ||
-            last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
-            local_enable != prev_enable)
+          last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
+          local_enable != prev_enable)
       {
           door_signal_cmd_pub.publish(door_signal_cmd_pub_msg);
       }
