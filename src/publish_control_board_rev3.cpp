@@ -11,6 +11,7 @@ using namespace AS::Joystick;  // NOLINT
 
 int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
 int PublishControlBoardRev3::last_turn_cmd = SIGNAL_OFF;
+int PublishControlBoardRev3::last_door_cmd = SLIDING_DOOR_NEUTRAL;
 float PublishControlBoardRev3::last_brake_cmd = 0.0;
 
 PublishControlBoardRev3::PublishControlBoardRev3() :
@@ -20,9 +21,11 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, &PublishControl::callback_pacmod_enable);
   shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControlBoardRev3::callback_shift_rpt);
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
+  door_sub = n.subscribe("/pacmod/parsed_tx/door_rpt", 20, &PublishControlBoardRev3::callback_door_rpt);
 
   // Advertise published messages
   turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
+  door_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/door_cmd", 20);
   headlight_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
   horn_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/horn_cmd", 20);
   wiper_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/wiper_cmd", 20);
@@ -46,6 +49,14 @@ void PublishControlBoardRev3::callback_turn_rpt(const pacmod_msgs::SystemRptInt:
   // Store the latest value read from the gear state to be sent on enable/disable
   last_turn_cmd = msg->output;
   turn_mutex.unlock();
+}
+
+void PublishControlBoardRev3::callback_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+{
+  door_mutex.lock();
+  // Store the latest value read to be sent on enable/disable
+  last_door_cmd = msg->output;
+  door_mutex.unlock();
 }
 
 void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
@@ -139,7 +150,7 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
       turn_signal_cmd_pub_msg.command = SIGNAL_LEFT;
     else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
       turn_signal_cmd_pub_msg.command = SIGNAL_RIGHT;
-    else if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
+    else if (msg->axes[axes[DPAD_UD]] == AXES_MIN && msg->buttons[btns[LEFT_BUMPER]] != BUTTON_DOWN)
       turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
     else if (local_enable != prev_enable)
     {
@@ -368,7 +379,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     headlight_cmd_pub_msg.ignore_overrides = false;
 
     // Headlights
-    if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
+    if (msg->axes[axes[DPAD_UD]] == AXES_MAX && msg->buttons[btns[LEFT_BUMPER]] != BUTTON_DOWN)
     {
       if (vehicle_type == VEHICLE_5)
       {
@@ -453,5 +464,42 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     }
 
     wiper_cmd_pub.publish(wiper_cmd_pub_msg);
+  }
+}
+
+void PublishControlBoardRev3::publish_door_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  pacmod_msgs::SystemCmdInt door_signal_cmd_pub_msg;
+
+  door_signal_cmd_pub_msg.enable = local_enable;
+  door_signal_cmd_pub_msg.ignore_overrides = false;
+
+  // If the enable flag just went to true, send an override clear
+  if (!prev_enable && local_enable)
+  {
+    door_signal_cmd_pub_msg.clear_override = true;
+    door_signal_cmd_pub_msg.clear_faults = true;
+  }
+
+  if (vehicle_type == JUPITER_SPIRIT)
+  {
+    if (controller != HRI_SAFE_REMOTE)
+    {
+      if (msg->axes[axes[DPAD_UD]] == AXES_MAX && msg->buttons[btns[LEFT_BUMPER]] == BUTTON_DOWN)
+        door_signal_cmd_pub_msg.command = SLIDING_DOOR_CLOSE;
+      else if (msg->axes[axes[DPAD_UD]] == AXES_MIN && msg->buttons[btns[LEFT_BUMPER]] == BUTTON_DOWN)
+        door_signal_cmd_pub_msg.command = SLIDING_DOOR_OPEN;
+      else if (local_enable != prev_enable)
+        door_signal_cmd_pub_msg.command = last_door_cmd;
+      else
+        door_signal_cmd_pub_msg.command = SLIDING_DOOR_NEUTRAL;
+      // Send messages when enabled, or when the state changes between axes[DPAD_UD], or between enabled/disabled
+      if (last_axes.empty() ||
+          last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
+          local_enable != prev_enable)
+      {
+          door_signal_cmd_pub.publish(door_signal_cmd_pub_msg);
+      }
+    }
   }
 }
