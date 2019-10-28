@@ -79,10 +79,9 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
   if (vehicle_type == VEHICLE_4 ||
       vehicle_type == VEHICLE_6 ||
       vehicle_type == LEXUS_RX_450H ||
+      vehicle_type == FREIGHTLINER_CASCADIA ||
       vehicle_type == JUPITER_SPIRIT)
     range_scale = 1.0;
-  else if (vehicle_type == FREIGHTLINER_CASCADIA)
-    range_scale = 1.0;  // testing
   else
     range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
@@ -375,6 +374,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
   if ((vehicle_type == LEXUS_RX_450H ||
        vehicle_type == VEHICLE_5 ||
        vehicle_type == VEHICLE_6 ||
+       vehicle_type == FREIGHTLINER_CASCADIA ||
        vehicle_type == JUPITER_SPIRIT) &&
       controller != HRI_SAFE_REMOTE)
   {
