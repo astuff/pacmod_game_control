@@ -40,6 +40,13 @@ enum TurnSignalState
   SIGNAL_HAZARD
 };
 
+enum DoorSignalState
+{
+  SLIDING_DOOR_NEUTRAL,
+  SLIDING_DOOR_OPEN,
+  SLIDING_DOOR_CLOSE
+};
+
 enum GamepadType
 {
   LOGITECH_F310,
@@ -58,7 +65,8 @@ enum VehicleType
   FREIGHTLINER_CASCADIA,
   VEHICLE_4,
   VEHICLE_5,
-  VEHICLE_6
+  VEHICLE_6,
+  JUPITER_SPIRIT
 };
 
 enum JoyAxis
@@ -109,6 +117,7 @@ static const float MAX_ROT_RAD_VEHICLE4 = 8.5;
 static const float MAX_ROT_RAD_VEHICLE5 = 8.1;
 static const float MAX_ROT_RAD_VEHICLE6 = 8.5;
 static const float MAX_ROT_RAD_FREIGHTLINER_CASCADIA = 14.0;
+static const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
 static const float MAX_ROT_RAD_DEFAULT = 10.9956;
 static const float AXES_MIN = -1.0;
 static const float AXES_MAX = 1.0;
@@ -125,6 +134,7 @@ static std::mutex speed_mutex;
 static std::mutex state_change_mutex;
 static std::mutex shift_mutex;
 static std::mutex turn_mutex;
+static std::mutex door_mutex;
 
 }  // namespace Joystick
 }  // namespace AS

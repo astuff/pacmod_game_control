@@ -61,6 +61,8 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
       vehicle_type = POLARIS_RANGER;
     else if (vehicle_type_string == "LEXUS_RX_450H")
       vehicle_type = LEXUS_RX_450H;
+    else if (vehicle_type_string == "JUPITER_SPIRIT")
+      vehicle_type = JUPITER_SPIRIT;
     else if (vehicle_type_string == "INTERNATIONAL_PROSTAR_122")
       vehicle_type = INTERNATIONAL_PROSTAR;
     else if (vehicle_type_string == "FREIGHTLINER_CASCADIA")
@@ -87,6 +89,8 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE2;
   else if (vehicle_type == FREIGHTLINER_CASCADIA)
     PublishControl::max_rot_rad = MAX_ROT_RAD_FREIGHTLINER_CASCADIA;
+  else if (vehicle_type == JUPITER_SPIRIT)
+    PublishControl::max_rot_rad = MAX_ROT_RAD_JUPITER_SPIRIT;
   else if (vehicle_type == VEHICLE_4)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE4;
   else if (vehicle_type == VEHICLE_5)
