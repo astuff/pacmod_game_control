@@ -79,6 +79,7 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
   if (vehicle_type == VEHICLE_4 ||
       vehicle_type == VEHICLE_6 ||
       vehicle_type == LEXUS_RX_450H ||
+      vehicle_type == FREIGHTLINER_CASCADIA ||
       vehicle_type == JUPITER_SPIRIT)
     range_scale = 1.0;
   else
@@ -263,6 +264,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     {
       if (vehicle_type == POLARIS_RANGER ||
           vehicle_type == LEXUS_RX_450H ||
+          vehicle_type == FREIGHTLINER_CASCADIA ||
           vehicle_type == JUPITER_SPIRIT ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
@@ -287,6 +289,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     {
       if (vehicle_type == POLARIS_RANGER ||
           vehicle_type == LEXUS_RX_450H ||
+          vehicle_type == FREIGHTLINER_CASCADIA ||
           vehicle_type == JUPITER_SPIRIT ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
@@ -371,6 +374,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
   if ((vehicle_type == LEXUS_RX_450H ||
        vehicle_type == VEHICLE_5 ||
        vehicle_type == VEHICLE_6 ||
+       vehicle_type == FREIGHTLINER_CASCADIA ||
        vehicle_type == JUPITER_SPIRIT) &&
       controller != HRI_SAFE_REMOTE)
   {
