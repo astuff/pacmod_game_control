@@ -16,6 +16,7 @@
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
+#include <pacmod_msgs/SystemCmdInt.h>
 
 namespace AS
 {
@@ -38,13 +39,6 @@ enum TurnSignalState
   SIGNAL_OFF,
   SIGNAL_LEFT,
   SIGNAL_HAZARD
-};
-
-enum RearPassDoorState
-{
-  REAR_PASS_DOOR_NEUTRAL,
-  REAR_PASS_DOOR_OPEN,
-  REAR_PASS_DOOR_CLOSE
 };
 
 enum GamepadType

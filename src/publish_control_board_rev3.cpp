@@ -6,12 +6,13 @@
 */
 
 #include "pacmod_game_control/publish_control_board_rev3.h"
+#include <pacmod_msgs/SystemCmdInt.h>
 
 using namespace AS::Joystick;  // NOLINT
 
 int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
 int PublishControlBoardRev3::last_turn_cmd = SIGNAL_OFF;
-int PublishControlBoardRev3::last_rear_pass_door_cmd = REAR_PASS_DOOR_NEUTRAL;
+int PublishControlBoardRev3::last_rear_pass_door_cmd = pacmod_msgs::SystemCmdInt::DOOR_NEUTRAL;
 float PublishControlBoardRev3::last_brake_cmd = 0.0;
 
 PublishControlBoardRev3::PublishControlBoardRev3() :
@@ -491,13 +492,13 @@ void PublishControlBoardRev3::publish_rear_pass_door_message(const sensor_msgs::
     if (controller != HRI_SAFE_REMOTE)
     {
       if (msg->axes[axes[DPAD_UD]] == AXES_MAX && msg->buttons[btns[LEFT_BUMPER]] == BUTTON_DOWN)
-        rear_pass_door_cmd_pub_msg.command = REAR_PASS_DOOR_CLOSE;
+        rear_pass_door_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::DOOR_CLOSE;
       else if (msg->axes[axes[DPAD_UD]] == AXES_MIN && msg->buttons[btns[LEFT_BUMPER]] == BUTTON_DOWN)
-        rear_pass_door_cmd_pub_msg.command = REAR_PASS_DOOR_OPEN;
+        rear_pass_door_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::DOOR_OPEN;
       else if (local_enable != prev_enable)
         rear_pass_door_cmd_pub_msg.command = last_rear_pass_door_cmd;
       else
-        rear_pass_door_cmd_pub_msg.command = REAR_PASS_DOOR_NEUTRAL;
+        rear_pass_door_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::DOOR_NEUTRAL;
       // Send messages when enabled, or when the state changes between axes[DPAD_UD], or between enabled/disabled
       if (last_axes.empty() ||
           last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
