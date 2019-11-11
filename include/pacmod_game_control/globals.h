@@ -16,7 +16,6 @@
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
-#include <pacmod_msgs/SystemCmdInt.h>
 
 namespace AS
 {
