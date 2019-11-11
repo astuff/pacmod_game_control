@@ -6,7 +6,6 @@
 */
 
 #include "pacmod_game_control/publish_control_board_rev3.h"
-// #include <pacmod_msgs/SystemCmdInt.h>
 
 using namespace AS::Joystick;  // NOLINT
 
