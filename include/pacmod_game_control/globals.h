@@ -32,14 +32,6 @@ enum ShiftState
   SHIFT_HIGH = 4
 };
 
-enum TurnSignalState
-{
-  SIGNAL_RIGHT,
-  SIGNAL_OFF,
-  SIGNAL_LEFT,
-  SIGNAL_HAZARD
-};
-
 enum GamepadType
 {
   LOGITECH_F310,
