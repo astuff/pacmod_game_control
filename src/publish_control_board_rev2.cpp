@@ -111,7 +111,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_REVERSE;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -119,7 +119,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_LOW;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -127,7 +127,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_PARK;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -135,7 +135,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_NEUTRAL;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }

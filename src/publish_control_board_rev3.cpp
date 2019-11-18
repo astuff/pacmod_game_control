@@ -9,7 +9,7 @@
 
 using namespace AS::Joystick;  // NOLINT
 
-int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
+int PublishControlBoardRev3::last_shift_cmd = pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
 int PublishControlBoardRev3::last_turn_cmd = pacmod_msgs::SystemCmdInt::TURN_NONE;
 int PublishControlBoardRev3::last_rear_pass_door_cmd = pacmod_msgs::SystemCmdInt::DOOR_NEUTRAL;
 float PublishControlBoardRev3::last_brake_cmd = 0.0;
@@ -191,24 +191,24 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     }
 
     uint8_t desired_gear = 0x0;
-    desired_gear |= (msg->buttons[btns[RIGHT_BTN]]  == BUTTON_DOWN) << SHIFT_REVERSE
-                  | (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN) << SHIFT_LOW
-                  | (msg->buttons[btns[TOP_BTN]]    == BUTTON_DOWN) << SHIFT_PARK
-                  | (msg->buttons[btns[LEFT_BTN]]   == BUTTON_DOWN) << SHIFT_NEUTRAL;
+    desired_gear |= (msg->buttons[btns[RIGHT_BTN]]  == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE
+                  | (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_LOW
+                  | (msg->buttons[btns[TOP_BTN]]    == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_PARK
+                  | (msg->buttons[btns[LEFT_BTN]]   == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
 
     switch (desired_gear)
     {
-      case 1 << SHIFT_REVERSE:
-        shift_cmd_pub_msg.command = SHIFT_REVERSE;
+      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE:
+        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_REVERSE;
         break;
-      case 1 << SHIFT_LOW:
-        shift_cmd_pub_msg.command = SHIFT_LOW;
+      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_LOW:
+        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_LOW;
         break;
-      case 1 << SHIFT_PARK:
-        shift_cmd_pub_msg.command = SHIFT_PARK;
+      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_PARK:
+        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_PARK;
         break;
-      case 1 << SHIFT_NEUTRAL:
-        shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL:
+        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
         break;
       // If we've got an invalid command (or multiple buttons pressed) return and don't publish the message
       default: return;

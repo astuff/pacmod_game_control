@@ -22,16 +22,6 @@ namespace AS
 namespace Joystick
 {
 
-// Enums
-enum ShiftState
-{
-  SHIFT_PARK = 0,
-  SHIFT_REVERSE = 1,
-  SHIFT_NEUTRAL = 2,
-  SHIFT_LOW = 3,
-  SHIFT_HIGH = 4
-};
-
 enum GamepadType
 {
   LOGITECH_F310,
