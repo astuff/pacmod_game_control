@@ -10,6 +10,8 @@ jobs:
           command: |
             apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
+            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
+            git clone https://github.com/astuff/astuff_sensor_msgs astuff_sensor_msgs
             rosdep install --from-paths . --ignore-src -y
             cd ..
             catkin init
@@ -22,13 +24,13 @@ jobs:
       - run:
           name: Lint
           command: |
-            catkin bt --no-deps --make-args roslint
+            catkin build pacmod_game_control --no-deps --make-args roslint
       - run:
           name: Run Tests
           command: |
             source /opt/ros/kinetic/setup.bash
             cd ..
-            catkin run_tests
+            catkin run_tests pacmod_game_control --no-deps
             catkin_test_results
     working_directory: ~/src
 
@@ -42,6 +44,8 @@ jobs:
           command: |
             apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
+            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
+            git clone https://github.com/astuff/astuff_sensor_msgs astuff_sensor_msgs
             rosdep install --from-paths . --ignore-src -y
             cd ..
             catkin init
@@ -54,13 +58,13 @@ jobs:
       - run:
           name: Lint
           command: |
-            catkin bt --no-deps --make-args roslint
+            catkin build pacmod_game_control --no-deps --make-args roslint
       - run:
           name: Run Tests
           command: |
             source /opt/ros/melodic/setup.bash
             cd ..
-            catkin run_tests
+            catkin run_tests pacmod_game_control --no-deps
             catkin_test_results
     working_directory: ~/src
 
