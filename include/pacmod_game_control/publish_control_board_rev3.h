@@ -29,19 +29,19 @@ class PublishControlBoardRev3 :
     PublishControlBoardRev3();
     static void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
     static void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
-    static void callback_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+    static void callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
 
     // Variables
     static int last_shift_cmd;
     static int last_turn_cmd;
-    static int last_door_cmd;
+    static int last_rear_pass_door_cmd;
     static float last_brake_cmd;
 
   private:
     // private functions
     void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
-    void publish_door_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
@@ -50,7 +50,7 @@ class PublishControlBoardRev3 :
     // ROS Subscribers
     ros::Subscriber shift_sub;
     ros::Subscriber turn_sub;
-    ros::Subscriber door_sub;
+    ros::Subscriber rear_pass_door_sub;
 };
 
 }  // namespace Joystick

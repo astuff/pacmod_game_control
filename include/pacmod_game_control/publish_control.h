@@ -56,7 +56,7 @@ class PublishControl
 
     // ROS publishers
     ros::Publisher turn_signal_cmd_pub;
-    ros::Publisher door_signal_cmd_pub;
+    ros::Publisher rear_pass_door_cmd_pub;
     ros::Publisher headlight_cmd_pub;
     ros::Publisher horn_cmd_pub;
     ros::Publisher wiper_cmd_pub;
@@ -84,7 +84,7 @@ class PublishControl
     // private functions
     virtual void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
-    virtual void publish_door_signal_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
+    virtual void publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
