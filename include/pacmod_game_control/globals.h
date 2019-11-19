@@ -21,7 +21,6 @@ namespace AS
 {
 namespace Joystick
 {
-
 enum GamepadType
 {
   LOGITECH_F310,
