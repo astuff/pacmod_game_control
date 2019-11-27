@@ -74,13 +74,13 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
     // Axis 2 is the "left trigger" and axis 5 is the "right trigger" single
     // axis joysticks on the back of the controller
     if (msg->axes[2] < -0.5)
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_HAZARD;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_HAZARDS;
     else if (msg->axes[5] > 0.5)
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_LEFT;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_LEFT;
     else if (msg->axes[5] < -0.5)
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_RIGHT;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_RIGHT;
     else
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_NONE;
 
     if (last_axes.empty() || last_axes[2] != msg->axes[2] || last_axes[5] != msg->axes[5])
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
@@ -88,13 +88,13 @@ void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy
   else
   {
     if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_HAZARD;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_HAZARDS;
     else if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_LEFT;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_LEFT;
     else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_RIGHT;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_RIGHT;
     else
-      turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
+      turn_signal_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::TURN_NONE;
 
     if (last_axes.empty() ||
         last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
@@ -111,7 +111,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_REVERSE;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -119,7 +119,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_LOW;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -127,7 +127,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_PARK;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
@@ -135,7 +135,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_NEUTRAL;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
