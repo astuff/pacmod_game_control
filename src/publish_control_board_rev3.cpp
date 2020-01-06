@@ -192,7 +192,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
     uint8_t desired_gear = 0x0;
     desired_gear |= (msg->buttons[btns[RIGHT_BTN]]  == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE
-                  | (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_LOW
+                  | (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_HIGH
                   | (msg->buttons[btns[TOP_BTN]]    == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_PARK
                   | (msg->buttons[btns[LEFT_BTN]]   == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
 
@@ -201,8 +201,8 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
       case 1 << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE:
         shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_REVERSE;
         break;
-      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_LOW:
-        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_LOW;
+      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_HIGH:
+        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_HIGH;
         break;
       case 1 << pacmod_msgs::SystemCmdInt::SHIFT_PARK:
         shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_PARK;
