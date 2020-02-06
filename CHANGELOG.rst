@@ -2,6 +2,31 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.1 (2020-02-05)
+------------------
+* Merge pull request `#68 <https://github.com/astuff/pacmod_game_control/issues/68>`_ from astuff/fix/shift_low_bug
+  changed from shift low on button press to shift high on button press
+* Merge pull request `#67 <https://github.com/astuff/pacmod_game_control/issues/67>`_ from astuff/feature/removing_enums_and_using_ROS_message__values_instead
+  Feature/removing enums and using ros message  values instead
+* Merge pull request `#64 <https://github.com/astuff/pacmod_game_control/issues/64>`_ from astuff/freightliner_cascadia
+  Adding Freightliner Cascadia DD13 Trucks
+* Merge pull request `#65 <https://github.com/astuff/pacmod_game_control/issues/65>`_ from astuff/feature/door_system
+  adding DoorSystem
+* Adding JUPITER_SPIRIT Vehicle
+* Merge pull request `#61 <https://github.com/astuff/pacmod_game_control/issues/61>`_ from astuff/fix/speed_limit
+  Fix/speed limit - clipped steer rate limit
+* Merge pull request `#60 <https://github.com/astuff/pacmod_game_control/issues/60>`_ from astuff/maint/ci_remove_lunar
+  CI: Removing Lunar build.
+* Merge pull request `#59 <https://github.com/astuff/pacmod_game_control/issues/59>`_ from astuff/fix/lexus_G29
+  made changes to lexus max steer rotation(vehicle_2) and changes so that G29 steering wheel is functional
+* Merge pull request `#58 <https://github.com/astuff/pacmod_game_control/issues/58>`_ from astuff/fix/veh_5_headlights
+  Updated veh_5 headlight states to match current firmware
+* Merge pull request `#55 <https://github.com/astuff/pacmod_game_control/issues/55>`_ from astuff/ranger
+  Polaris Ranger support.
+* CI: Removing Indigo build.
+* Fixed HRI accel command max was limiting to 0.6
+* Contributors: Amruta Mhaske, Benjamin Jansky, Chris, Joshua Whitley, Sam Rustan, Sanaz Fattahalhosseini, Zach Oakes, Mike Lemm, Rinda Gunjala, Sneha Ganesh
+
 2.3.0 (2018-12-12)
 ------------------
 * Merge pull request `#54 <https://github.com/astuff/pacmod_game_control/issues/54>`_ from astuff/maint/hri_remap_part_two
