@@ -119,7 +119,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
   {
     pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
-    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_LOW;
+    shift_cmd_pub_msg.ui16_cmd = pacmod_msgs::PacmodCmd::SHIFT_HIGH;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
