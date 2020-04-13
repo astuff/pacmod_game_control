@@ -2,6 +2,16 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.2 (2020-04-13)
+------------------
+* Merge pull request `#69 <https://github.com/astuff/pacmod_game_control/issues/69>`_ from astuff/maint/p2_shift
+* Fixing shift bug for PACMod2 - related to #68
+Contributors: Amruta Mhaske
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package pacmod_game_control
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 3.0.1 (2020-02-05)
 ------------------
 * Merge pull request `#68 <https://github.com/astuff/pacmod_game_control/issues/68>`_ from astuff/fix/shift_low_bug
