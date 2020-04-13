@@ -2,6 +2,12 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix shift command - manual merge due to circleci not communicating correctly
+* fix shift command
+* Contributors: Amruta Mhaske, bjansky
+
 3.0.1 (2020-02-05)
 ------------------
 * Merge pull request `#68 <https://github.com/astuff/pacmod_game_control/issues/68>`_ from astuff/fix/shift_low_bug
