@@ -79,8 +79,6 @@ jobs:
             apt-get update -qq && apt-get install -y dh-make python-bloom ruby
             gem install --no-rdoc --no-ri deb-s3
             source `find /opt/ros -name setup.bash | sort | head -1`
-            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
-            git clone https://github.com/astuff/astuff_sensor_msgs astuff_sensor_msgs
             rosdep install --from-paths . --ignore-src -y
       - run:
           name: Build
@@ -105,8 +103,6 @@ jobs:
             apt-get update -qq && apt-get install -y dh-make python-bloom ruby
             gem install --no-rdoc --no-ri deb-s3
             source `find /opt/ros -name setup.bash | sort | head -1`
-            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
-            git clone https://github.com/astuff/astuff_sensor_msgs astuff_sensor_msgs
             rosdep install --from-paths . --ignore-src -y
       - run:
           name: Build
