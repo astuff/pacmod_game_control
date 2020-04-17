@@ -132,6 +132,8 @@ workflows:
           context: ubuntu-pkg-build
           filters:
             branches:
+              only:
+                - ci_test
               ignore: /.*/
             tags:
               only: /^[0-9]+\.[0-9]+\.[0-9]+$/
@@ -139,6 +141,8 @@ workflows:
           context: ubuntu-pkg-build
           filters:
             branches:
+              only:
+                - ci_test
               ignore: /.*/
             tags:
               only: /^[0-9]+\.[0-9]+\.[0-9]+$/
