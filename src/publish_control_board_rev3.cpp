@@ -252,7 +252,8 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
       if (vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||
-          vehicle_type == VEHICLE_6)
+          vehicle_type == VEHICLE_6 ||
+          vehicle_type == VEHICLE_T7F)
         accelerator_cmd_pub_msg.command = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
       else
         accelerator_cmd_pub_msg.command = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
@@ -272,7 +273,8 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
       if (vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
           vehicle_type == VEHICLE_5 ||          
-          vehicle_type == VEHICLE_6)
+          vehicle_type == VEHICLE_6 ||
+          vehicle_type == VEHICLE_T7F)
         accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
       else
         accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
@@ -323,7 +325,7 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
     if (PublishControl::brake_0_rcvd)
     {
       float brake_value = -((msg->axes[axes[LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
-      if(vehicle_type == LEXUS_RX_450H)
+      if(vehicle_type == LEXUS_RX_450H || vehicle_type == VEHICLE_T7F)
       {
         // These constants came from playing around in excel until stuff looked good. Seems to work okay
         brake_msg.command = fmin(pow(brake_value, 3) * 2.0F - pow(brake_value, 2) * 1.5F + brake_value * 0.625F, 1.0F);
@@ -347,7 +349,8 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
 void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   if ((vehicle_type == LEXUS_RX_450H ||
-       vehicle_type == VEHICLE_5) &&
+       vehicle_type == VEHICLE_5     ||
+       vehicle_type == VEHICLE_T7F) &&
       controller != HRI_SAFE_REMOTE)
   {
     pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
