@@ -13,6 +13,7 @@
 
 #include <pacmod_msgs/PositionWithSpeed.h>
 #include <pacmod_msgs/PacmodCmd.h>
+#include <pacmod_msgs/GlobalCmd.h>
 
 namespace AS
 {
@@ -34,6 +35,7 @@ class PublishControlBoardRev2 :
     void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg);
 };
 
 }

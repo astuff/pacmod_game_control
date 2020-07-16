@@ -30,6 +30,7 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   accelerator_cmd_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
   steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::SteerSystemCmd>("/pacmod/as_rx/steer_cmd", 20);
   brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
+  global_cmd_pub = n.advertise<pacmod_msgs::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
 }
 
 void PublishControlBoardRev3::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
@@ -439,4 +440,19 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
 
     wiper_cmd_pub.publish(wiper_cmd_pub_msg);
   }
+}
+
+void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  pacmod_msgs::GlobalCmd global_cmd_pub_msg;
+  
+  if (vehicle_type == VEHICLE_T7F)
+  {
+    // If the enable flag just went to true, send a clear_faults flag
+    if (!prev_enable && local_enable)
+      global_cmd_pub_msg.clear_faults = true;
+    else
+      global_cmd_pub_msg.clear_faults = false;
+  }
+   global_cmd_pub.publish(global_cmd_pub_msg);
 }

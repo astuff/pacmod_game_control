@@ -16,6 +16,7 @@
 #include <pacmod_msgs/SystemCmdFloat.h>
 #include <pacmod_msgs/SystemCmdInt.h>
 #include <pacmod_msgs/SystemRptInt.h>
+#include <pacmod_msgs/GlobalCmd.h>
 
 namespace AS
 {
@@ -43,6 +44,7 @@ class PublishControlBoardRev3 :
     void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg);
 
     // ROS Subscribers
     ros::Subscriber shift_sub;

@@ -53,6 +53,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
     if (local_enable == true || local_enable != prev_enable)
     {
+      // Global
+      // publish_global_message(msg);
+
       // Steering
       publish_steering_message(msg);
 
