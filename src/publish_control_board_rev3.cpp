@@ -471,9 +471,9 @@ void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::Con
   if (vehicle_type == VEHICLE_T7F)
   {
     if (msg->buttons[btns[RIGHT_BUMPER]] == BUTTON_DOWN)
-      hazard_cmd_pub_msg.command = HAZARDS_OFF;
-    else
       hazard_cmd_pub_msg.command = HAZARDS_ON;
+    else
+      hazard_cmd_pub_msg.command = HAZARDS_OFF;
   }
 
   hazard_cmd_pub.publish(hazard_cmd_pub_msg);
