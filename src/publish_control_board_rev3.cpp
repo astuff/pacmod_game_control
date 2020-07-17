@@ -468,14 +468,21 @@ void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::Con
   if (!prev_enable && local_enable)
     hazard_cmd_pub_msg.clear_override = true;
 
+  hazard_cmd_pub_msg.command = HAZARDS_OFF;
+
   if (vehicle_type == VEHICLE_T7F)
   {
-    if (msg->buttons[btns[RIGHT_BUMPER]] == BUTTON_DOWN)
+    if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
       hazard_cmd_pub_msg.command = HAZARDS_ON;
-    else
-      hazard_cmd_pub_msg.command = HAZARDS_OFF;
+
+    if ((last_axes.empty() ||
+        last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
+        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]]) ||
+        (local_enable != prev_enable))
+    {
+      hazard_cmd_pub.publish(hazard_cmd_pub_msg);
+    }
   }
 
-  hazard_cmd_pub.publish(hazard_cmd_pub_msg);
 }
 
