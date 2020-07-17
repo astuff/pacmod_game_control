@@ -29,6 +29,7 @@ PublishControlBoardRev2::PublishControlBoardRev2() :
   steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
   brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
   global_cmd_pub = n.advertise<pacmod_msgs::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
+  hazard_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/hazard_lights_cmd", 20);
 }
 
 void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
@@ -270,4 +271,11 @@ void PublishControlBoardRev2::publish_global_message(const sensor_msgs::Joy::Con
 {
   pacmod_msgs::GlobalCmd global_cmd_pub_msg;
   // If the enable flag just went to true, send a clear_faults flag through global cmd
+  // Not available in PACMod 2 yet
+}
+
+void PublishControlBoardRev2::publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  pacmod_msgs::PacmodCmd hazard_cmd_pub_msg;
+  // Not available in PACMod 2 yet
 }

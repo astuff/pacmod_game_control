@@ -36,6 +36,7 @@ class PublishControlBoardRev2 :
     void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg);
 };
 
 }

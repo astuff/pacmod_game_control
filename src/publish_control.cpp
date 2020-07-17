@@ -54,7 +54,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     if (local_enable == true || local_enable != prev_enable)
     {
       // Global
-      // publish_global_message(msg);
+      publish_global_message(msg);
 
       // Steering
       publish_steering_message(msg);
@@ -73,6 +73,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
       // Lights and horn
       publish_lights_horn_wipers_message(msg);
+
+      // Hazard lights
+      publish_hazard_message(msg);
     }
 
     prev_enable = local_enable;

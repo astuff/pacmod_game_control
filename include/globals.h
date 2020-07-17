@@ -40,6 +40,12 @@ enum TurnSignalState
   SIGNAL_HAZARD
 };
 
+enum HazardLightsState
+{
+  HAZARDS_OFF,
+  HAZARDS_ON
+};
+
 enum GamepadType
 {
   LOGITECH_F310,

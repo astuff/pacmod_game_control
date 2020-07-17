@@ -63,6 +63,7 @@ class PublishControl
     ros::Publisher brake_set_position_pub;
     ros::Publisher enable_pub;
     ros::Publisher global_cmd_pub;
+    ros::Publisher hazard_cmd_pub;
 
     // ROS subscribers
     ros::Subscriber joy_sub;
@@ -87,6 +88,7 @@ class PublishControl
     virtual void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
+    virtual void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
 };
 
 }

@@ -31,6 +31,7 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::SteerSystemCmd>("/pacmod/as_rx/steer_cmd", 20);
   brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
   global_cmd_pub = n.advertise<pacmod_msgs::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
+  hazard_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/hazard_lights_cmd", 20);
 }
 
 void PublishControlBoardRev3::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
@@ -456,3 +457,25 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
   }
    global_cmd_pub.publish(global_cmd_pub_msg);
 }
+
+void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  pacmod_msgs::SystemCmdBool hazard_cmd_pub_msg;
+  hazard_cmd_pub_msg.enable = local_enable;
+  hazard_cmd_pub_msg.ignore_overrides = false;
+
+  // If the enable flag just went to true, send an override clear
+  if (!prev_enable && local_enable)
+    hazard_cmd_pub_msg.clear_override = true;
+
+  if (vehicle_type == VEHICLE_T7F)
+  {
+    if (msg->buttons[btns[RIGHT_BUMPER]] == BUTTON_DOWN)
+      hazard_cmd_pub_msg.command = HAZARDS_OFF;
+    else
+      hazard_cmd_pub_msg.command = HAZARDS_ON;
+  }
+
+  hazard_cmd_pub.publish(hazard_cmd_pub_msg);
+}
+
