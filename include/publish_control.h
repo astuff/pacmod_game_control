@@ -64,6 +64,7 @@ class PublishControl
     ros::Publisher enable_pub;
     ros::Publisher global_cmd_pub;
     ros::Publisher hazard_cmd_pub;
+    ros::Publisher rpm_dial_cmd_pub;    
 
     // ROS subscribers
     ros::Subscriber joy_sub;

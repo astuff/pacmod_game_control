@@ -17,6 +17,7 @@
 #include <pacmod_msgs/SystemCmdInt.h>
 #include <pacmod_msgs/SystemRptInt.h>
 #include <pacmod_msgs/GlobalCmd.h>
+#include <pacmod_msgs/RPMDialCmd.h>
 
 namespace AS
 {

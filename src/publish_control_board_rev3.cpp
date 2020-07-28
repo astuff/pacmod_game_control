@@ -32,6 +32,7 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
   global_cmd_pub = n.advertise<pacmod_msgs::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
   hazard_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/hazard_lights_cmd", 20);
+  rpm_dial_cmd_pub =n.advertise<pacmod_msgs::RPMDialCmd>("/pacmod/as_rx/rpm_dial_cmd", 20);
 }
 
 void PublishControlBoardRev3::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
@@ -227,13 +228,22 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
+  pacmod_msgs::RPMDialCmd rpm_dial_cmd_pub_msg;
 
   accelerator_cmd_pub_msg.enable = local_enable;
   accelerator_cmd_pub_msg.ignore_overrides = false;
 
+  rpm_dial_cmd_pub_msg.enable = local_enable;
+  rpm_dial_cmd_pub_msg.ignore_overrides = false;
+
   // If the enable flag just went to true, send an override clear
   if (!prev_enable && local_enable)
+  {
     accelerator_cmd_pub_msg.clear_override = true;
+
+    if (vehicle_type == VEHICLE_T7F)
+      rpm_dial_cmd_pub_msg.ignore_overrides = false;
+  }
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -256,14 +266,21 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
           vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6 ||
           vehicle_type == VEHICLE_T7F)
+      {
         accelerator_cmd_pub_msg.command = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
+        if (vehicle_type == VEHICLE_T7F)
+          rpm_dial_cmd_pub_msg.dial_cmd = accelerator_cmd_pub_msg.command;
+      }
       else
         accelerator_cmd_pub_msg.command = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
     }
     else
     {
       accelerator_cmd_pub_msg.command = 0;
-    }
+
+      if (vehicle_type == VEHICLE_T7F)
+        rpm_dial_cmd_pub_msg.dial_cmd = 0;
+     }
   }
   else
   {
@@ -277,17 +294,26 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
           vehicle_type == VEHICLE_5 ||          
           vehicle_type == VEHICLE_6 ||
           vehicle_type == VEHICLE_T7F)
+      {
         accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
+        if (vehicle_type == VEHICLE_T7F)
+          rpm_dial_cmd_pub_msg.dial_cmd = accelerator_cmd_pub_msg.command;
+      }
       else
         accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
     }
     else
     {
       accelerator_cmd_pub_msg.command = 0;
+
+      if (vehicle_type == VEHICLE_T7F)
+        rpm_dial_cmd_pub_msg.dial_cmd = 0;
     }
   }
 
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+  if (vehicle_type == VEHICLE_T7F)
+    rpm_dial_cmd_pub.publish(rpm_dial_cmd_pub_msg);
 }
 
 void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
