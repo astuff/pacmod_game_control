@@ -242,7 +242,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     accelerator_cmd_pub_msg.clear_override = true;
 
     if (vehicle_type == VEHICLE_T7F)
-      rpm_dial_cmd_pub_msg.ignore_overrides = false;
+      rpm_dial_cmd_pub_msg.clear_override = true;
   }
 
   if (controller == HRI_SAFE_REMOTE)
@@ -269,7 +269,12 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
       {
         accelerator_cmd_pub_msg.command = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
         if (vehicle_type == VEHICLE_T7F)
-          rpm_dial_cmd_pub_msg.dial_cmd = accelerator_cmd_pub_msg.command;
+        {
+          if (accelerator_cmd_pub_msg.command < 0.5)
+            rpm_dial_cmd_pub_msg.dial_cmd = accelerator_cmd_pub_msg.command;
+          else
+            rpm_dial_cmd_pub_msg.dial_cmd = 0.5;
+        }
       }
       else
         accelerator_cmd_pub_msg.command = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
@@ -297,7 +302,12 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
       {
         accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
         if (vehicle_type == VEHICLE_T7F)
-          rpm_dial_cmd_pub_msg.dial_cmd = accelerator_cmd_pub_msg.command;
+        {
+          if (accelerator_cmd_pub_msg.command < 0.5)
+            rpm_dial_cmd_pub_msg.dial_cmd = accelerator_cmd_pub_msg.command;
+          else
+            rpm_dial_cmd_pub_msg.dial_cmd = 0.5;
+        }
       }
       else
         accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
