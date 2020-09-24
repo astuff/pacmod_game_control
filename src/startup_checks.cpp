@@ -61,14 +61,14 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
       vehicle_type = LEXUS_RX_450H;
     else if(vehicle_type_string == "INTERNATIONAL_PROSTAR_122")
       vehicle_type = INTERNATIONAL_PROSTAR;
+    else if(vehicle_type_string == "HEXAGON_TRACTOR")
+      vehicle_type = HEXAGON_TRACTOR;
     else if(vehicle_type_string == "VEHICLE_4")
       vehicle_type = VEHICLE_4;
     else if(vehicle_type_string == "VEHICLE_5")
       vehicle_type = VEHICLE_5;
     else if(vehicle_type_string == "VEHICLE_6")
       vehicle_type = VEHICLE_6;      
-    else if(vehicle_type_string == "VEHICLE_T7F")
-      vehicle_type = VEHICLE_T7F;
     else
     {
       ROS_ERROR("pacmod_vehicle_type is invalid");
@@ -89,8 +89,8 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE5;
   else if (vehicle_type == VEHICLE_6)
     PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE6;
-  else if (vehicle_type == VEHICLE_T7F)
-    PublishControl::max_rot_rad = MAX_ROT_RAD_VEHICLE_T7F;    
+  else if (vehicle_type == HEXAGON_TRACTOR)
+    PublishControl::max_rot_rad = MAX_ROT_RAD_HEXAGON_TRACTOR;    
   PublishControl::vehicle_type = vehicle_type;
     
   return exit;

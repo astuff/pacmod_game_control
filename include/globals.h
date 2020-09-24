@@ -61,10 +61,10 @@ enum VehicleType
   POLARIS_RANGER,
   LEXUS_RX_450H,
   INTERNATIONAL_PROSTAR,
+  HEXAGON_TRACTOR,
   VEHICLE_4,
   VEHICLE_5,
   VEHICLE_6,
-  VEHICLE_T7F,
   VEHICLE_R8F
 };
 
@@ -115,7 +115,7 @@ static const float MAX_ROT_RAD_VEHICLE2 = 6.5;
 static const float MAX_ROT_RAD_VEHICLE4 = 8.5;
 static const float MAX_ROT_RAD_VEHICLE5 = 8.1;
 static const float MAX_ROT_RAD_VEHICLE6 = 8.5;
-static const float MAX_ROT_RAD_VEHICLE_T7F = 0.5;
+static const float MAX_ROT_RAD_HEXAGON_TRACTOR = 0.5;
 static const float MAX_ROT_RAD_DEFAULT = 10.9956;
 static const float AXES_MIN = -1.0;
 static const float AXES_MAX = 1.0;
