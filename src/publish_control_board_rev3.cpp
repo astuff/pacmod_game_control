@@ -452,11 +452,9 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
   
   if (vehicle_type == POLARIS_RANGER)
   {
-    if (!prev_enable && local_enable)
-      global_cmd_pub_msg.clear_faults = false;
-    else
-      global_cmd_pub_msg.clear_faults = true;
+    global_cmd_pub_msg.clear_faults = true;
   }
+
    global_cmd_pub.publish(global_cmd_pub_msg);
 }
 
