@@ -53,12 +53,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
     if (local_enable == true || local_enable != prev_enable)
     {
-      if (!prev_enable && local_enable)
-      {
-        // Global
-        publish_global_message(msg);
-      }
-      
+      // Global
+      publish_global_message(msg);
+
       // Steering
       publish_steering_message(msg);
 
@@ -131,6 +128,9 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     // Enable
     if (msg->axes[axes[DPAD_UD]] >= 0.9 && !local_enable)
     {
+      // Global
+      publish_global_message(msg);
+
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;
@@ -155,6 +155,9 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     // Enable
     if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && !local_enable)
     {
+      // Global
+      publish_global_message(msg);
+
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
       local_enable = true;

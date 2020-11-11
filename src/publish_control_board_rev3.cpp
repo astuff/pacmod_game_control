@@ -101,7 +101,7 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
   // If the enable flag just went to true, send an override clear
   if (!prev_enable && local_enable)
     turn_signal_cmd_pub_msg.clear_override = true;
-  
+
   if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
     turn_signal_cmd_pub_msg.command = SIGNAL_LEFT;
   else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
@@ -277,7 +277,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     {
       if (vehicle_type == LEXUS_RX_450H ||
           vehicle_type == VEHICLE_4 ||
-          vehicle_type == VEHICLE_5 ||          
+          vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
       {
         accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
@@ -373,12 +373,12 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
           PublishControl::headlight_state = 4;
       }
       else
-      {	
-        // Rotate through headlight states as button is pressed 
+      {
+        // Rotate through headlight states as button is pressed
         if (!PublishControl::headlight_state_change)
         {
           PublishControl::headlight_state++;
-          PublishControl::headlight_state_change = true;					
+          PublishControl::headlight_state_change = true;
         }
 
         if (PublishControl::headlight_state >= NUM_HEADLIGHT_STATES)
@@ -394,7 +394,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     }
     else
     {
-      PublishControl::headlight_state_change = false;	
+      PublishControl::headlight_state_change = false;
     }
 
     headlight_cmd_pub_msg.command = PublishControl::headlight_state;
@@ -426,7 +426,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     // Windshield wipers
     if (msg->axes[7] == AXES_MAX)
     {
-      // Rotate through wiper states as button is pressed 
+      // Rotate through wiper states as button is pressed
       PublishControl::wiper_state++;
 
       if (PublishControl::wiper_state >= NUM_WIPER_STATES)
@@ -449,12 +449,16 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
 void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod_msgs::GlobalCmd global_cmd_pub_msg;
-  
+
   if (vehicle_type == POLARIS_RANGER)
   {
-    global_cmd_pub_msg.clear_faults = true;
+    if (!prev_enable && local_enable)
+      global_cmd_pub_msg.clear_faults = false;
+    else if (!prev_enable && !local_enable)
+      global_cmd_pub_msg.clear_faults = true;
+    else
+      global_cmd_pub_msg.clear_faults = false;
   }
-
    global_cmd_pub.publish(global_cmd_pub_msg);
 }
 
@@ -485,4 +489,3 @@ void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::Con
   }
 
 }
-
