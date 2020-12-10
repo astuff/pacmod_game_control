@@ -63,6 +63,12 @@ bool AS::Joystick::check_vehicle_type(ros::NodeHandle * nodeH)
       vehicle_type = INTERNATIONAL_PROSTAR;
     else if(vehicle_type_string == "HEXAGON_TRACTOR")
       vehicle_type = HEXAGON_TRACTOR;
+    else if(vehicle_type_string == "FORD_RANGER")
+      vehicle_type = FORD_RANGER;
+    else if(vehicle_type_string == "VEHICLE_FTT")
+      vehicle_type = VEHICLE_FTT;
+    else if(vehicle_type_string == "VEHICLE_HCV")
+      vehicle_type = VEHICLE_HCV;
     else if(vehicle_type_string == "VEHICLE_4")
       vehicle_type = VEHICLE_4;
     else if(vehicle_type_string == "VEHICLE_5")

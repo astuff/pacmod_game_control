@@ -450,7 +450,9 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
 {
   pacmod_msgs::GlobalCmd global_cmd_pub_msg;
 
-  if (vehicle_type == POLARIS_RANGER || VEHICLE_FTT || VEHICLE_HCV)
+  if (vehicle_type == POLARIS_RANGER || 
+      vehicle_type == VEHICLE_FTT || 
+      vehicle_type == VEHICLE_HCV)
   {
     if (!prev_enable && local_enable)
       global_cmd_pub_msg.clear_faults = false;
@@ -474,7 +476,9 @@ void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::Con
 
   hazard_cmd_pub_msg.command = HAZARDS_OFF;
 
-  if (vehicle_type == HEXAGON_TRACTOR || VEHICLE_FTT || VEHICLE_HCV)
+  if (vehicle_type == HEXAGON_TRACTOR ||
+      vehicle_type == VEHICLE_FTT ||
+      vehicle_type == VEHICLE_HCV)
   {
     if (controller == HRI_SAFE_REMOTE)
     {
