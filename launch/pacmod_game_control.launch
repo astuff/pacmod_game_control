@@ -23,10 +23,12 @@
        LEXUS_RX_450H
        INTERNATIONAL_PROSTAR_122
        HEXAGON_TRACTOR
+       FORD_RANGER
+       VEHICLE_FTT
+       VEHICLE_HCV
        VEHICLE_4
        VEHICLE_5
-       VEHICLE_6
-       VEHICLE_R8F -->
+       VEHICLE_6 -->
   <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
       
   <arg name="steering_stick" default="LEFT"/>

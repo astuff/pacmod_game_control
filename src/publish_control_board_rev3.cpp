@@ -450,7 +450,7 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
 {
   pacmod_msgs::GlobalCmd global_cmd_pub_msg;
 
-  if (vehicle_type == POLARIS_RANGER)
+  if (vehicle_type == POLARIS_RANGER || VEHICLE_FTT || VEHICLE_HCV)
   {
     if (!prev_enable && local_enable)
       global_cmd_pub_msg.clear_faults = false;
@@ -474,18 +474,27 @@ void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::Con
 
   hazard_cmd_pub_msg.command = HAZARDS_OFF;
 
-  if (vehicle_type == HEXAGON_TRACTOR)
+  if (vehicle_type == HEXAGON_TRACTOR || VEHICLE_FTT || VEHICLE_HCV)
   {
-    if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
-      hazard_cmd_pub_msg.command = HAZARDS_ON;
-
-    if ((last_axes.empty() ||
-        last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
-        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]]) ||
-        (local_enable != prev_enable))
+    if (controller == HRI_SAFE_REMOTE)
     {
-      hazard_cmd_pub.publish(hazard_cmd_pub_msg);
+      if(msg->axes[2] < -0.5)
+        hazard_cmd_pub_msg.command = HAZARDS_ON;
+
+      if ((last_axes.empty() ||
+          last_axes[2] != msg->axes[2]) ||
+          (local_enable != prev_enable))
+        hazard_cmd_pub.publish(hazard_cmd_pub_msg);
+    }
+    else
+    {
+      if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
+        hazard_cmd_pub_msg.command = HAZARDS_ON;
+
+      if ((last_axes.empty() ||
+          last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]]) ||
+          (local_enable != prev_enable))
+        hazard_cmd_pub.publish(hazard_cmd_pub_msg);
     }
   }
-
 }
