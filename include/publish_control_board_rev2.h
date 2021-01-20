@@ -11,9 +11,9 @@
 #include "globals.h"
 #include "publish_control.h"
 
-#include <pacmod_msgs/PositionWithSpeed.h>
-#include <pacmod_msgs/PacmodCmd.h>
-#include <pacmod_msgs/GlobalCmd.h>
+#include <pacmod3/PositionWithSpeed.h>
+#include <pacmod3/PacmodCmd.h>
+#include <pacmod3/GlobalCmd.h>
 
 namespace AS
 {

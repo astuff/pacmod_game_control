@@ -20,7 +20,7 @@ double PublishControl::brake_scale_val = 1.0;
 double PublishControl::steering_max_speed = INVALID;
 std::unordered_map<JoyAxis, int, EnumHash> PublishControl::axes;
 std::unordered_map<JoyButton, int, EnumHash> PublishControl::btns;
-pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
+pacmod3::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
 bool PublishControl::pacmod_enable;
 bool PublishControl::prev_enable = false;
 bool PublishControl::local_enable = false;
@@ -108,7 +108,7 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 /*
  * Called when the node receives a message from the vehicle speed topic
  */
-void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg)
+void PublishControl::callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr& msg)
 {
   speed_mutex.lock();
   last_speed_rpt = msg;

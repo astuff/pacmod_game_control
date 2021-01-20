@@ -21,9 +21,9 @@ class PublishControl
     // public functions
     PublishControl();
     virtual void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
-    static void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg);
+    static void callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr& msg);
     static void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
-    
+
     // public variables
     static JoyAxis steering_axis;
     static float max_rot_rad;
@@ -36,7 +36,7 @@ class PublishControl
     static double steering_max_speed;
     static std::unordered_map<JoyAxis, int, EnumHash> axes;
     static std::unordered_map<JoyButton, int, EnumHash> btns;
-    static pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt;
+    static pacmod3::VehicleSpeedRpt::ConstPtr last_speed_rpt;
     static bool pacmod_enable;
     static bool prev_enable;
     static bool last_pacmod_state;
@@ -64,7 +64,7 @@ class PublishControl
     ros::Publisher enable_pub;
     ros::Publisher global_cmd_pub;
     ros::Publisher hazard_cmd_pub;
-    ros::Publisher rpm_dial_cmd_pub;    
+    ros::Publisher rpm_dial_cmd_pub;
 
     // ROS subscribers
     ros::Subscriber joy_sub;
@@ -79,7 +79,7 @@ class PublishControl
     static bool local_enable;
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;
-    
+
   private:
     // private functions
     virtual void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
