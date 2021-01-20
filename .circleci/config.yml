@@ -2,13 +2,13 @@ version: 2
 jobs:
   kinetic:
     docker:
-      - image: ros:kinetic-ros-core
+      - image: autonomoustuff/docker-builds:kinetic-ros-base
     steps:
       - checkout
       - run:
           name: Set Up Container
           command: |
-            apt-get update -qq && apt-get install openssh-client python-catkin-tools build-essential -y
+            apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
             mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
             git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
@@ -32,13 +32,13 @@ jobs:
 
   melodic:
     docker:
-      - image: ros:melodic-ros-core
+      - image: autonomoustuff/docker-builds:melodic-ros-base
     steps:
       - checkout
       - run:
           name: Set Up Container
           command: |
-            apt-get update -qq && apt-get install openssh-client python-catkin-tools build-essential -y
+            apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
             mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
             git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
