@@ -13,6 +13,6 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>pacmod_msgs</depend>
+  <depend>pacmod3</depend>
   <depend>joy</depend>
 </package>

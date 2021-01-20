@@ -4,19 +4,19 @@
 * This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
- 
+
 #ifndef PUBLISH_CONTROL_BOARD_REV3_H
 #define PUBLISH_CONTROL_BOARD_REV3_H
 
 #include "globals.h"
 #include "publish_control.h"
 
-#include <pacmod_msgs/SteerSystemCmd.h>
-#include <pacmod_msgs/SystemCmdBool.h>
-#include <pacmod_msgs/SystemCmdFloat.h>
-#include <pacmod_msgs/SystemCmdInt.h>
-#include <pacmod_msgs/SystemRptInt.h>
-#include <pacmod_msgs/GlobalCmd.h>
+#include <pacmod3/SteerSystemCmd.h>
+#include <pacmod3/SystemCmdBool.h>
+#include <pacmod3/SystemCmdFloat.h>
+#include <pacmod3/SystemCmdInt.h>
+#include <pacmod3/SystemRptInt.h>
+#include <pacmod3/GlobalCmd.h>
 
 namespace AS
 {
@@ -28,8 +28,8 @@ class PublishControlBoardRev3 :
 {
   public:
     PublishControlBoardRev3();
-    static void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
-    static void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+    static void callback_shift_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
+    static void callback_turn_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
 
     // Variables
     static int last_shift_cmd;

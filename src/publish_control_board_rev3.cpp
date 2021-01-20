@@ -22,19 +22,19 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
 
   // Advertise published messages
-  turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
-  headlight_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
-  horn_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/horn_cmd", 20);
-  wiper_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/wiper_cmd", 20);
-  shift_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/shift_cmd", 20);
-  accelerator_cmd_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
-  steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::SteerSystemCmd>("/pacmod/as_rx/steer_cmd", 20);
-  brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
-  global_cmd_pub = n.advertise<pacmod_msgs::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
-  hazard_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/hazard_lights_cmd", 20);
+  turn_signal_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
+  headlight_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
+  horn_cmd_pub = n.advertise<pacmod3::SystemCmdBool>("/pacmod/as_rx/horn_cmd", 20);
+  wiper_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/wiper_cmd", 20);
+  shift_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/shift_cmd", 20);
+  accelerator_cmd_pub = n.advertise<pacmod3::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
+  steering_set_position_with_speed_limit_pub = n.advertise<pacmod3::SteerSystemCmd>("/pacmod/as_rx/steer_cmd", 20);
+  brake_set_position_pub = n.advertise<pacmod3::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
+  global_cmd_pub = n.advertise<pacmod3::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
+  hazard_cmd_pub = n.advertise<pacmod3::SystemCmdBool>("/pacmod/as_rx/hazard_lights_cmd", 20);
 }
 
-void PublishControlBoardRev3::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+void PublishControlBoardRev3::callback_shift_rpt(const pacmod3::SystemRptInt::ConstPtr& msg)
 {
   shift_mutex.lock();
   // Store the latest value read from the gear state to be sent on enable/disable
@@ -42,7 +42,7 @@ void PublishControlBoardRev3::callback_shift_rpt(const pacmod_msgs::SystemRptInt
   shift_mutex.unlock();
 }
 
-void PublishControlBoardRev3::callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+void PublishControlBoardRev3::callback_turn_rpt(const pacmod3::SystemRptInt::ConstPtr& msg)
 {
   turn_mutex.lock();
   // Store the latest value read from the gear state to be sent on enable/disable
@@ -54,7 +54,7 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
 {
   // Steering
   // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
-  pacmod_msgs::SteerSystemCmd steer_msg;
+  pacmod3::SteerSystemCmd steer_msg;
 
   steer_msg.enable = local_enable;
   steer_msg.ignore_overrides = false;
@@ -93,7 +93,7 @@ void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::C
 
 void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
+  pacmod3::SystemCmdInt turn_signal_cmd_pub_msg;
 
   turn_signal_cmd_pub_msg.enable = local_enable;
   turn_signal_cmd_pub_msg.ignore_overrides = false;
@@ -150,7 +150,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     // Shifting: reverse
     if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
     {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
       shift_cmd_pub_msg.enable = local_enable;
       shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -165,7 +165,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     // Shifting: drive/high
     if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
     {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
       shift_cmd_pub_msg.enable = local_enable;
       shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -180,7 +180,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     // Shifting: park
     if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
     {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
       shift_cmd_pub_msg.enable = local_enable;
       shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -195,7 +195,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     // Shifting: neutral
     if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
     {
-      pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
       shift_cmd_pub_msg.enable = local_enable;
       shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -211,7 +211,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
   // If only an enable/disable button was pressed
   if (local_enable != prev_enable)
   {
-    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+    pacmod3::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -226,7 +226,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
 void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
+  pacmod3::SystemCmdFloat accelerator_cmd_pub_msg;
 
   accelerator_cmd_pub_msg.enable = local_enable;
   accelerator_cmd_pub_msg.ignore_overrides = false;
@@ -300,7 +300,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
 
 void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::SystemCmdFloat brake_msg;
+  pacmod3::SystemCmdFloat brake_msg;
 
   brake_msg.enable = local_enable;
   brake_msg.ignore_overrides = false;
@@ -364,7 +364,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
       vehicle_type == VEHICLE_HCV) &&
       controller != HRI_SAFE_REMOTE)
   {
-    pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
+    pacmod3::SystemCmdInt headlight_cmd_pub_msg;
     headlight_cmd_pub_msg.enable = local_enable;
     headlight_cmd_pub_msg.ignore_overrides = false;
 
@@ -407,7 +407,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     headlight_cmd_pub.publish(headlight_cmd_pub_msg);
 
     // Horn
-    pacmod_msgs::SystemCmdBool horn_cmd_pub_msg;
+    pacmod3::SystemCmdBool horn_cmd_pub_msg;
     horn_cmd_pub_msg.enable = local_enable;
     horn_cmd_pub_msg.ignore_overrides = false;
 
@@ -425,7 +425,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
 
   if (vehicle_type == INTERNATIONAL_PROSTAR && controller != HRI_SAFE_REMOTE) // Semi
   {
-    pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
+    pacmod3::SystemCmdInt wiper_cmd_pub_msg;
     wiper_cmd_pub_msg.enable = local_enable;
     wiper_cmd_pub_msg.ignore_overrides = false;
 
@@ -454,10 +454,10 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
 
 void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::GlobalCmd global_cmd_pub_msg;
+  pacmod3::GlobalCmd global_cmd_pub_msg;
 
-  if (vehicle_type == POLARIS_RANGER || 
-      vehicle_type == VEHICLE_FTT || 
+  if (vehicle_type == POLARIS_RANGER ||
+      vehicle_type == VEHICLE_FTT ||
       vehicle_type == LEXUS_RX_450H ||
       vehicle_type == VEHICLE_HCV)
   {
@@ -473,7 +473,7 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
 
 void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::SystemCmdBool hazard_cmd_pub_msg;
+  pacmod3::SystemCmdBool hazard_cmd_pub_msg;
   hazard_cmd_pub_msg.enable = local_enable;
   hazard_cmd_pub_msg.ignore_overrides = false;
 

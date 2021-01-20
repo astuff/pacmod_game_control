@@ -7,14 +7,14 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   sensor_msgs
-  pacmod_msgs
+  pacmod3
   joy
 )
 
 catkin_package(CATKIN_DEPENDS
   std_msgs
   sensor_msgs
-  pacmod_msgs
+  pacmod3
   joy
 )
 
@@ -23,7 +23,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(pacmod_game_control_node 
+add_executable(pacmod_game_control_node
   src/pacmod_game_control_node.cpp
   src/startup_checks.cpp
   src/publish_control_board_rev2.cpp

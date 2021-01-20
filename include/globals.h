@@ -15,7 +15,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
-#include <pacmod_msgs/VehicleSpeedRpt.h>
+#include <pacmod3/VehicleSpeedRpt.h>
 
 namespace AS
 {

@@ -20,23 +20,23 @@ PublishControlBoardRev2::PublishControlBoardRev2() :
   enable_sub = n.subscribe("/pacmod/as_tx/enable", 20, &PublishControl::callback_pacmod_enable);
 
   // Advertise published messages
-  turn_signal_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
-  headlight_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
-  horn_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
-  wiper_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
-  shift_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
-  accelerator_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
-  steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
-  brake_set_position_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
-  global_cmd_pub = n.advertise<pacmod_msgs::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
-  hazard_cmd_pub = n.advertise<pacmod_msgs::PacmodCmd>("/pacmod/as_rx/hazard_lights_cmd", 20);
+  turn_signal_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/turn_cmd", 20);
+  headlight_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/headlight_cmd", 20);
+  horn_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/horn_cmd", 20);
+  wiper_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/wiper_cmd", 20);
+  shift_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/shift_cmd", 20);
+  accelerator_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/accel_cmd", 20);
+  steering_set_position_with_speed_limit_pub = n.advertise<pacmod3::PositionWithSpeed>("/pacmod/as_rx/steer_cmd", 20);
+  brake_set_position_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
+  global_cmd_pub = n.advertise<pacmod3::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
+  hazard_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/hazard_lights_cmd", 20);
 }
 
 void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   // Steering
   // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
-  pacmod_msgs::PositionWithSpeed steer_msg;
+  pacmod3::PositionWithSpeed steer_msg;
 
   float range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
   float speed_scale = 1.0;
@@ -63,8 +63,8 @@ void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::C
 
 void PublishControlBoardRev2::publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::PacmodCmd turn_signal_cmd_pub_msg;
-  
+  pacmod3::PacmodCmd turn_signal_cmd_pub_msg;
+
   if (msg->axes[axes[DPAD_LR]] == AXES_MAX)
     turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_LEFT;
   else if (msg->axes[axes[DPAD_LR]] == AXES_MIN)
@@ -100,7 +100,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   // Shifting: reverse
   if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
   {
-    pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+    pacmod3::PacmodCmd shift_cmd_pub_msg;
     shift_cmd_pub_msg.ui16_cmd = SHIFT_REVERSE;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -108,7 +108,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   // Shifting: drive/high
   if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
   {
-    pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+    pacmod3::PacmodCmd shift_cmd_pub_msg;
     shift_cmd_pub_msg.ui16_cmd = SHIFT_LOW;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -116,7 +116,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   // Shifting: park
   if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
   {
-    pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+    pacmod3::PacmodCmd shift_cmd_pub_msg;
     shift_cmd_pub_msg.ui16_cmd = SHIFT_PARK;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -124,7 +124,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
   // Shifting: neutral
   if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
   {
-    pacmod_msgs::PacmodCmd shift_cmd_pub_msg;
+    pacmod3::PacmodCmd shift_cmd_pub_msg;
     shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
@@ -132,7 +132,7 @@ void PublishControlBoardRev2::publish_shifting_message(const sensor_msgs::Joy::C
 
 void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::PacmodCmd accelerator_cmd_pub_msg;
+  pacmod3::PacmodCmd accelerator_cmd_pub_msg;
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -140,7 +140,7 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
     if (msg->axes[axes[RIGHT_STICK_UD]] >= 0.0)
     {
       // only consider center-to-up range as accelerator motion
-      accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]) * ACCEL_SCALE_FACTOR 
+      accelerator_cmd_pub_msg.f64_cmd = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]) * ACCEL_SCALE_FACTOR
         + ACCEL_OFFSET;
     }
   }
@@ -187,7 +187,7 @@ void PublishControlBoardRev2::publish_accelerator_message(const sensor_msgs::Joy
 
 void PublishControlBoardRev2::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::PacmodCmd brake_msg;
+  pacmod3::PacmodCmd brake_msg;
 
   if (controller == HRI_SAFE_REMOTE)
   {
@@ -221,25 +221,25 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
 {
   static uint16_t headlight_state = 0;
   static uint16_t wiper_state = 0;
-  
+
   if (vehicle_type == 2 && controller != HRI_SAFE_REMOTE)
   {
     // Headlights
     if (msg->axes[axes[DPAD_UD]] == AXES_MAX)
     {
-      // Rotate through headlight states as button is pressed 
+      // Rotate through headlight states as button is pressed
       headlight_state++;
 
       if(headlight_state >= NUM_HEADLIGHT_STATES)
         headlight_state = HEADLIGHT_STATE_START_VALUE;
 
-      pacmod_msgs::PacmodCmd headlight_cmd_pub_msg;
+      pacmod3::PacmodCmd headlight_cmd_pub_msg;
       headlight_cmd_pub_msg.ui16_cmd = headlight_state;
       headlight_cmd_pub.publish(headlight_cmd_pub_msg);
     }
 
     // Horn
-    pacmod_msgs::PacmodCmd horn_cmd_pub_msg;
+    pacmod3::PacmodCmd horn_cmd_pub_msg;
 
     if (msg->buttons[btns[RIGHT_BUMPER]] == BUTTON_DOWN)
       horn_cmd_pub_msg.ui16_cmd = 1;
@@ -254,13 +254,13 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
     // Windshield wipers
     if (msg->buttons[btns[LEFT_BUMPER]] == BUTTON_DOWN)
     {
-      // Rotate through wiper states as button is pressed 
+      // Rotate through wiper states as button is pressed
       wiper_state++;
 
       if(wiper_state >= NUM_WIPER_STATES)
         wiper_state = WIPER_STATE_START_VALUE;
 
-      pacmod_msgs::PacmodCmd wiper_cmd_pub_msg;
+      pacmod3::PacmodCmd wiper_cmd_pub_msg;
       wiper_cmd_pub_msg.ui16_cmd = wiper_state;
       wiper_cmd_pub.publish(wiper_cmd_pub_msg);
     }
@@ -269,13 +269,13 @@ void PublishControlBoardRev2::publish_lights_horn_wipers_message(const sensor_ms
 
 void PublishControlBoardRev2::publish_global_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::GlobalCmd global_cmd_pub_msg;
+  pacmod3::GlobalCmd global_cmd_pub_msg;
   // If the enable flag just went to true, send a clear_faults flag through global cmd
   // Not available in PACMod 2 yet
 }
 
 void PublishControlBoardRev2::publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod_msgs::PacmodCmd hazard_cmd_pub_msg;
+  pacmod3::PacmodCmd hazard_cmd_pub_msg;
   // Not available in PACMod 2 yet
 }
