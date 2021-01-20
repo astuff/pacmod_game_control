@@ -8,7 +8,7 @@ jobs:
       - run:
           name: Set Up Container
           command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
+            apt-get update -qq && apt-get install openssh-client python-catkin-tools build-essential -y
             source `find /opt/ros -name setup.bash | sort | head -1`
             mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
             git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
@@ -24,8 +24,10 @@ jobs:
       - run:
           name: Run Tests
           command: |
+            source `find /opt/ros -name setup.bash | sort | head -1`
             cd ..
-            catkin run_tests
+            catkin run_tests --no-deps pacmod_game_control
+            catkin_test_results
     working_directory: ~/src
 
   melodic:
@@ -36,7 +38,7 @@ jobs:
       - run:
           name: Set Up Container
           command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
+            apt-get update -qq && apt-get install openssh-client python-catkin-tools build-essential -y
             source `find /opt/ros -name setup.bash | sort | head -1`
             mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
             git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
@@ -52,8 +54,10 @@ jobs:
       - run:
           name: Run Tests
           command: |
+            source `find /opt/ros -name setup.bash | sort | head -1`
             cd ..
-            catkin run_tests
+            catkin run_tests --no-deps pacmod_game_control
+            catkin_test_results
     working_directory: ~/src
 
 workflows:
