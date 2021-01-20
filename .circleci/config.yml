@@ -1,31 +1,5 @@
 version: 2
 jobs:
-  indigo:
-    docker:
-      - image: ros:indigo-ros-core
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
-            source `find /opt/ros -name setup.bash | sort | head -1`
-            rosdep install --from-paths . --ignore-src -y
-            cd ..
-            catkin init
-            catkin config --extend /opt/ros/$ROS_DISTRO
-      - run:
-          name: Build
-          command: |
-            cd ..
-            catkin build
-      - run:
-          name: Run Tests
-          command: |
-            cd ..
-            catkin run_tests
-    working_directory: ~/src
-
   kinetic:
     docker:
       - image: ros:kinetic-ros-core
@@ -36,32 +10,8 @@ jobs:
           command: |
             apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
             source `find /opt/ros -name setup.bash | sort | head -1`
-            rosdep install --from-paths . --ignore-src -y
-            cd ..
-            catkin init
-            catkin config --extend /opt/ros/$ROS_DISTRO
-      - run:
-          name: Build
-          command: |
-            cd ..
-            catkin build
-      - run:
-          name: Run Tests
-          command: |
-            cd ..
-            catkin run_tests
-    working_directory: ~/src
-
-  lunar:
-    docker:
-      - image: ros:lunar-ros-core
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
-            source `find /opt/ros -name setup.bash | sort | head -1`
+            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
+            git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
             rosdep install --from-paths . --ignore-src -y
             cd ..
             catkin init
@@ -88,6 +38,8 @@ jobs:
           command: |
             apt-get update && apt-get install openssh-client python-catkin-tools build-essential -y
             source `find /opt/ros -name setup.bash | sort | head -1`
+            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
+            git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
             rosdep install --from-paths . --ignore-src -y
             cd ..
             catkin init
@@ -108,7 +60,5 @@ workflows:
   version: 2
   ros_build:
     jobs:
-      - indigo
       - kinetic
-      - lunar
       - melodic
