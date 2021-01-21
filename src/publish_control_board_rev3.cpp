@@ -458,6 +458,7 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
 
   if (vehicle_type == POLARIS_RANGER || 
       vehicle_type == VEHICLE_FTT || 
+      vehicle_type == LEXUS_RX_450H ||
       vehicle_type == VEHICLE_HCV)
   {
     if (!prev_enable && local_enable)
@@ -484,6 +485,7 @@ void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::Con
 
   if (vehicle_type == HEXAGON_TRACTOR ||
       vehicle_type == VEHICLE_FTT ||
+      vehicle_type == LEXUS_RX_450H ||
       vehicle_type == VEHICLE_HCV)
   {
     if (controller == HRI_SAFE_REMOTE)
