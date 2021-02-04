@@ -119,9 +119,11 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
   // Hazard lights (both left and right turn signals)
   if (controller == HRI_SAFE_REMOTE)
   {
-    if(msg->axes[2] < -0.5)
-      turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
-
+    if (vehicle_type != VEHICLE_HCV)
+    {
+      if(msg->axes[2] < -0.5)
+        turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
+    }
     if ((last_axes.empty() ||
         last_axes[2] != msg->axes[2]) ||
         (local_enable != prev_enable))
@@ -129,9 +131,11 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
   }
   else
   {
-    if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
-      turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
-
+    if (vehicle_type != VEHICLE_HCV)
+    {
+      if (msg->axes[axes[DPAD_UD]] == AXES_MIN)
+        turn_signal_cmd_pub_msg.command = SIGNAL_HAZARD;
+    }
     if ((last_axes.empty() ||
         last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
         last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]]) ||
