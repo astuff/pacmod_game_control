@@ -427,7 +427,9 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     horn_cmd_pub.publish(horn_cmd_pub_msg);
   }
 
-  if (vehicle_type == INTERNATIONAL_PROSTAR && controller != HRI_SAFE_REMOTE) // Semi
+  if ((vehicle_type == INTERNATIONAL_PROSTAR ||
+      vehicle_type == VEHICLE_HCV) &&
+      controller != HRI_SAFE_REMOTE)
   {
     pacmod3::SystemCmdInt wiper_cmd_pub_msg;
     wiper_cmd_pub_msg.enable = local_enable;
