@@ -1,35 +1,5 @@
 version: 2
 jobs:
-  kinetic:
-    docker:
-      - image: autonomoustuff/docker-builds:kinetic-ros-base
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            apt-get update -qq
-            source `find /opt/ros -name setup.bash | sort | head -1`
-            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
-            git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
-            rosdep install --from-paths . --ignore-src -y
-            cd ..
-            catkin init
-            catkin config --extend /opt/ros/$ROS_DISTRO
-      - run:
-          name: Build
-          command: |
-            cd ..
-            catkin build
-      - run:
-          name: Run Tests
-          command: |
-            source `find /opt/ros -name setup.bash | sort | head -1`
-            cd ..
-            catkin run_tests --no-deps pacmod_game_control
-            catkin_test_results
-    working_directory: ~/src
-
   melodic:
     docker:
       - image: autonomoustuff/docker-builds:melodic-ros-base
@@ -42,7 +12,8 @@ jobs:
             source `find /opt/ros -name setup.bash | sort | head -1`
             mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
             git clone -b maint/pacmod_msg_migration https://github.com/astuff/pacmod3
-            rosdep install --from-paths . --ignore-src -y
+            cd pacmod3 && git checkout devel-1.4.0
+            cd ../ && rosdep install --from-paths . --ignore-src -y
             cd ..
             catkin init
             catkin config --extend /opt/ros/$ROS_DISTRO
@@ -50,7 +21,7 @@ jobs:
           name: Build
           command: |
             cd ..
-            catkin build
+            catkin build pacmod_game_control
       - run:
           name: Run Tests
           command: |
@@ -60,9 +31,50 @@ jobs:
             catkin_test_results
     working_directory: ~/src
 
+  melodic_devel_release:
+    docker:
+      - image: autonomoustuff/docker-builds:melodic-ros-base
+    steps:
+      - checkout
+      - run:
+          name: Set Up Container
+          command: |
+            apt-get update -qq && apt-get install -y fakeroot dh-make python-bloom ruby
+            gem install --no-rdoc --no-ri deb-s3
+            source `find /opt/ros -name setup.bash | sort | head -1`
+            apt-get install -y apt-transport-s3 awscli --fix-missing
+            aws configure set aws_access_key_id $S3_ACCESS_KEY_ID
+            aws configure set aws_secret_access_key $S3_SECRET_ACCESS_KEY
+            sudo sh -c 'echo "deb [trusted=yes] s3://autonomoustuff-devel-qa $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-devel-qa.list'
+            apt update && rosdep update
+            apt install ros-melodic-pacmod3=1.4.0-0bionic
+            rosdep install --from-paths . --ignore-src -y
+      - run:
+          name: Build
+          command: |
+            bloom-generate rosdebian --os-name ubuntu --os-version bionic --ros-distro melodic
+            fakeroot debian/rules binary
+      - run:
+          name: Upload
+          command: |
+            cd ../ && deb-s3 upload -b autonomoustuff-devel-qa -c bionic --preserve-versions $(ls *.deb) --access-key-id=$S3_ACCESS_KEY_ID --secret-access-key=$S3_SECRET_ACCESS_KEY
+    working_directory: ~/src
+
 workflows:
   version: 2
   ros_build:
     jobs:
-      - kinetic
       - melodic
+  aws_release:
+    jobs:
+      - melodic_devel_release:
+          context: ubuntu-pkg-build
+          filters:
+            branches:
+              only:
+                - /maint/pacmod_msg_migration-test_release
+              ignore:
+                - master
+                - /.*/
+            tags:
+              only: /^devel.*/
