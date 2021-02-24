@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>pacmod_game_control</name>
+<<<<<<< HEAD
   <version>3.1.1</version>
+=======
+  <version>3.1.0</version>
+>>>>>>> Update changelog and package.xml for devel release.
   <description>ROS Package for controlling the AStuff PACMod with a Joystick</description>
   <license>MIT</license>
 
