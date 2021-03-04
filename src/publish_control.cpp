@@ -7,6 +7,8 @@
 
 #include "pacmod_game_control/publish_control.h"
 
+#include <unordered_map>
+
 using namespace AS::Joystick;  // NOLINT
 
 JoyAxis PublishControl::steering_axis = LEFT_STICK_LR;

@@ -12,6 +12,8 @@
 #include "pacmod_game_control/publish_control_board_rev2.h"
 #include "pacmod_game_control/publish_control_board_rev3.h"
 
+#include <memory>
+
 namespace AS
 {
 namespace Joystick

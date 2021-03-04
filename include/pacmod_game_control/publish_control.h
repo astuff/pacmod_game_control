@@ -11,6 +11,7 @@
 #include "pacmod_game_control/globals.h"
 
 #include <vector>
+#include <unordered_map>
 
 namespace AS
 {

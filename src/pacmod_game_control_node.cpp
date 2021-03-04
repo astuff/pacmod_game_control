@@ -9,6 +9,8 @@
 #include "pacmod_game_control/globals.h"
 #include "pacmod_game_control/startup_checks.h"
 
+#include <memory>
+
 using namespace AS::Joystick;  // NOLINT
 
 /*
