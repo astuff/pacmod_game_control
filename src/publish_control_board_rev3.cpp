@@ -436,7 +436,7 @@ void PublishControlBoardRev3::publish_lights_horn_wipers_message(const sensor_ms
     wiper_cmd_pub_msg.ignore_overrides = false;
 
     // Windshield wipers
-    if (msg->axes[7] == AXES_MAX)
+    if (msg->buttons[btns[LEFT_BUMPER]] == BUTTON_DOWN)
     {
       // Rotate through wiper states as button is pressed
       PublishControl::wiper_state++;

@@ -29,7 +29,7 @@ bool PublishControl::accel_0_rcvd = false;
 bool PublishControl::brake_0_rcvd = false;
 int PublishControl::headlight_state = 0;
 bool PublishControl::headlight_state_change = false;
-int PublishControl::wiper_state = 0;
+uint16_t PublishControl::wiper_state = 0;
 
 PublishControl::PublishControl()
 {
