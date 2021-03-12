@@ -7,6 +7,8 @@
 
 #include "pacmod_game_control/publish_control_factory.h"
 
+#include <memory>
+
 using namespace AS::Joystick;  // NOLINT
 
 PublishControlFactory::PublishControlFactory()
