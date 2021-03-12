@@ -9,10 +9,9 @@ For more information, see the [ROS Wiki](http://wiki.ros.org/pacmod_game_control
 
 Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README.md) to use correct version of driver for a vehicle.
 
-## PACMod Game Controller ##
-
 ![Left: Front Layout of logitech Controller; Right: Side-button layout of logitech controller
 ](/controller_img.png "controller_img.png")
+
 | Button | Action | Notes |
 | - | - | - |
 | **Directional Pad (left-hand side)** | **Headlights and Turn Signals** | |
