@@ -7,6 +7,8 @@ that is represented in ROS by a Joy node.
 
 For more information, see the [ROS Wiki](http://wiki.ros.org/pacmod_game_control).
 
+Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README.md) to use correct version of driver for a vehicle.
+
 ## PACMod Game Controller ##
 
 [![CircleCI](https://circleci.com/gh/astuff/pacmod_game_control/tree/master.svg?style=svg)](https://circleci.com/gh/astuff/pacmod_game_control/tree/master)
