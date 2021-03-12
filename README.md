@@ -32,7 +32,7 @@ For more information, see the [ROS Wiki](http://wiki.ros.org/pacmod_game_control
 | **Joystick** | **Steering** | **Joystick click buttons unused** |
 | Left joystick | Steering | Steering defaults to left joystick, but can be set to right joystick by operator. |
 | Right joystick | Steering | Only if set by operator; steering defaults to left joystick |
-| Left bumper | Unused | |
+| Left bumper | Wipers | Some vehicles only |
 | Left trigger | Brake | |
-| Right bumper | Horn | |
+| Right bumper | Horn | Some vehicles only |
 | Right trigger | Throttle | |
