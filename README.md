@@ -43,7 +43,7 @@ Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README
 | Polaris GEM Series (e2/e4/e6) MY 2016+ | ROS | PACMod2 | [PGC Driver](https://github.com/astuff/pacmod_game_control/tree/master)|
 | Polaris eLXD MY 2016+ | ROS | PACMod2 | [PGC Driver](https://github.com/astuff/pacmod_game_control/tree/master)|
 | International Prostar+ 122 | ROS | PACMod2 | [PGC Driver](https://github.com/astuff/pacmod_game_control/tree/master)|
-| Lexus RX-450h MY 2016+ | ROS and ROS2 | PACMod3 | [PGC Driver](https://github.com/astuff/pacmod_game_control/tree/master) and [ROS2 Driver (DBC 3.4)](https://github.com/astuff/pacmod3/tree/dashing-devel) |
+| Lexus RX-450h MY 2016+ | ROS | PACMod3 | [PGC Driver](https://github.com/astuff/pacmod_game_control/tree/master) |
 | Lexus RX-450h MY 2016+ V3| ROS | PACMod3 |[PGC Driver with message migration](https://github.com/astuff/pacmod_game_control/tree/maint/pacmod_msg_migration) |
 | Kenworth T680 Semi 2017+ |ROS | PACMod3 | [PGC Driver](https://github.com/astuff/pacmod_game_control/tree/master)|
 | Freightliner Cascadia DD13 DayCab/Sleeper/Extended-Sleeper | ROS | PACMod3 | [PGC Driver](https://github.com/astuff/pacmod_game_control/tree/master)|
