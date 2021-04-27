@@ -223,7 +223,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     if (!prev_enable && local_enable)
       shift_cmd_pub_msg.clear_override = true;
 
-    shift_cmd_pub_msg.command = last_shift_cmd;
+    shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
@@ -239,6 +239,7 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
   if (!prev_enable && local_enable)
   {
     accelerator_cmd_pub_msg.clear_override = true;
+    accelerator_cmd_pub_msg.command = 0;
   }
 
   if (controller == HRI_SAFE_REMOTE)

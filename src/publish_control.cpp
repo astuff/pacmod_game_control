@@ -189,7 +189,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Disable
-    else if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && msg->buttons[btns[START_PLUS]] != BUTTON_DOWN)
+    else if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
     {
       if (local_enable && !engage_pressed)
       {
