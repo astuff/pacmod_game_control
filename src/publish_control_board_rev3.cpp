@@ -221,9 +221,13 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
     // If the enable flag just went to true, send an override clear
     if (!prev_enable && local_enable)
+    {
       shift_cmd_pub_msg.clear_override = true;
+      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+    }
+    // else
+    //   shift_cmd_pub_msg.command = last_shift_cmd;
 
-    shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
