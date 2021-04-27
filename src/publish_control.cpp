@@ -178,7 +178,6 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
           local_enable = false;
           enable_pub.publish(bool_pub_msg);
 
-          std_msgs::Bool bool_pub_msg;
           bool_pub_msg.data = true;
           local_enable = true;
           enable_pub.publish(bool_pub_msg);
