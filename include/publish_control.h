@@ -77,6 +77,7 @@ class PublishControl
 
     // Other Variables
     static bool local_enable;
+    static bool engage_pressed;
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;
 

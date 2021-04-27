@@ -25,6 +25,7 @@ bool PublishControl::pacmod_enable;
 bool PublishControl::prev_enable = false;
 bool PublishControl::local_enable = false;
 bool PublishControl::last_pacmod_state = false;
+bool PublishControl::engage_pressed = false;
 bool PublishControl::accel_0_rcvd = false;
 bool PublishControl::brake_0_rcvd = false;
 int PublishControl::headlight_state = 0;
@@ -153,29 +154,59 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   else
   {
     // Enable
-    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && !local_enable)
+    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN &&
+        msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
     {
-      // Global
-      publish_global_message(msg);
+      if (!engage_pressed)
+      {
+        if (local_enable)
+        {
+          // disengage
+          std_msgs::Bool bool_pub_msg;
+          bool_pub_msg.data = false;
+          local_enable = false;
+          enable_pub.publish(bool_pub_msg);
+        }
+        else
+        {
+          // Global
+          publish_global_message(msg);
 
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
+          // Disable before enable
+          std_msgs::Bool bool_pub_msg;
+          bool_pub_msg.data = false;
+          local_enable = false;
+          enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
+          std_msgs::Bool bool_pub_msg;
+          bool_pub_msg.data = true;
+          local_enable = true;
+          enable_pub.publish(bool_pub_msg);
+        }
+
+        state_changed = true;
+        engage_pressed = true;
+      }
     }
 
     // Disable
-    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && msg->buttons[btns[START_PLUS]] != BUTTON_DOWN && local_enable)
+    else if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && msg->buttons[btns[START_PLUS]] != BUTTON_DOWN)
     {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
+      if (local_enable && !engage_pressed)
+      {
+        // disengage
+        std_msgs::Bool bool_pub_msg;
+        bool_pub_msg.data = false;
+        local_enable = false;
+        enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
+        state_changed = true;
+        engage_pressed = true;
+      }
     }
+
+    else
+      engage_pressed = false;
   }
 
   if (state_changed)
