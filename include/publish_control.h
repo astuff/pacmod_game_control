@@ -23,6 +23,7 @@ class PublishControl
     virtual void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
     static void callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr& msg);
     static void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
+    static void callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg);
 
     // public variables
     static JoyAxis steering_axis;
@@ -70,6 +71,7 @@ class PublishControl
     ros::Subscriber joy_sub;
     ros::Subscriber speed_sub;
     ros::Subscriber enable_sub;
+    ros::Subscriber global_rpt2_sub;
 
     // state vectors
     std::vector<float> last_axes;
@@ -77,6 +79,7 @@ class PublishControl
 
     // Other Variables
     static bool local_enable;
+    static bool current_override_state;
     static bool engage_pressed;
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;

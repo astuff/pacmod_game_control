@@ -24,6 +24,7 @@ pacmod3::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
 bool PublishControl::pacmod_enable;
 bool PublishControl::prev_enable = false;
 bool PublishControl::local_enable = false;
+bool PublishControl::current_override_state = false;
 bool PublishControl::last_pacmod_state = false;
 bool PublishControl::engage_pressed = false;
 bool PublishControl::accel_0_rcvd = false;
@@ -37,6 +38,9 @@ PublishControl::PublishControl()
   // Subscribe to messages
   joy_sub = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
   speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed);
+
+  if(vehicle_type == VehicleType::VEHICLE_HCV)
+    global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControl::callback_global_rpt2);
 
   // Advertise published messages
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
@@ -52,7 +56,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     // Only send messages when enabled, or when the state changes between enabled/disabled
     check_is_enabled(msg);
 
-    if (local_enable == true || local_enable != prev_enable)
+    if (local_enable == true || local_enable != prev_enable || current_override_state)
     {
       // Global
       publish_global_message(msg);
@@ -104,6 +108,13 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
   enable_mutex.unlock();
 
   PublishControl::last_pacmod_state = msg->data;
+}
+
+void PublishControl::callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg)
+{
+  current_override_mutex.lock();
+  current_override_state = msg->system_override_active;
+  current_override_mutex.unlock();
 }
 
 /*
