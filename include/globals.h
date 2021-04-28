@@ -134,6 +134,7 @@ static std::mutex speed_mutex;
 static std::mutex state_change_mutex;
 static std::mutex shift_mutex;
 static std::mutex turn_mutex;
+static std::mutex current_override_mutex;
 
 }
 }

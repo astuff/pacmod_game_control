@@ -12,6 +12,7 @@ using namespace AS::Joystick;
 int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
 int PublishControlBoardRev3::last_turn_cmd = SIGNAL_OFF;
 float PublishControlBoardRev3::last_brake_cmd = 0.0;
+bool PublishControlBoardRev3::current_override_state = false;
 
 PublishControlBoardRev3::PublishControlBoardRev3() :
   PublishControl()
@@ -20,6 +21,9 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, &PublishControl::callback_pacmod_enable);
   shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControlBoardRev3::callback_shift_rpt);
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
+
+  if (vehicle_type == VehicleType::VEHICLE_HCV)
+    global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControlBoardRev3::callback_global_rpt2);
 
   // Advertise published messages
   turn_signal_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
@@ -48,6 +52,13 @@ void PublishControlBoardRev3::callback_turn_rpt(const pacmod3::SystemRptInt::Con
   // Store the latest value read from the gear state to be sent on enable/disable
   last_turn_cmd = msg->output;
   turn_mutex.unlock();
+}
+
+void PublishControlBoardRev3::callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg)
+{
+  current_override_mutex.lock();
+  current_override_state = msg->system_override_active;
+  current_override_mutex.unlock();
 }
 
 void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
@@ -221,13 +232,9 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
     // If the enable flag just went to true, send an override clear
     if (!prev_enable && local_enable)
-    {
       shift_cmd_pub_msg.clear_override = true;
-      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
-    }
-    // else
-    //   shift_cmd_pub_msg.command = last_shift_cmd;
 
+    shift_cmd_pub_msg.command = last_shift_cmd;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
@@ -243,7 +250,6 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
   if (!prev_enable && local_enable)
   {
     accelerator_cmd_pub_msg.clear_override = true;
-    accelerator_cmd_pub_msg.command = 0;
   }
 
   if (controller == HRI_SAFE_REMOTE)
@@ -304,7 +310,11 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
     }
   }
 
-  accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+  if (!(local_enable) || current_override_state)
+      accelerator_cmd_pub_msg.command = 0;
+
+  if (local_enable && !(current_override_state))
+    accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
 }
 
 void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)

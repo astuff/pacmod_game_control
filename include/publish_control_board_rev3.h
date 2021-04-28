@@ -16,6 +16,7 @@
 #include <pacmod3/SystemCmdFloat.h>
 #include <pacmod3/SystemCmdInt.h>
 #include <pacmod3/SystemRptInt.h>
+#include <pacmod3/GlobalRpt2.h>
 #include <pacmod3/GlobalCmd.h>
 
 namespace AS
@@ -30,12 +31,14 @@ class PublishControlBoardRev3 :
     PublishControlBoardRev3();
     static void callback_shift_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
     static void callback_turn_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
+    static void callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg);
 
     // Variables
     static int last_shift_cmd;
     static int last_turn_cmd;
     static float last_brake_cmd;
-
+    static bool current_override_state;
+    
   private:
     // private functions
     void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
@@ -50,6 +53,7 @@ class PublishControlBoardRev3 :
     // ROS Subscribers
     ros::Subscriber shift_sub;
     ros::Subscriber turn_sub;
+    ros::Subscriber global_rpt2_sub;
 };
 
 }
