@@ -12,7 +12,6 @@ using namespace AS::Joystick;
 int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
 int PublishControlBoardRev3::last_turn_cmd = SIGNAL_OFF;
 float PublishControlBoardRev3::last_brake_cmd = 0.0;
-bool PublishControlBoardRev3::current_override_state = false;
 
 PublishControlBoardRev3::PublishControlBoardRev3() :
   PublishControl()
@@ -23,7 +22,7 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
 
   if (vehicle_type == VehicleType::VEHICLE_HCV)
-    global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControlBoardRev3::callback_global_rpt2);
+    global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControl::callback_global_rpt2);
 
   // Advertise published messages
   turn_signal_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
@@ -52,13 +51,6 @@ void PublishControlBoardRev3::callback_turn_rpt(const pacmod3::SystemRptInt::Con
   // Store the latest value read from the gear state to be sent on enable/disable
   last_turn_cmd = msg->output;
   turn_mutex.unlock();
-}
-
-void PublishControlBoardRev3::callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg)
-{
-  current_override_mutex.lock();
-  current_override_state = msg->system_override_active;
-  current_override_mutex.unlock();
 }
 
 void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
@@ -309,10 +301,6 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
       accelerator_cmd_pub_msg.command = 0;
     }
   }
-
-  // If system is disabled or pacmod overrides are active, then set command to 0
-  if (!local_enable || current_override_state)
-    accelerator_cmd_pub_msg.command = 0;
 
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
 }
