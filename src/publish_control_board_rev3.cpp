@@ -470,10 +470,9 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
       vehicle_type == LEXUS_RX_450H ||
       vehicle_type == VEHICLE_HCV)
   {
+    // send clear fault flag only when 
     if (!prev_enable && local_enable)
       global_cmd_pub_msg.clear_faults = true;
-    // else if (!prev_enable && !local_enable)
-    //   global_cmd_pub_msg.clear_faults = true;
     else
       global_cmd_pub_msg.clear_faults = false;
   }
