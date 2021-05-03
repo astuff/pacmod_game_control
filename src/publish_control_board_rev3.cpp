@@ -216,22 +216,22 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
   }
 
   // If only an enable/disable button was pressed
-  // Only shift if brake command is higher than 25%
-  if (last_brake_cmd > 0.25)
+  if (local_enable != prev_enable)
   {
-    if (local_enable != prev_enable)
+    pacmod3::SystemCmdInt shift_cmd_pub_msg;
+    shift_cmd_pub_msg.enable = local_enable;
+    shift_cmd_pub_msg.ignore_overrides = false;
+
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && local_enable && current_override_state)
     {
-      pacmod3::SystemCmdInt shift_cmd_pub_msg;
-      shift_cmd_pub_msg.enable = local_enable;
-      shift_cmd_pub_msg.ignore_overrides = false;
-
-      // If the enable flag just went to true, send an override clear
-      if (!prev_enable && local_enable && current_override_state)
-        shift_cmd_pub_msg.clear_override = true;
-
-      shift_cmd_pub_msg.command = last_shift_cmd;
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
+      shift_cmd_pub_msg.clear_override = true;
+      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
     }
+    else
+      shift_cmd_pub_msg.command = last_shift_cmd;
+    
+    shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
 
