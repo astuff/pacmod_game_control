@@ -226,10 +226,9 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     if (!prev_enable && local_enable && current_override_state)
     {
       shift_cmd_pub_msg.clear_override = true;
-      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+      if (shift_cmd_pub_msg.command != last_shift_cmd)
+        shift_cmd_pub_msg.command = last_shift_cmd;
     }
-    else
-      shift_cmd_pub_msg.command = last_shift_cmd;
     
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
