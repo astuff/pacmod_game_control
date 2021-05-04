@@ -21,7 +21,11 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControlBoardRev3::callback_shift_rpt);
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
 
-  if (vehicle_type == VehicleType::VEHICLE_HCV)
+  if (vehicle_type == VehicleType::VEHICLE_HCV ||
+      vehicle_type == VehicleType::VEHICLE_FTT ||
+      vehicle_type == VehicleType::LEXUS_RX_450H ||
+      vehicle_type == VehicleType::FORD_RANGER ||
+      vehicle_type == VehicleType::HEXAGON_TRACTOR)
     global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControl::callback_global_rpt2);
 
   // Advertise published messages
@@ -216,7 +220,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
   }
 
   // If only an enable/disable button was pressed
-  if (local_enable != prev_enable)
+  if ((local_enable != prev_enable) || current_override_state)
   {
     pacmod3::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable;
@@ -229,7 +233,6 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
       if (shift_cmd_pub_msg.command != last_shift_cmd)
         shift_cmd_pub_msg.command = last_shift_cmd;
     }
-    
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
