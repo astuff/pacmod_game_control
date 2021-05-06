@@ -155,37 +155,77 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
 
 void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  pacmod3::SystemCmdInt shift_cmd_pub_msg;
-  shift_cmd_pub_msg.enable = local_enable;
-  shift_cmd_pub_msg.ignore_overrides = false;
-
-  if (!prev_enable && local_enable && current_override_state)
-    shift_cmd_pub_msg.clear_override = true;
-
   // Only shift if brake command is higher than 25%
   if (last_brake_cmd > 0.25)
   {
     // Shifting: neutral
     if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
-      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+    {
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
+
+      if (!prev_enable && local_enable && current_override_state)
+        shift_cmd_pub_msg.clear_override = true;
     
+      shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
+
     // Shifting: park
     if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
-      shift_cmd_pub_msg.command = SHIFT_PARK;
+    {
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
 
+      if (!prev_enable && local_enable && current_override_state)
+        shift_cmd_pub_msg.clear_override = true;
+
+      shift_cmd_pub_msg.command = SHIFT_PARK;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
+    
     // Shifting: drive/high
     if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
+    {
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
+
+      if (!prev_enable && local_enable && current_override_state)
+        shift_cmd_pub_msg.clear_override = true;
+
       shift_cmd_pub_msg.command = SHIFT_LOW;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
 
     // Shifting: reverse
     if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
+    {
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
+
+      if (!prev_enable && local_enable && current_override_state)
+        shift_cmd_pub_msg.clear_override = true;
       shift_cmd_pub_msg.command = SHIFT_REVERSE;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
   }
 
-  else
-      shift_cmd_pub_msg.command = last_shift_cmd;
+  if (local_enable != prev_enable)
+  {
+    pacmod3::SystemCmdInt shift_cmd_pub_msg;
+    shift_cmd_pub_msg.enable = local_enable;
+    shift_cmd_pub_msg.ignore_overrides = false;
 
-  shift_cmd_pub.publish(shift_cmd_pub_msg);
+    if (!prev_enable && local_enable && current_override_state)
+      shift_cmd_pub_msg.clear_override = true;
+    
+    shift_cmd_pub_msg.command = last_shift_cmd;
+    shift_cmd_pub.publish(shift_cmd_pub_msg);
+  }
 }
 
 void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
