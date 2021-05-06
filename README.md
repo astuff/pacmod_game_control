@@ -54,3 +54,7 @@ Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README
 | VEHICLE_HCV | ROS | PACMod3 | [PGC Driver with message migration](https://github.com/astuff/pacmod_game_control/tree/maint/pacmod_msg_migration) |
 | VEHICLE_FTT | ROS | PACMod3 | [PGC Driver with message migration](https://github.com/astuff/pacmod_game_control/tree/maint/pacmod_msg_migration) |
 More coming soon...
+
+**Note**
+- In case the joystick controller gets disconnected, the system will remain enabled and hold the last commands unless its overridden. Exception handling for this is currently being implemented and tested for time being.
+- Please press the "disable" button firmly when commanding disable through joystick. Debounce implementation for this is currently being implemented and tested for time being.
