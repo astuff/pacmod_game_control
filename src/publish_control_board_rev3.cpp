@@ -170,15 +170,15 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
       shift_cmd_pub_msg.command = SHIFT_NEUTRAL;
     
     // Shifting: park
-    else if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
+    if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
       shift_cmd_pub_msg.command = SHIFT_PARK;
 
     // Shifting: drive/high
-    else if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
+    if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
       shift_cmd_pub_msg.command = SHIFT_LOW;
 
     // Shifting: reverse
-    else if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
+    if (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN)
       shift_cmd_pub_msg.command = SHIFT_REVERSE;
   }
 
