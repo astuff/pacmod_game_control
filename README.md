@@ -56,5 +56,5 @@ Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README
 More coming soon...
 
 **Note**
-- In case the joystick controller gets disconnected, the system will remain enabled and hold the last commands unless its overridden. Exception handling for this is currently being implemented and tested for time being.
-- Please press the "disable" button firmly when commanding disable through joystick. Debounce implementation for this is currently being implemented and tested for time being.
+- In case the joystick controller gets disconnected while enabled, the system will remain enabled and hold the last commands unless it is overridden. Exception handling for this is currently being implemented and tested.
+- Please press the "disable" button firmly when commanding disable through joystick. Debounce implementation for this is currently being implemented and tested.
