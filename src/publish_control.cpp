@@ -32,6 +32,7 @@ bool PublishControl::headlight_state_change = false;
 uint16_t PublishControl::wiper_state = 0;
 bool PublishControl::joystick_fault_detect = false;
 double PublishControl::last_joystick_msg_time = 0.0;
+bool engage_pressed = false;
 
 PublishControl::PublishControl()
 {
@@ -181,7 +182,6 @@ void PublishControl::callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr
 void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
   bool state_changed = false;
-  bool engage_pressed = false;
 
   enable_mutex.lock();
   local_enable = pacmod_enable;
@@ -217,8 +217,8 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   else
   {
     // Enable
-    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN &&
-        msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
+    if ((msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN) &&
+        (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN))
     {
       if (!engage_pressed)
       {
@@ -234,15 +234,23 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 
           state_changed = true;
         }
+        else
+        {
+          std_msgs::Bool bool_pub_msg;
+          bool_pub_msg.data = false;
+          local_enable = false;
+          enable_pub.publish(bool_pub_msg);
+
+          state_changed = true;
+        }
         engage_pressed = true;
       }
     }
-
-    // Disable
-    else if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN &&
-             msg->buttons[btns[START_PLUS]] != BUTTON_DOWN)
+    else if ((msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN) ||
+             (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN))
     {
-      if (local_enable && (!engage_pressed))
+      // Disable
+      if ((local_enable) && !engage_pressed)
       {
         std_msgs::Bool bool_pub_msg;
         bool_pub_msg.data = false;
@@ -250,11 +258,12 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
         enable_pub.publish(bool_pub_msg);
 
         state_changed = true;
+        engage_pressed = true;
       }
-      else
-      {
-        engage_pressed = false;
-      }
+    }
+    else
+    {
+      engage_pressed = false;
     }
   }
 
