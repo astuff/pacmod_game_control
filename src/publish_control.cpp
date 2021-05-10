@@ -181,6 +181,7 @@ void PublishControl::callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr
 void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
   bool state_changed = false;
+  bool engage_pressed = false;
 
   enable_mutex.lock();
   local_enable = pacmod_enable;
@@ -217,31 +218,43 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   {
     // Enable
     if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN &&
-        msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN &&
-        !local_enable)
+        msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN)
     {
-      // Global
-      publish_global_message(msg);
+      if (!engage_pressed)
+      {
+        if (!local_enable)
+        {
+          // Global
+          publish_global_message(msg);
 
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
+          std_msgs::Bool bool_pub_msg;
+          bool_pub_msg.data = true;
+          local_enable = true;
+          enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
+          state_changed = true;
+        }
+        engage_pressed = true;
+      }
     }
 
     // Disable
-    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN &&
-        msg->buttons[btns[START_PLUS]] != BUTTON_DOWN &&
-        local_enable)
+    else if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN &&
+             msg->buttons[btns[START_PLUS]] != BUTTON_DOWN)
     {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
+      if (local_enable && (!engage_pressed))
+      {
+        std_msgs::Bool bool_pub_msg;
+        bool_pub_msg.data = false;
+        local_enable = false;
+        enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
+        state_changed = true;
+      }
+      else
+      {
+        engage_pressed = false;
+      }
     }
   }
 
