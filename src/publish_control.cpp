@@ -102,6 +102,9 @@ void PublishControl::callback_joystick_diagnostics(const diagnostic_msgs::Diagno
     enable_mutex.lock();
     pacmod_enable = local_enable;
     enable_mutex.unlock();
+
+    // Global Disable
+    publish_disable_on_all_systems(local_enable);
   }
 }
 

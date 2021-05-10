@@ -95,6 +95,7 @@ class PublishControl
     virtual void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
+    virtual void publish_disable_on_all_systems(bool disable_all) = 0;
 };
 
 }

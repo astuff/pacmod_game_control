@@ -12,6 +12,7 @@ using namespace AS::Joystick;
 int PublishControlBoardRev3::last_shift_cmd = SHIFT_NEUTRAL;
 int PublishControlBoardRev3::last_turn_cmd = SIGNAL_OFF;
 float PublishControlBoardRev3::last_brake_cmd = 0.0;
+bool PublishControlBoardRev3::disable_all_systems = false;
 
 PublishControlBoardRev3::PublishControlBoardRev3() :
   PublishControl()
@@ -48,6 +49,55 @@ void PublishControlBoardRev3::callback_turn_rpt(const pacmod3::SystemRptInt::Con
   // Store the latest value read from the gear state to be sent on enable/disable
   last_turn_cmd = msg->output;
   turn_mutex.unlock();
+}
+
+void PublishControlBoardRev3::publish_disable_on_all_systems(bool disable_all)
+{
+  disable_all_systems = disable_all;
+
+  pacmod3::SteerSystemCmd steer_msg;
+  pacmod3::SystemCmdInt turn_signal_cmd_pub_msg;
+  pacmod3::SystemCmdInt shift_cmd_pub_msg;
+  pacmod3::SystemCmdFloat accelerator_cmd_pub_msg;
+  pacmod3::SystemCmdFloat brake_msg;
+  pacmod3::SystemCmdBool hazard_cmd_pub_msg;
+
+  steer_msg.enable = disable_all_systems;
+  steer_msg.ignore_overrides = true;
+  steer_msg.clear_override = false;
+  steer_msg.command = 0.0;
+  steer_msg.rotation_rate = 0.0;
+  steering_set_position_with_speed_limit_pub.publish(steer_msg);
+
+  turn_signal_cmd_pub_msg.enable = disable_all_systems;
+  turn_signal_cmd_pub_msg.ignore_overrides = true;
+  turn_signal_cmd_pub_msg.clear_override =  false;
+  turn_signal_cmd_pub_msg.command = SIGNAL_OFF;
+  turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+
+  shift_cmd_pub_msg.enable = disable_all_systems;
+  shift_cmd_pub_msg.ignore_overrides = true;
+  shift_cmd_pub_msg.clear_override = false;
+  shift_cmd_pub_msg.command = last_shift_cmd;
+  shift_cmd_pub.publish(shift_cmd_pub_msg);
+
+  accelerator_cmd_pub_msg.enable = disable_all_systems;
+  accelerator_cmd_pub_msg.ignore_overrides = true;
+  accelerator_cmd_pub_msg.clear_override = false;
+  accelerator_cmd_pub_msg.command = 0.0;
+  accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+
+  brake_msg.enable = disable_all_systems;
+  brake_msg.ignore_overrides = true;
+  brake_msg.clear_override = false;
+  brake_msg.command = 0.0;
+  brake_set_position_pub.publish(brake_msg);
+
+  hazard_cmd_pub_msg.enable = disable_all_systems;
+  hazard_cmd_pub_msg.ignore_overrides = true;
+  hazard_cmd_pub_msg.clear_override = false;
+  hazard_cmd_pub_msg.command = HAZARDS_OFF;
+  hazard_cmd_pub.publish(hazard_cmd_pub_msg);
 }
 
 void PublishControlBoardRev3::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)

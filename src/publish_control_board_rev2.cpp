@@ -13,6 +13,8 @@ Last modified 2-13-2018 by Lucas Buckland
 
 using namespace AS::Joystick;
 
+bool PublishControlBoardRev2::disable_all_systems = false;
+
 PublishControlBoardRev2::PublishControlBoardRev2() :
   PublishControl()
 {
@@ -30,6 +32,46 @@ PublishControlBoardRev2::PublishControlBoardRev2() :
   brake_set_position_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/brake_cmd", 20);
   global_cmd_pub = n.advertise<pacmod3::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
   hazard_cmd_pub = n.advertise<pacmod3::PacmodCmd>("/pacmod/as_rx/hazard_lights_cmd", 20);
+}
+
+void PublishControlBoardRev2::publish_disable_on_all_systems(bool disable_all)
+{
+  disable_all_systems = disable_all;
+
+  pacmod3::PositionWithSpeed steer_msg;
+  pacmod3::PacmodCmd turn_signal_cmd_pub_msg;
+  pacmod3::PacmodCmd shift_cmd_pub_msg;
+  pacmod3::PacmodCmd accelerator_cmd_pub_msg;
+  pacmod3::PacmodCmd brake_msg;
+  pacmod3::PacmodCmd hazard_cmd_pub_msg;
+
+  steer_msg.angular_position = 0.0;
+  steer_msg.angular_velocity_limit = 0.0;
+  steering_set_position_with_speed_limit_pub.publish(steer_msg);
+
+  turn_signal_cmd_pub_msg.enable = disable_all_systems;
+  turn_signal_cmd_pub_msg.ignore = true;
+  turn_signal_cmd_pub_msg.clear =  false;
+  turn_signal_cmd_pub_msg.ui16_cmd = SIGNAL_OFF;
+  turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+
+  shift_cmd_pub_msg.enable = disable_all_systems;
+  shift_cmd_pub_msg.ignore = true;
+  shift_cmd_pub_msg.clear = false;
+  shift_cmd_pub_msg.ui16_cmd = SHIFT_NEUTRAL;
+  shift_cmd_pub.publish(shift_cmd_pub_msg);
+
+  accelerator_cmd_pub_msg.enable = disable_all_systems;
+  accelerator_cmd_pub_msg.ignore = true;
+  accelerator_cmd_pub_msg.clear = false;
+  accelerator_cmd_pub_msg.f64_cmd = 0.0;
+  accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
+
+  brake_msg.enable = disable_all_systems;
+  brake_msg.ignore = true;
+  brake_msg.clear = false;
+  brake_msg.f64_cmd = 0.0;
+  brake_set_position_pub.publish(brake_msg);
 }
 
 void PublishControlBoardRev2::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)

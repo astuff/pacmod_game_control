@@ -35,6 +35,7 @@ class PublishControlBoardRev3 :
     static int last_shift_cmd;
     static int last_turn_cmd;
     static float last_brake_cmd;
+    static bool disable_all_systems;
 
   private:
     // private functions
@@ -46,6 +47,7 @@ class PublishControlBoardRev3 :
     void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_disable_on_all_systems(bool disable_all);
 
     // ROS Subscribers
     ros::Subscriber shift_sub;
