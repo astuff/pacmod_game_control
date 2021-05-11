@@ -215,6 +215,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       enable_pub.publish(bool_pub_msg);
 
       state_changed = true;
+      publish_disable_on_all_systems(local_enable);
     }
   }
   else
@@ -262,6 +263,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 
         state_changed = true;
         engage_pressed = true;
+        publish_disable_on_all_systems(local_enable);
       }
     }
     else
