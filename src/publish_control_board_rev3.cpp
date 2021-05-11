@@ -614,8 +614,6 @@ void PublishControlBoardRev3::publish_global_message(const sensor_msgs::Joy::Con
       vehicle_type == VEHICLE_HCV)
   {
     if (!prev_enable && local_enable)
-      global_cmd_pub_msg.clear_faults = false;
-    else if (!prev_enable && !local_enable)
       global_cmd_pub_msg.clear_faults = true;
     else
       global_cmd_pub_msg.clear_faults = false;
