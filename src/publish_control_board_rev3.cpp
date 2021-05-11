@@ -326,6 +326,20 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
       shift_cmd_pub_msg.command = shift_override_active? last_shift_cmd : SHIFT_NEUTRAL;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
     }
+
+    if ((vehicle_type == VEHICLE_HCV && local_enable) &&
+        (accel_override_active || brake_override_active ||
+         steer_override_active || shift_override_active))
+    {
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
+
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
+      shift_cmd_pub_msg.clear_override = false;
+      shift_cmd_pub_msg.command = last_shift_cmd;
+
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
   }
 
   // If only an enable/disable button was pressed
@@ -338,16 +352,6 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     // If the enable flag just went to true, send an override clear
     if (!prev_enable && local_enable && shift_override_active)
       shift_cmd_pub_msg.clear_override = true;
-
-    shift_cmd_pub_msg.command = last_shift_cmd;
-    shift_cmd_pub.publish(shift_cmd_pub_msg);
-  }
-  else
-  {
-    pacmod3::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable;
-    shift_cmd_pub_msg.ignore_overrides = false;
-    shift_cmd_pub_msg.clear_override = false;
 
     shift_cmd_pub_msg.command = last_shift_cmd;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
