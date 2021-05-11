@@ -32,6 +32,7 @@ bool PublishControl::headlight_state_change = false;
 uint16_t PublishControl::wiper_state = 0;
 bool PublishControl::joystick_fault_detect = false;
 double PublishControl::last_joystick_msg_time = 0.0;
+bool PublishControl::current_override_state = false;
 bool engage_pressed = false;
 
 PublishControl::PublishControl()
@@ -118,7 +119,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     // Only send messages when enabled, or when the state changes between enabled/disabled
     check_is_enabled(msg);
 
-    if (local_enable == true || local_enable != prev_enable)
+    if ((local_enable == true) ||
+        (local_enable != prev_enable) ||
+        current_override_state)
     {
       if (!local_enable)
         publish_disable_on_all_systems(local_enable);
@@ -183,6 +186,13 @@ void PublishControl::callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr
   speed_mutex.lock();
   last_speed_rpt = msg;
   speed_mutex.unlock();
+}
+
+void PublishControl::callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg)
+{
+  global_rpt2_mutex.lock();
+  current_override_state = msg->system_override_active;
+  global_rpt2_mutex.unlock();
 }
 
 void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)

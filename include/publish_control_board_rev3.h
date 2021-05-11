@@ -34,6 +34,7 @@ class PublishControlBoardRev3 :
     static void callback_steer_rpt(const pacmod3::SystemRptFloat::ConstPtr& msg);
     static void callback_shift_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
     static void callback_turn_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
+    static void callback_global_rpt2(const pacmod3::SystemRptInt::ConstPtr& msg);
 
     // Variables
     static int last_shift_cmd;

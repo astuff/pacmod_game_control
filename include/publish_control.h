@@ -24,6 +24,7 @@ class PublishControl
     virtual void callback_joystick_diagnostics(const diagnostic_msgs::DiagnosticArray::ConstPtr& msg);
     static void callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr& msg);
     static void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
+    static void callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg);
 
     // public variables
     static JoyAxis steering_axis;
@@ -46,6 +47,7 @@ class PublishControl
     static int headlight_state;
     static bool headlight_state_change;
     static uint16_t wiper_state;
+    static bool current_override_state;
 
   protected:
     virtual void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
@@ -72,6 +74,7 @@ class PublishControl
     ros::Subscriber joy_fault_sub;
     ros::Subscriber speed_sub;
     ros::Subscriber enable_sub;
+    ros::Subscriber global_rpt2_sub;
 
     // state vectors
     std::vector<float> last_axes;

@@ -16,6 +16,7 @@
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
 #include <pacmod3/VehicleSpeedRpt.h>
+#include <pacmod3/GlobalRpt2.h>
 #include <diagnostic_msgs/DiagnosticArray.h>
 
 namespace AS
@@ -138,6 +139,7 @@ static std::mutex brake_mutex;
 static std::mutex steer_mutex;
 static std::mutex shift_mutex;
 static std::mutex turn_mutex;
+static std::mutex global_rpt2_mutex;
 
 }
 }

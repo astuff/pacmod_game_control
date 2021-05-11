@@ -35,6 +35,13 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControlBoardRev3::callback_shift_rpt);
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControlBoardRev3::callback_turn_rpt);
 
+  if (vehicle_type == VehicleType::VEHICLE_HCV ||
+    vehicle_type == VehicleType::VEHICLE_FTT ||
+    vehicle_type == VehicleType::LEXUS_RX_450H ||
+    vehicle_type == VehicleType::FORD_RANGER ||
+    vehicle_type == VehicleType::HEXAGON_TRACTOR)
+      global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControl::callback_global_rpt2);
+
   // Advertise published messages
   turn_signal_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
   headlight_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
