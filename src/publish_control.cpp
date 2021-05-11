@@ -54,7 +54,7 @@ void PublishControl::callback_joystick_diagnostics(const diagnostic_msgs::Diagno
       last_joystick_msg_time = msg->header.stamp.toSec();
       if (it->level != diagnostic_msgs::DiagnosticStatus::OK)
       {
-        std::cout << "JOYSTICK FAULT" << std::endl;
+        ROS_ERROR("JOYSTICK FAULT. PACMod will be disabled.");
         joystick_fault_detect = true;
       }
       else

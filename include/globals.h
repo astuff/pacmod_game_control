@@ -133,6 +133,9 @@ static const uint16_t BUTTON_DOWN = 1;
 static std::mutex enable_mutex;
 static std::mutex speed_mutex;
 static std::mutex state_change_mutex;
+static std::mutex accel_mutex;
+static std::mutex brake_mutex;
+static std::mutex steer_mutex;
 static std::mutex shift_mutex;
 static std::mutex turn_mutex;
 
