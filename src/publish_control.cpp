@@ -120,6 +120,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
     if (local_enable == true || local_enable != prev_enable)
     {
+      if (!local_enable)
+        publish_disable_on_all_systems(local_enable);
+
       // Global
       publish_global_message(msg);
 

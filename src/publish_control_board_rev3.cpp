@@ -283,7 +283,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     }
 
     // Shifting: drive/high
-    if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
+    else if (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN)
     {
       pacmod3::SystemCmdInt shift_cmd_pub_msg;
       shift_cmd_pub_msg.enable = local_enable;
@@ -298,7 +298,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     }
 
     // Shifting: park
-    if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
+    else if (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN)
     {
       pacmod3::SystemCmdInt shift_cmd_pub_msg;
       shift_cmd_pub_msg.enable = local_enable;
@@ -313,7 +313,7 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     }
 
     // Shifting: neutral
-    if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
+    else if (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN)
     {
       pacmod3::SystemCmdInt shift_cmd_pub_msg;
       shift_cmd_pub_msg.enable = local_enable;
@@ -324,6 +324,20 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
         shift_cmd_pub_msg.clear_override = true;
 
       shift_cmd_pub_msg.command = shift_override_active? last_shift_cmd : SHIFT_NEUTRAL;
+      shift_cmd_pub.publish(shift_cmd_pub_msg);
+    }
+
+    else
+    {
+      pacmod3::SystemCmdInt shift_cmd_pub_msg;
+      shift_cmd_pub_msg.enable = local_enable;
+      shift_cmd_pub_msg.ignore_overrides = false;
+
+      // If the enable flag just went to true, send an override clear
+      if (!prev_enable && local_enable && shift_override_active)
+        shift_cmd_pub_msg.clear_override = true;
+
+      shift_cmd_pub_msg.command = last_shift_cmd;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
     }
   }
