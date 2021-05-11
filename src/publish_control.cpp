@@ -271,6 +271,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     }
     else
     {
+      state_changed = false;
       engage_pressed = false;
     }
   }
