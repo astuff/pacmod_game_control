@@ -109,7 +109,8 @@ void PublishControlBoardRev3::callback_global_rpt2(const pacmod3::GlobalRpt2::Co
   current_override_state = msg->system_override_active;
   global_rpt2_mutex.unlock();
 
-  if (local_enable && (override_state_changed && !current_override_state) &&
+  if ((local_enable || local_enable != prev_enable) &&
+      (override_state_changed && !current_override_state) &&
       (current_shift_cmd != last_shift_cmd))
   {
     pacmod3::SystemCmdInt shift_cmd_pub_msg;
