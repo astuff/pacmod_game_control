@@ -109,11 +109,12 @@ void PublishControlBoardRev3::callback_global_rpt2(const pacmod3::GlobalRpt2::Co
   current_override_state = msg->system_override_active;
   global_rpt2_mutex.unlock();
 
-  if ((local_enable || local_enable != prev_enable) &&
+  if (local_enable &&
       (override_state_changed && !current_override_state) &&
       (current_shift_cmd != last_shift_cmd))
   {
     pacmod3::SystemCmdInt shift_cmd_pub_msg;
+
     shift_cmd_pub_msg.enable = local_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
     shift_cmd_pub_msg.clear_override = shift_override_active? true : false;
@@ -356,6 +357,18 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
       shift_cmd_pub_msg.command = shift_override_active? last_shift_cmd : SHIFT_NEUTRAL;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
     }
+  }
+  else
+  {
+    shift_cmd_pub_msg.enable = local_enable;
+    shift_cmd_pub_msg.ignore_overrides = false;
+
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && local_enable && shift_override_active)
+      shift_cmd_pub_msg.clear_override = true;
+
+    shift_cmd_pub_msg.command = last_shift_cmd;
+    shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 
   if (local_enable != prev_enable)
