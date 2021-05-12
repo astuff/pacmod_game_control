@@ -119,12 +119,16 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     // Only send messages when enabled, or when the state changes between enabled/disabled
     check_is_enabled(msg);
 
+    if (!local_enable)
+      publish_disable_on_all_systems(local_enable);
+
     if ((local_enable == true) ||
         (local_enable != prev_enable) ||
-        current_override_state)
+        (current_override_state))
     {
-      if (!local_enable)
-        publish_disable_on_all_systems(local_enable);
+      // Global Command
+      if (!current_override_state)
+        publish_global_message(msg);
 
       // Steering
       publish_steering_message(msg);
@@ -236,14 +240,14 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     {
       if (!engage_pressed)
       {
-        if (!local_enable)
+        if (local_enable)
         {
           // Global
           publish_global_message(msg);
 
           std_msgs::Bool bool_pub_msg;
-          bool_pub_msg.data = true;
-          local_enable = true;
+          bool_pub_msg.data = false;
+          local_enable = false;
           enable_pub.publish(bool_pub_msg);
 
           state_changed = true;
@@ -251,8 +255,8 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
         else
         {
           std_msgs::Bool bool_pub_msg;
-          bool_pub_msg.data = false;
-          local_enable = false;
+          bool_pub_msg.data = true;
+          local_enable = true;
           enable_pub.publish(bool_pub_msg);
 
           state_changed = true;
