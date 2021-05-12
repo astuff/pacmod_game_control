@@ -34,7 +34,7 @@ class PublishControlBoardRev3 :
     static void callback_steer_rpt(const pacmod3::SystemRptFloat::ConstPtr& msg);
     static void callback_shift_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
     static void callback_turn_rpt(const pacmod3::SystemRptInt::ConstPtr& msg);
-    static void callback_global_rpt2(const pacmod3::SystemRptInt::ConstPtr& msg);
+    virtual void callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg);
 
     // Variables
     static int last_shift_cmd;
@@ -51,6 +51,9 @@ class PublishControlBoardRev3 :
     static bool shift_override_active;
     static bool turn_enabled;
     static bool turn_override_active;
+    static bool override_state_changed;
+    static bool current_override_state;
+    static int current_shift_cmd;
 
   private:
     // private functions
@@ -70,6 +73,7 @@ class PublishControlBoardRev3 :
     ros::Subscriber steer_sub;
     ros::Subscriber shift_sub;
     ros::Subscriber turn_sub;
+    ros::Subscriber global_rpt2_sub;
 };
 
 }

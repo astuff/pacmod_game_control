@@ -23,6 +23,9 @@ bool PublishControlBoardRev3::brake_override_active = false;
 bool PublishControlBoardRev3::steer_override_active = false;
 bool PublishControlBoardRev3::shift_override_active = false;
 bool PublishControlBoardRev3::turn_override_active = false;
+bool PublishControlBoardRev3::override_state_changed = false;
+bool PublishControlBoardRev3::current_override_state = false;
+int PublishControlBoardRev3::current_shift_cmd = SHIFT_NEUTRAL;
 
 PublishControlBoardRev3::PublishControlBoardRev3() :
   PublishControl()
@@ -40,7 +43,7 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
     vehicle_type == VehicleType::LEXUS_RX_450H ||
     vehicle_type == VehicleType::FORD_RANGER ||
     vehicle_type == VehicleType::HEXAGON_TRACTOR)
-      global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControl::callback_global_rpt2);
+      global_rpt2_sub = n.subscribe("/pacmod/parsed_tx/global_rpt2", 20, &PublishControlBoardRev3::callback_global_rpt2, this);
 
   // Advertise published messages
   turn_signal_cmd_pub = n.advertise<pacmod3::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
@@ -97,6 +100,27 @@ void PublishControlBoardRev3::callback_turn_rpt(const pacmod3::SystemRptInt::Con
   // Store the latest value read from the gear state to be sent on enable/disable
   last_turn_cmd = msg->output;
   turn_mutex.unlock();
+}
+
+void PublishControlBoardRev3::callback_global_rpt2(const pacmod3::GlobalRpt2::ConstPtr& msg)
+{
+  global_rpt2_mutex.lock();
+  override_state_changed = current_override_state != msg->system_override_active;
+  current_override_state = msg->system_override_active;
+  global_rpt2_mutex.unlock();
+
+  if (local_enable && (override_state_changed && !current_override_state) &&
+      (current_shift_cmd != last_shift_cmd))
+  {
+    pacmod3::SystemCmdInt shift_cmd_pub_msg;
+    shift_cmd_pub_msg.enable = local_enable;
+    shift_cmd_pub_msg.ignore_overrides = false;
+    shift_cmd_pub_msg.clear_override = shift_override_active? true : false;
+    shift_cmd_pub_msg.command = last_shift_cmd;
+
+    shift_cmd_pub.publish(shift_cmd_pub_msg);
+    ROS_WARN("Reset Shift Command to Current");
+  }
 }
 
 void PublishControlBoardRev3::publish_disable_on_all_systems(bool disable_all)
@@ -272,7 +296,7 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
 void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
   pacmod3::SystemCmdInt shift_cmd_pub_msg;
-  bool shift_cmd_set = false;
+
   // Only shift if brake command is higher than 25%
   if (last_brake_cmd > 0.25)
   {
@@ -288,7 +312,6 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
       shift_cmd_pub_msg.command = shift_override_active? last_shift_cmd : SHIFT_REVERSE;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
-      shift_cmd_set = true;
     }
 
     // Shifting: drive/high
@@ -303,7 +326,6 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
       shift_cmd_pub_msg.command = shift_override_active? last_shift_cmd : SHIFT_LOW;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
-      shift_cmd_set = true;
     }
 
     // Shifting: park
@@ -318,7 +340,6 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
       shift_cmd_pub_msg.command = shift_override_active? last_shift_cmd : SHIFT_PARK;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
-      shift_cmd_set = true;
     }
 
     // Shifting: neutral
@@ -333,12 +354,10 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
 
       shift_cmd_pub_msg.command = shift_override_active? last_shift_cmd : SHIFT_NEUTRAL;
       shift_cmd_pub.publish(shift_cmd_pub_msg);
-      shift_cmd_set = true;
     }
   }
 
-  if ((local_enable != prev_enable) ||
-      (!shift_cmd_set && shift_cmd_pub_msg.command != last_shift_cmd))
+  if (local_enable != prev_enable)
   {
     shift_cmd_pub_msg.enable = local_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
@@ -352,6 +371,8 @@ void PublishControlBoardRev3::publish_shifting_message(const sensor_msgs::Joy::C
     shift_cmd_pub_msg.command = last_shift_cmd;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
+
+  current_shift_cmd = shift_cmd_pub_msg.command;
 }
 
 void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
