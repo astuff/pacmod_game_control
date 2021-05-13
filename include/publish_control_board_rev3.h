@@ -66,6 +66,7 @@ class PublishControlBoardRev3 :
     void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_disable_on_all_systems(bool disable_all);
+    void publish_reset_on_shift();
 
     // ROS Subscribers
     ros::Subscriber accel_sub;
