@@ -314,10 +314,7 @@ void PublishControlBoardRev3::publish_reset_on_shift()
 
     shift_cmd_pub_msg.command = last_shift_cmd;
     if (current_shift_cmd !=last_shift_cmd)
-    {
       shift_cmd_pub.publish(shift_cmd_pub_msg);
-      std::cout<< "\nShift Command: " << last_shift_cmd;
-    }
   }
 }
 
