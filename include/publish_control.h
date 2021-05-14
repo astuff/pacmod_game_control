@@ -21,6 +21,7 @@ class PublishControl
     // public functions
     PublishControl();
     virtual void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
+    virtual void callback_joystick_diagnostics(const diagnostic_msgs::DiagnosticArray::ConstPtr& msg);
     static void callback_veh_speed(const pacmod3::VehicleSpeedRpt::ConstPtr& msg);
     static void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
 
@@ -68,6 +69,7 @@ class PublishControl
 
     // ROS subscribers
     ros::Subscriber joy_sub;
+    ros::Subscriber joy_fault_sub;
     ros::Subscriber speed_sub;
     ros::Subscriber enable_sub;
 
@@ -80,6 +82,9 @@ class PublishControl
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;
 
+    static bool joystick_fault_detect;
+    static double last_joystick_msg_time;
+
   private:
     // private functions
     virtual void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
@@ -90,6 +95,7 @@ class PublishControl
     virtual void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
+    virtual void publish_disable_on_all_systems(bool disable_all) = 0;
 };
 
 }

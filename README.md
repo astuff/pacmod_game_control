@@ -54,3 +54,6 @@ Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README
 | VEHICLE_HCV | ROS | PACMod3 | [PGC Driver with message migration](https://github.com/astuff/pacmod_game_control/tree/maint/pacmod_msg_migration) |
 | VEHICLE_FTT | ROS | PACMod3 | [PGC Driver with message migration](https://github.com/astuff/pacmod_game_control/tree/maint/pacmod_msg_migration) |
 More coming soon...
+
+** NOTE **
+The "disable" button needs to be held down firmly when commanding disable on the logitech controller. A partial tap can quickly cycle between enable and disable commands. This issue is currently being investigated.

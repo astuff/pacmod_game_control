@@ -27,6 +27,8 @@ class PublishControlBoardRev2 :
   public:
     PublishControlBoardRev2();
 
+    static bool disable_all_systems;
+
   private:
     // private functions
     void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
@@ -37,6 +39,7 @@ class PublishControlBoardRev2 :
     void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg);
     void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_disable_on_all_systems(bool disable_all);
 };
 
 }

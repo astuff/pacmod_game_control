@@ -2,6 +2,69 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+devel-3.1.1 (2021-05-14)
+-------------------------
+* DBC 11+ based
+* Updates for overrides, joystick error and minor fixes
+* Contributors: Sneha Ganesh, Amruta Mhaske
+
+devel-3.1.0 (2021-02-24)
+-------------------------
+* DBC 11 based
+* includes changes from pacmod3 - maint/pacmod_msg_migration
+* Contributors: Sneha Ganesh, Amruta Mhaske
+
+3.0.2 (2020-04-13)
+------------------
+* fix shift command
+* Contributors: Amruta Mhaske, bjansky
+
+3.0.1 (2020-02-05)
+------------------
+* Merge pull request `#68 <https://github.com/astuff/pacmod_game_control/issues/68>`_ from astuff/fix/shift_low_bug
+  changed from shift low on button press to shift high on button press
+* Merge pull request `#67 <https://github.com/astuff/pacmod_game_control/issues/67>`_ from astuff/feature/removing_enums_and_using_ROS_message__values_instead
+  Feature/removing enums and using ros message  values instead
+* Merge pull request `#64 <https://github.com/astuff/pacmod_game_control/issues/64>`_ from astuff/freightliner_cascadia
+  Adding Freightliner Cascadia DD13 Trucks
+* Merge pull request `#65 <https://github.com/astuff/pacmod_game_control/issues/65>`_ from astuff/feature/door_system
+  adding DoorSystem
+* Adding JUPITER_SPIRIT Vehicle
+* Merge pull request `#61 <https://github.com/astuff/pacmod_game_control/issues/61>`_ from astuff/fix/speed_limit
+  Fix/speed limit - clipped steer rate limit
+* Merge pull request `#60 <https://github.com/astuff/pacmod_game_control/issues/60>`_ from astuff/maint/ci_remove_lunar
+  CI: Removing Lunar build.
+* Merge pull request `#59 <https://github.com/astuff/pacmod_game_control/issues/59>`_ from astuff/fix/lexus_G29
+  made changes to lexus max steer rotation(vehicle_2) and changes so that G29 steering wheel is functional
+* Merge pull request `#58 <https://github.com/astuff/pacmod_game_control/issues/58>`_ from astuff/fix/veh_5_headlights
+  Updated veh_5 headlight states to match current firmware
+* Merge pull request `#55 <https://github.com/astuff/pacmod_game_control/issues/55>`_ from astuff/ranger
+  Polaris Ranger support.
+* CI: Removing Indigo build.
+* Fixed HRI accel command max was limiting to 0.6
+* Contributors: Amruta Mhaske, Benjamin Jansky, Chris, Joshua Whitley, Sam Rustan, Sanaz Fattahalhosseini, Zach Oakes, Mike Lemm, Rinda Gunjala, Sneha Ganesh
+
+2.3.0 (2018-12-12)
+------------------
+* Merge pull request `#54 <https://github.com/astuff/pacmod_game_control/issues/54>`_ from astuff/maint/hri_remap_part_two
+* A comment explaining the axes
+* Fixed not publishing turn signal command on board rev 2
+* Handle HRI turn signals seperately from the other controllers
+* Merge pull request `#53 <https://github.com/astuff/pacmod_game_control/issues/53>`_ from astuff/maint/hri_remap
+* Changed mapping of HRI enable/disable from U/D to R/L
+  This fixes some aberrant behavior that we were seeing with
+  EMI in the remote system
+* Merge pull request `#51 <https://github.com/astuff/pacmod_game_control/issues/51>`_ from astuff/maint/update_url
+* Updating README and adding URLs to package.xml.
+* Merge pull request `#48 <https://github.com/astuff/pacmod_game_control/issues/48>`_ from astuff/feature/clear_fault
+* Refactoring of how we're handling the shifter command
+  Mostly just to get rid of repeated code, but also I think
+  it's significantly more readable this way.
+* When sending clear_overrides, also send clear_faults
+  This update is req'd for Lexus 1.1 and later
+* Merge pull request `#47 <https://github.com/astuff/pacmod_game_control/issues/47>`_ from astuff/maint/add_veh_6
+* Contributors: Daniel-Stanek, Joshua Whitley, Mike Lemm, Sam Rustan, Zach Oakes
+
 2.2.0 (2018-08-30)
 ------------------
 * Merge pull request `#44 <https://github.com/astuff/pacmod_game_control/issues/44>`_ from astuff/feat/lexus_braking_curve
