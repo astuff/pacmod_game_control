@@ -2,15 +2,12 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-<<<<<<< HEAD
 devel-3.1.1 (2021-05-14)
 -------------------------
 * DBC 11+ based
 * Updates for overrides, joystick error and minor fixes
 * Contributors: Sneha Ganesh, Amruta Mhaske
 
-=======
->>>>>>> Update changelog and package.xml for devel release.
 devel-3.1.0 (2021-02-24)
 -------------------------
 * DBC 11 based
