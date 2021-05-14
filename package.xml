@@ -5,7 +5,7 @@
   <description>ROS Package for controlling the AStuff PACMod with a Joystick</description>
   <license>MIT</license>
 
-  <maintainer email="software@autonomoustuff.com">AutonomouStuff Software Development Team</maintainer>
+  <maintainer email="support.as.ap@hexagon.com">AutonomouStuff Support</maintainer>
   <author email="jdriscoll@autonomoustuff.com">Joe Driscoll</author>
 
   <buildtool_depend>catkin</buildtool_depend>

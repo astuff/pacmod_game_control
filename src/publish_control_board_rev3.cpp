@@ -56,8 +56,6 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   brake_set_position_pub = n.advertise<pacmod3::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
   global_cmd_pub = n.advertise<pacmod3::GlobalCmd>("/pacmod/as_rx/global_cmd", 20);
   hazard_cmd_pub = n.advertise<pacmod3::SystemCmdBool>("/pacmod/as_rx/hazard_lights_cmd", 20);
-
-  publish_reset_on_shift();
 }
 
 void PublishControlBoardRev3::callback_accel_rpt(const pacmod3::SystemRptFloat::ConstPtr& msg)
@@ -294,27 +292,6 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
       turn_signal_cmd_pub_msg.command = turn_signal_cmd_pub_msg.command;
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
     }
-  }
-}
-
-void PublishControlBoardRev3::publish_reset_on_shift()
-{
-  if (accel_override_active ||
-      brake_override_active ||
-      steer_override_active ||
-      shift_override_active)
-  {
-    pacmod3::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable;
-    shift_cmd_pub_msg.ignore_overrides = false;
-
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable && local_enable && shift_override_active)
-      shift_cmd_pub_msg.clear_override = true;
-
-    shift_cmd_pub_msg.command = last_shift_cmd;
-    if (current_shift_cmd !=last_shift_cmd)
-      shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
 }
 
