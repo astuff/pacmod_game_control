@@ -30,7 +30,7 @@
        VEHICLE_5
        VEHICLE_6 -->
   <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
-      
+
   <arg name="steering_stick" default="LEFT"/>
 
   <!-- Supported types are:
@@ -40,7 +40,7 @@
        NINTENDO_SWITCH_WIRED_PLUS
        XBOX_ONE -->
   <arg name="controller_type" default="LOGITECH_F310"/>
-        
+
   <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
   <arg name="steering_max_speed" default="3.3"/>
 
@@ -52,6 +52,8 @@
 
   <!-- For GEM, 11.176m/s -->
   <arg name="max_veh_speed" default="11.176" />
+
+  <remap from="/diagnostics" to="/game_control/diagnostics" />
 
   <group unless="$(arg is_pacmod_3)">
     <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)" ns="pacmod">
@@ -86,7 +88,7 @@
       <param name="pacmod_board_rev" value="$(arg pacmod_board_rev)"/>
       <param name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)"/>
       <param name="steering_stick" value="$(arg steering_stick)"/>
-      <param name="controller_type" value="$(arg controller_type)"/>            
+      <param name="controller_type" value="$(arg controller_type)"/>
       <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
       <param name="accel_scale_val" value="$(arg accel_scale_val)"/>
       <param name="brake_scale_val" value="$(arg brake_scale_val)"/>

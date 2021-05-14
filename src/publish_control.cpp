@@ -1,5 +1,5 @@
 /*
-* Unpublished Copyright (c) 2009-2018 AutonomouStuff, LLC, All Rights Reserved.
+* Unpublished Copyright (c) 2009-2021 AutonomouStuff, LLC, All Rights Reserved.
 *
 * This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
@@ -30,15 +30,82 @@ bool PublishControl::brake_0_rcvd = false;
 int PublishControl::headlight_state = 0;
 bool PublishControl::headlight_state_change = false;
 uint16_t PublishControl::wiper_state = 0;
+bool PublishControl::joystick_fault_detect = false;
+double PublishControl::last_joystick_msg_time = 0.0;
+bool engage_pressed = false;
 
 PublishControl::PublishControl()
 {
   // Subscribe to messages
+  joy_fault_sub = n.subscribe("diagnostics", 100, &PublishControl::callback_joystick_diagnostics, this);
   joy_sub = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
   speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed);
 
   // Advertise published messages
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
+}
+
+void PublishControl::callback_joystick_diagnostics(const diagnostic_msgs::DiagnosticArray::ConstPtr& msg)
+{
+  for (auto it = msg->status.begin(); it < msg->status.end(); it++)
+  {
+    if (it->name.find("Joystick Driver Status") != std::string::npos)
+    {
+      last_joystick_msg_time = msg->header.stamp.toSec();
+      if (it->level != diagnostic_msgs::DiagnosticStatus::OK)
+      {
+        ROS_ERROR("JOYSTICK FAULT. PACMod will be disabled.");
+        joystick_fault_detect = true;
+      }
+      else
+      {
+        joystick_fault_detect =  false;
+      }
+    }
+  }
+
+  bool state_changed = false;
+
+  enable_mutex.lock();
+  local_enable = pacmod_enable;
+  enable_mutex.unlock();
+
+  if (controller == HRI_SAFE_REMOTE)
+  {
+    // Disable
+    if (joystick_fault_detect)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = false;
+      local_enable = false;
+      enable_pub.publish(bool_pub_msg);
+
+      state_changed = true;
+    }
+  }
+  else
+  {
+    // Disable
+    if (joystick_fault_detect)
+    {
+      std_msgs::Bool bool_pub_msg;
+      bool_pub_msg.data = false;
+      local_enable = false;
+      enable_pub.publish(bool_pub_msg);
+
+      state_changed = true;
+    }
+  }
+
+  if (state_changed)
+  {
+    enable_mutex.lock();
+    pacmod_enable = local_enable;
+    enable_mutex.unlock();
+
+    // Global Disable
+    publish_disable_on_all_systems(local_enable);
+  }
 }
 
 /*
@@ -51,11 +118,11 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     // Only send messages when enabled, or when the state changes between enabled/disabled
     check_is_enabled(msg);
 
+    if (!local_enable)
+      publish_disable_on_all_systems(local_enable);
+
     if (local_enable == true || local_enable != prev_enable)
     {
-      // Global
-      publish_global_message(msg);
-
       // Steering
       publish_steering_message(msg);
 
@@ -148,33 +215,61 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
       enable_pub.publish(bool_pub_msg);
 
       state_changed = true;
+      publish_disable_on_all_systems(local_enable);
     }
   }
   else
   {
     // Enable
-    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && !local_enable)
+    if ((msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN) &&
+        (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN))
     {
-      // Global
-      publish_global_message(msg);
+      if (!engage_pressed)
+      {
+        if (!local_enable)
+        {
+          // Global
+          publish_global_message(msg);
 
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
+          std_msgs::Bool bool_pub_msg;
+          bool_pub_msg.data = true;
+          local_enable = true;
+          enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
+          state_changed = true;
+        }
+        else
+        {
+          std_msgs::Bool bool_pub_msg;
+          bool_pub_msg.data = false;
+          local_enable = false;
+          enable_pub.publish(bool_pub_msg);
+
+          state_changed = true;
+        }
+        engage_pressed = true;
+      }
     }
-
-    // Disable
-    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && msg->buttons[btns[START_PLUS]] != BUTTON_DOWN && local_enable)
+    else if ((msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN) ||
+             (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN))
     {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
+      // Disable
+      if ((local_enable) && !engage_pressed)
+      {
+        std_msgs::Bool bool_pub_msg;
+        bool_pub_msg.data = false;
+        local_enable = false;
+        enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
+        state_changed = true;
+        engage_pressed = true;
+        publish_disable_on_all_systems(local_enable);
+      }
+    }
+    else
+    {
+      state_changed = false;
+      engage_pressed = false;
     }
   }
 
