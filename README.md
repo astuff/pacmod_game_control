@@ -56,4 +56,5 @@ Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README
 More coming soon...
 
 ** NOTE **
-The "disable" button needs to be held down firmly when commanding disable on the logitech controller. A partial tap can quickly cycle between enable and disable commands. This issue is currently being investigated.
+- The "disable" button needs to be held down firmly when commanding disable on the logitech controller. A partial tap can quickly cycle between enable and disable commands. This issue is currently being investigated.
+- When using PACMod Game Control demonstration software in combination with the “cancel” and “res” steering wheel buttons (if available on vehicle platform), the last shift command may be retained on re-enable of by-wire mode when all overrides are latched. Therefore, if gear was changed during an override and re-enable is done through the “cancel” and “res” buttons, be sure to use the joystick to shift using PACMod Game Control to the same shift command the vehicle is currently in.
