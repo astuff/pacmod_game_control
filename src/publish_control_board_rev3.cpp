@@ -131,18 +131,18 @@ void PublishControlBoardRev3::publish_turn_signal_message(const sensor_msgs::Joy
   {
     // Axis 2 is the "left trigger" and axis 5 is the "right trigger" single
     // axis joysticks on the back of the controller
-    if (msg->axes[2] < -0.5)
+    if (msg->axes[4] < -0.5)
       turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_HAZARDS;
-    else if (msg->axes[5] > 0.5)
+    else if (msg->axes[3] > 0.5)
       turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_LEFT;
-    else if (msg->axes[5] < -0.5)
+    else if (msg->axes[3] < -0.5)
       turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_RIGHT;
     else
       turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_NONE;
 
     if (last_axes.empty() ||
-        last_axes[2] != msg->axes[2] ||
-        last_axes[5] != msg->axes[5] ||
+        last_axes[4] != msg->axes[4] ||
+        last_axes[3] != msg->axes[3] ||
         local_enable != prev_enable)
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
   }
@@ -250,10 +250,10 @@ void PublishControlBoardRev3::publish_accelerator_message(const sensor_msgs::Joy
   if (controller == HRI_SAFE_REMOTE)
   {
     // Accelerator
-    if (msg->axes[axes[RIGHT_STICK_UD]] >= 0.0)
+    if (msg->axes[5] <= 0.0)
     {
       // only consider center-to-up range as accelerator motion
-      accelerator_cmd_pub_msg.command = accel_scale_val * (msg->axes[axes[RIGHT_STICK_UD]]);
+      accelerator_cmd_pub_msg.command = accel_scale_val * -(msg->axes[5]);
     }
   }
   else if (controller == LOGITECH_G29)
@@ -325,7 +325,7 @@ void PublishControlBoardRev3::publish_brake_message(const sensor_msgs::Joy::Cons
   }
   if (controller == HRI_SAFE_REMOTE)
   {
-    brake_msg.command = (msg->axes[axes[RIGHT_STICK_UD]] > 0.0) ? 0.0 : -(brake_scale_val * msg->axes[4]);
+    brake_msg.command = (msg->axes[2] > 0.0) ? 0.0 : (brake_scale_val * -msg->axes[2]);
   }
   else if (controller == LOGITECH_G29)
   {
