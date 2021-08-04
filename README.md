@@ -1,4 +1,4 @@
-## PACMod Game Controller ##
+# PACMod Game Controller #
 
 [![CircleCI](https://circleci.com/gh/astuff/pacmod_game_control/tree/master.svg?style=svg)](https://circleci.com/gh/astuff/pacmod_game_control/tree/master)
 
@@ -8,6 +8,26 @@ that is represented in ROS by a Joy node.
 For more information, see the [ROS Wiki](http://wiki.ros.org/pacmod_game_control).
 
 For access to the DBC file which defines the CAN interface for the PACMod, see the [pacmod_dbc](https://github.com/astuff/pacmod_dbc) repo.
+
+## Controls
+
+### Supported Controllers
+
+The currently supported controllers are:
+
+- Logitech F310
+- [FORT Robotics Safe Remote Control](https://autonomoustuff.com/products/fort-remote-control-system)
+- Logitech G29 Steering Wheel and Pedals
+- Nintendo Switch Wired Plus
+- XBOX ONE Wired or Wireless Controller
+
+***NOTE***: The Logitech F310 controller has a switch on the back of the controller for switching between "X" and "D". Ensure the switch is always set to "X". In addition, the Logitech F310 also has a MODE button that toggles a green light, ensure the green light is always off.
+
+In the event that you want to add support for a new controller: Simply add the new controller type to the GamepadType enum in include/globals.h and create new button mappings in src/startup_checks.cpp.
+
+### Logitech F310 Control Scheme
+
+Below is the control scheme for the Logitech F310, the control scheme is similar for other controllers.
 
 ![Left: Front Layout of logitech Controller; Right: Side-button layout of logitech controller
 ](/controller_img.png "controller_img.png")
@@ -35,6 +55,8 @@ For access to the DBC file which defines the CAN interface for the PACMod, see t
 | Left trigger | Brake | |
 | Right bumper | Horn | Some vehicles only |
 | Right trigger | Throttle | |
+
+## Supported Vehicles
 
 Please see [PACMod3 readme](https://github.com/astuff/pacmod3/blob/master/README.md) and [astuff_sensor_msgs readme](https://github.com/astuff/astuff_sensor_msgs/blob/master/README.md) to use correct version of driver for a vehicle. For vehicles using drivers with message migration, astuff_sensor_msgs repo is not required.
 
