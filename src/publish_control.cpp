@@ -76,6 +76,9 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
       // Hazard lights
       publish_hazard_message(msg);
+
+      // Parking Brake
+      publish_parking_brake_message(msg);
     }
 
     prev_enable = local_enable;

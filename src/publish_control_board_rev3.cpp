@@ -25,6 +25,7 @@ PublishControlBoardRev3::PublishControlBoardRev3() :
   turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
   headlight_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
   horn_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/horn_cmd", 20);
+  parking_brake_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/parking_brake_cmd", 20);
   wiper_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/wiper_cmd", 20);
   shift_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/shift_cmd", 20);
   accelerator_cmd_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
@@ -522,3 +523,21 @@ void PublishControlBoardRev3::publish_hazard_message(const sensor_msgs::Joy::Con
 
 }
 
+void PublishControlBoardRev3::publish_parking_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  if (vehicle_type == HEXAGON_TRACTOR) 
+  {
+    // Parking Brake
+    pacmod_msgs::SystemCmdBool parking_brake_cmd_pub_msg;
+    parking_brake_cmd_pub_msg.enable = local_enable;
+    parking_brake_cmd_pub_msg.ignore_overrides = false;
+
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && local_enable)
+      parking_brake_cmd_pub_msg.clear_override = true;
+    
+    parking_brake_cmd_pub_msg.command = 0;
+
+    parking_brake_cmd_pub.publish(parking_brake_cmd_pub_msg);
+  }
+}

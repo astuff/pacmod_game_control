@@ -56,6 +56,7 @@ class PublishControl
     ros::Publisher turn_signal_cmd_pub;
     ros::Publisher headlight_cmd_pub;
     ros::Publisher horn_cmd_pub;
+    ros::Publisher parking_brake_cmd_pub;
     ros::Publisher wiper_cmd_pub;
     ros::Publisher shift_cmd_pub;
     ros::Publisher accelerator_cmd_pub;
@@ -90,6 +91,7 @@ class PublishControl
     virtual void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_global_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
     virtual void publish_hazard_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
+    virtual void publish_parking_brake_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
 };
 
 }

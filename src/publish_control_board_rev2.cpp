@@ -279,3 +279,8 @@ void PublishControlBoardRev2::publish_hazard_message(const sensor_msgs::Joy::Con
   pacmod_msgs::PacmodCmd hazard_cmd_pub_msg;
   // Not available in PACMod 2 yet
 }
+
+void PublishControlBoardRev2::publish_parking_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
+{
+  // Not available in pacmod 2
+}
