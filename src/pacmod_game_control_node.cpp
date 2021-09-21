@@ -5,7 +5,8 @@
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
 
-#include "pacmod_game_control/publish_control_board_rev3.h"
+// #include "pacmod_game_control/publish_control_board_rev3.h"
+#include "pacmod_game_control/publish_control.h"
 #include "pacmod_game_control/globals.h"
 #include "pacmod_game_control/startup_checks.h"
 
@@ -28,22 +29,7 @@ int main(int argc, char *argv[])
   if (run_startup_checks_error(&priv) == true)
     return 0;
 
-  // Check ROS params for board type
-  int board_rev = 1;
-  priv.getParam("pacmod_board_rev", board_rev);
-
-  // Create an instance of the appropriate board type
-  std::unique_ptr<PublishControl> board;
-
-  try
-  {
-    board = std::unique_ptr<PublishControlBoardRev3>(new PublishControlBoardRev3);
-  }
-  catch (const std::invalid_argument& ia)
-  {
-    ROS_ERROR("Invalid PACMod Board Version received. Board requested was %d", board_rev);
-    return 0;
-  }
+  PublishControl pub_control;
 
   spinner.start();
   ros::waitForShutdown();

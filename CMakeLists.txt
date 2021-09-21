@@ -26,7 +26,6 @@ include_directories(include
 add_executable(pacmod_game_control_node
   src/pacmod_game_control_node.cpp
   src/startup_checks.cpp
-  src/publish_control_board_rev3.cpp
   src/publish_control.cpp
 )
 
