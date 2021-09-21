@@ -23,13 +23,11 @@ include_directories(include
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(pacmod_game_control_node 
+add_executable(pacmod_game_control_node
   src/pacmod_game_control_node.cpp
   src/startup_checks.cpp
-  src/publish_control_board_rev2.cpp
   src/publish_control_board_rev3.cpp
   src/publish_control.cpp
-  src/publish_control_factory.cpp
 )
 
 add_dependencies(pacmod_game_control_node

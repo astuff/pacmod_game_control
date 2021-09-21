@@ -5,7 +5,7 @@
 * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
 */
 
-#include "pacmod_game_control/publish_control_factory.h"
+#include "pacmod_game_control/publish_control_board_rev3.h"
 #include "pacmod_game_control/globals.h"
 #include "pacmod_game_control/startup_checks.h"
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
   try
   {
-    board = PublishControlFactory::create(board_rev);
+    board = std::unique_ptr<PublishControlBoardRev3>(new PublishControlBoardRev3);
   }
   catch (const std::invalid_argument& ia)
   {
