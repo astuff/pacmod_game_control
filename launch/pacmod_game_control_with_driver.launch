@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="launch_pacmod" default="true" />
+  <arg name="use_socketcan" default="false" />
+
   <!-- PACMod Board Revision -->
   <arg name="is_pacmod_3" default="true" />
 
@@ -8,6 +11,11 @@
        based on the value of is_pacmod_x. -->
   <arg name="pacmod_board_rev" value="2" unless="$(arg is_pacmod_3)" />
   <arg name="pacmod_board_rev" value="3" if="$(arg is_pacmod_3)" />
+
+  <arg name="pacmod_can_hardware_id" default="43029" />
+
+  <arg name="pacmod_can_circuit_id" default="0" />
+  <arg name="pacmod_socketcan_device" default="can0" />
 
   <!-- PACMod Vehicle Types are:
        POLARIS_GEM (also covers eLXD)
@@ -20,17 +28,17 @@
        FREIGHTLINER_CASCADIA
        JUPITER_SPIRIT -->
   <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
-
+      
   <arg name="steering_stick" default="LEFT"/>
 
-  <!-- Supported controller types are:
+  <!-- Supported types are:
        LOGITECH_F310 (the standard gamepad provided with all vehicles)
        HRI_SAFE_REMOTE
        LOGITECH_G29 (steering wheel and pedals)
        NINTENDO_SWITCH_WIRED_PLUS
        XBOX_ONE -->
   <arg name="controller_type" default="LOGITECH_F310"/>
-
+        
   <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
   <arg name="steering_max_speed" default="3.3"/>
 
@@ -43,6 +51,28 @@
   <!-- For GEM, 11.176m/s -->
   <arg name="max_veh_speed" default="11.176" />
 
+  <group unless="$(arg is_pacmod_3)">
+    <include file="$(find pacmod)/launch/pacmod.launch" if="$(arg launch_pacmod)" ns="pacmod">
+      <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
+      <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
+      <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" unless="$(arg use_socketcan)" />
+      <arg name="kvaser_circuit_id" value="$(arg pacmod_can_circuit_id)" unless="$(arg use_socketcan)" />
+      <arg name="use_socketcan" value="true" if="$(arg use_socketcan)" />
+      <arg name="socketcan_device" value="$(arg pacmod_socketcan_device)" if="$(arg use_socketcan)" />
+    </include>
+  </group>
+
+  <group if="$(arg is_pacmod_3)">
+    <include file="$(find pacmod3)/launch/pacmod3.launch" if="$(arg launch_pacmod)" ns="pacmod">
+      <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
+      <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
+      <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" unless="$(arg use_socketcan)" />
+      <arg name="kvaser_circuit_id" value="$(arg pacmod_can_circuit_id)" unless="$(arg use_socketcan)" />
+      <arg name="use_socketcan" value="true" if="$(arg use_socketcan)" />
+      <arg name="socketcan_device" value="$(arg pacmod_socketcan_device)" if="$(arg use_socketcan)" />
+    </include>
+  </group>
+
   <group ns="game_control">
     <node pkg="joy" type="joy_node" name="joy">
       <param name="coalesce_interval" type="double" value="0.02"/>
@@ -54,7 +84,7 @@
       <param name="pacmod_board_rev" value="$(arg pacmod_board_rev)"/>
       <param name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)"/>
       <param name="steering_stick" value="$(arg steering_stick)"/>
-      <param name="controller_type" value="$(arg controller_type)"/>
+      <param name="controller_type" value="$(arg controller_type)"/>            
       <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
       <param name="accel_scale_val" value="$(arg accel_scale_val)"/>
       <param name="brake_scale_val" value="$(arg brake_scale_val)"/>
