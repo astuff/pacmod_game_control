@@ -32,13 +32,10 @@ bool PublishControl::brake_0_rcvd = false;
 int PublishControl::headlight_state = 0;
 bool PublishControl::headlight_state_change = false;
 int PublishControl::wiper_state = 0;
-
-
 int PublishControl::last_shift_cmd = pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
 int PublishControl::last_turn_cmd = pacmod_msgs::SystemCmdInt::TURN_NONE;
 int PublishControl::last_rear_pass_door_cmd = pacmod_msgs::SystemCmdInt::DOOR_NEUTRAL;
 float PublishControl::last_brake_cmd = 0.0;
-
 
 PublishControl::PublishControl()
 {

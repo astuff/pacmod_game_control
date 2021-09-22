@@ -64,6 +64,13 @@ class PublishControl
 
   private:
     void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
 
     // ROS node handle
     ros::NodeHandle n;
@@ -96,15 +103,6 @@ class PublishControl
     static bool local_enable;
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;
-
-    // private functions
-    void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
-    void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
-    void publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg);
-    void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
-    void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
-    void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
-    void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
 };
 
 }  // namespace Joystick
