@@ -13,6 +13,12 @@
 #include <vector>
 #include <unordered_map>
 
+#include <pacmod_msgs/SteerSystemCmd.h>
+#include <pacmod_msgs/SystemCmdBool.h>
+#include <pacmod_msgs/SystemCmdFloat.h>
+#include <pacmod_msgs/SystemCmdInt.h>
+#include <pacmod_msgs/SystemRptInt.h>
+
 namespace AS
 {
 namespace Joystick
@@ -23,9 +29,12 @@ class PublishControl
   public:
     // public functions
     PublishControl();
-    virtual void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
-    static void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg);
-    static void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
+    void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
+    void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg);
+    void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
+    void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+    void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+    void callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
 
     // public variables
     static JoyAxis steering_axis;
@@ -48,9 +57,20 @@ class PublishControl
     static int headlight_state;
     static bool headlight_state_change;
     static int wiper_state;
+    static int last_shift_cmd;
+    static int last_turn_cmd;
+    static int last_rear_pass_door_cmd;
+    static float last_brake_cmd;
 
-  protected:
-    virtual void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
+  private:
+    void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
+    void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
 
     // ROS node handle
     ros::NodeHandle n;
@@ -71,6 +91,9 @@ class PublishControl
     ros::Subscriber joy_sub;
     ros::Subscriber speed_sub;
     ros::Subscriber enable_sub;
+    ros::Subscriber shift_sub;
+    ros::Subscriber turn_sub;
+    ros::Subscriber rear_pass_door_sub;
 
     // state vectors
     std::vector<float> last_axes;
@@ -80,16 +103,6 @@ class PublishControl
     static bool local_enable;
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;
-
-  private:
-    // private functions
-    virtual void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
-    virtual void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
-    virtual void publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
-    virtual void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
-    virtual void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
-    virtual void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
-    virtual void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg) = 0;
 };
 
 }  // namespace Joystick
