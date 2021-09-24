@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="launch_pacmod" default="true" />
+  <!-- Driver Args -->
+  <arg name="launch_driver" default="false" />
   <arg name="use_socketcan" default="false" />
-
   <arg name="pacmod_can_hardware_id" default="43029" />
-
   <arg name="pacmod_can_circuit_id" default="0" />
   <arg name="pacmod_socketcan_device" default="can0" />
 
@@ -42,6 +41,7 @@
   <!-- For GEM, 11.176m/s -->
   <arg name="max_veh_speed" default="11.176" />
 
+  <!-- Driver -->
   <include file="$(find pacmod3)/launch/pacmod3.launch" if="$(arg launch_pacmod)" ns="pacmod">
     <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
     <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
@@ -51,6 +51,7 @@
     <arg name="socketcan_device" value="$(arg pacmod_socketcan_device)" if="$(arg use_socketcan)" />
   </include>
 
+  <!-- Game Control -->
   <group ns="game_control">
     <node pkg="joy" type="joy_node" name="joy">
       <param name="coalesce_interval" type="double" value="0.02"/>
