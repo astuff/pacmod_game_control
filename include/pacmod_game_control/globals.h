@@ -1,9 +1,9 @@
 /*
-* Unpublished Copyright (c) 2009-2018 AutonomouStuff, LLC, All Rights Reserved.
-*
-* This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
-* See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
-*/
+ * Unpublished Copyright (c) 2009-2018 AutonomouStuff, LLC, All Rights Reserved.
+ *
+ * This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
+ * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
+ */
 
 #ifndef PACMOD_GAME_CONTROL_GLOBALS_H
 #define PACMOD_GAME_CONTROL_GLOBALS_H
@@ -47,8 +47,8 @@ enum JoyAxis
   RIGHT_STICK_LR,
   DPAD_UD,
   DPAD_LR,
-  LEFT_TRIGGER_AXIS,   // Sometimes button, sometimes axis
-  RIGHT_TRIGGER_AXIS   // Sometimes button, sometimes axis
+  LEFT_TRIGGER_AXIS,  // Sometimes button, sometimes axis
+  RIGHT_TRIGGER_AXIS  // Sometimes button, sometimes axis
 };
 
 enum JoyButton

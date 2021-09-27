@@ -1,9 +1,9 @@
 /*
-* Unpublished Copyright (c) 2009-2018 AutonomouStuff, LLC, All Rights Reserved.
-*
-* This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
-* See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
-*/
+ * Unpublished Copyright (c) 2009-2018 AutonomouStuff, LLC, All Rights Reserved.
+ *
+ * This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
+ * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
+ */
 
 #include "pacmod_game_control/publish_control.h"
 
@@ -23,8 +23,8 @@ void PublishControl::init()
   enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, &PublishControl::callback_pacmod_enable, this);
   shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControl::callback_shift_rpt, this);
   turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControl::callback_turn_rpt, this);
-  rear_pass_door_sub = n.subscribe("/pacmod/parsed_tx/rear_pass_door_rpt",
-                                   20, &PublishControl::callback_rear_pass_door_rpt, this);
+  rear_pass_door_sub =
+      n.subscribe("/pacmod/parsed_tx/rear_pass_door_rpt", 20, &PublishControl::callback_rear_pass_door_rpt, this);
 
   // Pubs
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
@@ -70,11 +70,10 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
 void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
-  if (msg->data == false &&
-      PublishControl::last_pacmod_state == true)
+  if (msg->data == false && PublishControl::last_pacmod_state == true)
     prev_enable = false;
 
-  std::unique_lock<std::mutex> lock (enable_mutex);
+  std::unique_lock<std::mutex> lock(enable_mutex);
   pacmod_enable = msg->data;
 
   PublishControl::last_pacmod_state = msg->data;
@@ -83,25 +82,25 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 // Feedback callbacks
 void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock (speed_mutex);
+  std::unique_lock<std::mutex> lock(speed_mutex);
   last_speed_rpt = msg;
 }
 
 void PublishControl::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock (shift_mutex);
+  std::unique_lock<std::mutex> lock(shift_mutex);
   last_shift_cmd = msg->output;
 }
 
 void PublishControl::callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock (turn_mutex);
+  std::unique_lock<std::mutex> lock(turn_mutex);
   last_turn_cmd = msg->output;
 }
 
 void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock (rear_pass_door_mutex);
+  std::unique_lock<std::mutex> lock(rear_pass_door_mutex);
   last_rear_pass_door_cmd = msg->output;
 }
 
@@ -123,11 +122,8 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
   }
 
   float range_scale;
-  if (vehicle_type == VEHICLE_4 ||
-      vehicle_type == VEHICLE_6 ||
-      vehicle_type == LEXUS_RX_450H ||
-      vehicle_type == FREIGHTLINER_CASCADIA ||
-      vehicle_type == JUPITER_SPIRIT)
+  if (vehicle_type == VEHICLE_4 || vehicle_type == VEHICLE_6 || vehicle_type == LEXUS_RX_450H ||
+      vehicle_type == FREIGHTLINER_CASCADIA || vehicle_type == JUPITER_SPIRIT)
     range_scale = 1.0;
   else
     range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
@@ -149,10 +145,10 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
 
   if (speed_valid)
     if (current_speed < max_veh_speed)
-      speed_based_damping = STEER_OFFSET - fabs(
-        (current_speed / (max_veh_speed * STEER_SCALE_FACTOR)));  // this could go negative.
+      speed_based_damping =
+          STEER_OFFSET - fabs((current_speed / (max_veh_speed * STEER_SCALE_FACTOR)));  // this could go negative.
     else
-       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
+      speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
 
   steer_msg.command = (range_scale * max_rot_rad) * msg->axes[axes[steering_axis]];
   steer_msg.rotation_rate = steering_max_speed * speed_based_damping;
@@ -187,9 +183,7 @@ void PublishControl::publish_turn_signal_message(const sensor_msgs::Joy::ConstPt
     else
       turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_NONE;
 
-    if (last_axes.empty() ||
-        last_axes[4] != msg->axes[4] ||
-        last_axes[3] != msg->axes[3] ||
+    if (last_axes.empty() || last_axes[4] != msg->axes[4] || last_axes[3] != msg->axes[3] ||
         local_enable != prev_enable)
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
   }
@@ -211,10 +205,8 @@ void PublishControl::publish_turn_signal_message(const sensor_msgs::Joy::ConstPt
     else
       turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_NONE;
 
-    if (last_axes.empty() ||
-        last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
-        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
-        local_enable != prev_enable)
+    if (last_axes.empty() || last_axes[axes[DPAD_LR]] != msg->axes[axes[DPAD_LR]] ||
+        last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] || local_enable != prev_enable)
     {
       turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
     }
@@ -238,10 +230,10 @@ void PublishControl::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& 
     }
 
     uint8_t desired_gear = 0x0;
-    desired_gear |= (msg->buttons[btns[RIGHT_BTN]]  == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE
-                  | (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_HIGH
-                  | (msg->buttons[btns[TOP_BTN]]    == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_PARK
-                  | (msg->buttons[btns[LEFT_BTN]]   == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
+    desired_gear |= (msg->buttons[btns[RIGHT_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE |
+                    (msg->buttons[btns[BOTTOM_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_HIGH |
+                    (msg->buttons[btns[TOP_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_PARK |
+                    (msg->buttons[btns[LEFT_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
 
     switch (desired_gear)
     {
@@ -258,11 +250,12 @@ void PublishControl::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& 
         shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
         break;
       // If we've got an invalid command (or multiple buttons pressed) return and don't publish the message
-      default: return;
+      default:
+        return;
     }
-     shift_cmd_pub.publish(shift_cmd_pub_msg);
+    shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
-  else if (local_enable != prev_enable)   // If only an enable/disable button was pressed
+  else if (local_enable != prev_enable)  // If only an enable/disable button was pressed
   {
     pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable;
@@ -310,18 +303,13 @@ void PublishControl::publish_accelerator_message(const sensor_msgs::Joy::ConstPt
 
     if (PublishControl::accel_0_rcvd)
     {
-      if (vehicle_type == POLARIS_RANGER ||
-          vehicle_type == LEXUS_RX_450H ||
-          vehicle_type == FREIGHTLINER_CASCADIA ||
-          vehicle_type == JUPITER_SPIRIT ||
-          vehicle_type == VEHICLE_4 ||
-          vehicle_type == VEHICLE_5 ||
+      if (vehicle_type == POLARIS_RANGER || vehicle_type == LEXUS_RX_450H || vehicle_type == FREIGHTLINER_CASCADIA ||
+          vehicle_type == JUPITER_SPIRIT || vehicle_type == VEHICLE_4 || vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
-        accelerator_cmd_pub_msg.command =
-          accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
+        accelerator_cmd_pub_msg.command = accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0));
       else
         accelerator_cmd_pub_msg.command =
-          accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+            accel_scale_val * (0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
     }
     else
     {
@@ -335,18 +323,13 @@ void PublishControl::publish_accelerator_message(const sensor_msgs::Joy::ConstPt
 
     if (PublishControl::accel_0_rcvd)
     {
-      if (vehicle_type == POLARIS_RANGER ||
-          vehicle_type == LEXUS_RX_450H ||
-          vehicle_type == FREIGHTLINER_CASCADIA ||
-          vehicle_type == JUPITER_SPIRIT ||
-          vehicle_type == VEHICLE_4 ||
-          vehicle_type == VEHICLE_5 ||
+      if (vehicle_type == POLARIS_RANGER || vehicle_type == LEXUS_RX_450H || vehicle_type == FREIGHTLINER_CASCADIA ||
+          vehicle_type == JUPITER_SPIRIT || vehicle_type == VEHICLE_4 || vehicle_type == VEHICLE_5 ||
           vehicle_type == VEHICLE_6)
-        accelerator_cmd_pub_msg.command =
-          accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
+        accelerator_cmd_pub_msg.command = accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0));
       else
         accelerator_cmd_pub_msg.command =
-          accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+            accel_scale_val * (-0.5 * (msg->axes[axes[RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
     }
     else
     {
@@ -419,11 +402,8 @@ void PublishControl::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg
 
 void PublishControl::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  if ((vehicle_type == LEXUS_RX_450H ||
-       vehicle_type == VEHICLE_5 ||
-       vehicle_type == VEHICLE_6 ||
-       vehicle_type == FREIGHTLINER_CASCADIA ||
-       vehicle_type == JUPITER_SPIRIT) &&
+  if ((vehicle_type == LEXUS_RX_450H || vehicle_type == VEHICLE_5 || vehicle_type == VEHICLE_6 ||
+       vehicle_type == FREIGHTLINER_CASCADIA || vehicle_type == JUPITER_SPIRIT) &&
       controller != HRI_SAFE_REMOTE)
   {
     pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
@@ -546,16 +526,13 @@ void PublishControl::publish_rear_pass_door_message(const sensor_msgs::Joy::Cons
       else
         rear_pass_door_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::DOOR_NEUTRAL;
       // Send messages when enabled, or when the state changes between axes[DPAD_UD], or between enabled/disabled
-      if (last_axes.empty() ||
-          last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] ||
-          local_enable != prev_enable)
+      if (last_axes.empty() || last_axes[axes[DPAD_UD]] != msg->axes[axes[DPAD_UD]] || local_enable != prev_enable)
       {
-          rear_pass_door_cmd_pub.publish(rear_pass_door_cmd_pub_msg);
+        rear_pass_door_cmd_pub.publish(rear_pass_door_cmd_pub_msg);
       }
     }
   }
 }
-
 
 void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 {
@@ -592,8 +569,8 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   else
   {
     // Enable
-    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN &&
-        msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && !local_enable)
+    if (msg->buttons[btns[START_PLUS]] == BUTTON_DOWN && msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN &&
+        !local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = true;
@@ -604,8 +581,8 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
     }
 
     // Disable
-    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN &&
-        msg->buttons[btns[START_PLUS]] != BUTTON_DOWN && local_enable)
+    if (msg->buttons[btns[BACK_SELECT_MINUS]] == BUTTON_DOWN && msg->buttons[btns[START_PLUS]] != BUTTON_DOWN &&
+        local_enable)
     {
       std_msgs::Bool bool_pub_msg;
       bool_pub_msg.data = false;
@@ -618,7 +595,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 
   if (state_changed)
   {
-    std::unique_lock<std::mutex> lock (enable_mutex);
+    std::unique_lock<std::mutex> lock(enable_mutex);
     pacmod_enable = local_enable;
   }
 }
