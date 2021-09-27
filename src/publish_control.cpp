@@ -116,9 +116,8 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
       PublishControl::last_pacmod_state == true)
     prev_enable = false;
 
-  enable_mutex.lock();
+  std::unique_lock<std::mutex> lock (enable_mutex);
   pacmod_enable = msg->data;
-  enable_mutex.unlock();
 
   PublishControl::last_pacmod_state = msg->data;
 }
@@ -128,33 +127,29 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
  */
 void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
-  speed_mutex.lock();
+  std::unique_lock<std::mutex> lock (speed_mutex);
   last_speed_rpt = msg;
-  speed_mutex.unlock();
 }
 
 void PublishControl::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
-  shift_mutex.lock();
+  std::unique_lock<std::mutex> lock (shift_mutex);
   // Store the latest value read from the gear state to be sent on enable/disable
   last_shift_cmd = msg->output;
-  shift_mutex.unlock();
 }
 
 void PublishControl::callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
-  turn_mutex.lock();
+  std::unique_lock<std::mutex> lock (turn_mutex);
   // Store the latest value read from the gear state to be sent on enable/disable
   last_turn_cmd = msg->output;
-  turn_mutex.unlock();
 }
 
 void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
-  rear_pass_door_mutex.lock();
+  std::unique_lock<std::mutex> lock (rear_pass_door_mutex);
   // Store the latest value read to be sent on enable/disable
   last_rear_pass_door_cmd = msg->output;
-  rear_pass_door_mutex.unlock();
 }
 
 // Publishing
@@ -669,8 +664,7 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
 
   if (state_changed)
   {
-    enable_mutex.lock();
+    std::unique_lock<std::mutex> lock (enable_mutex);
     pacmod_enable = local_enable;
-    enable_mutex.unlock();
   }
 }
