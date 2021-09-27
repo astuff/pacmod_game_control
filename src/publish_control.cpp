@@ -9,8 +9,6 @@
 
 #include <unordered_map>
 
-using namespace AS::Joystick;  // NOLINT
-
 JoyAxis PublishControl::steering_axis = LEFT_STICK_LR;
 float PublishControl::max_rot_rad = MAX_ROT_RAD_DEFAULT;
 int PublishControl::vehicle_type = INVALID;
@@ -39,7 +37,7 @@ float PublishControl::last_brake_cmd = 0.0;
 
 PublishControl::PublishControl()
 {
-  // Subscribe to messages
+  // Subs
   joy_sub = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
   speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed, this);
 
@@ -49,7 +47,7 @@ PublishControl::PublishControl()
   rear_pass_door_sub = n.subscribe("/pacmod/parsed_tx/rear_pass_door_rpt",
                                    20, &PublishControl::callback_rear_pass_door_rpt, this);
 
-  // Advertise published messages
+  // Pubs
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
   turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
   rear_pass_door_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/rear_pass_door_cmd", 20);
@@ -62,9 +60,6 @@ PublishControl::PublishControl()
   brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
 }
 
-/*
- * Called when a game controller message is received
- */
 void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 {
   try
@@ -74,25 +69,12 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
     if (local_enable == true || local_enable != prev_enable)
     {
-      // Steering
       publish_steering_message(msg);
-
-      // Turn signals
       publish_turn_signal_message(msg);
-
-      // Door signals
       publish_rear_pass_door_message(msg);
-
-      // Shifting
       publish_shifting_message(msg);
-
-      // Accelerator
       publish_accelerator_message(msg);
-
-      // Brake
       publish_brake_message(msg);
-
-      // Lights and horn
       publish_lights_horn_wipers_message(msg);
     }
 
@@ -107,9 +89,6 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
   last_axes.insert(last_axes.end(), msg->axes.begin(), msg->axes.end());
 }
 
-/*
- * Called when the node receives a message from the enable topic
- */
 void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
   if (msg->data == false &&
@@ -122,9 +101,7 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
   PublishControl::last_pacmod_state = msg->data;
 }
 
-/*
- * Called when the node receives a message from the vehicle speed topic
- */
+// Feedback callbacks
 void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock (speed_mutex);
@@ -134,21 +111,18 @@ void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::Cons
 void PublishControl::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock (shift_mutex);
-  // Store the latest value read from the gear state to be sent on enable/disable
   last_shift_cmd = msg->output;
 }
 
 void PublishControl::callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock (turn_mutex);
-  // Store the latest value read from the gear state to be sent on enable/disable
   last_turn_cmd = msg->output;
 }
 
 void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock (rear_pass_door_mutex);
-  // Store the latest value read to be sent on enable/disable
   last_rear_pass_door_cmd = msg->output;
 }
 

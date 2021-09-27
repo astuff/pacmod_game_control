@@ -14,18 +14,10 @@
 #include "pacmod_game_control/globals.h"
 #include "pacmod_game_control/publish_control.h"
 
-namespace AS
-{
-namespace Joystick
-{
-
 bool check_steering_stick_left_right(ros::NodeHandle*);
 bool check_vehicle_type(ros::NodeHandle * nodeH);
 bool check_controller_type(ros::NodeHandle * nodeH);
 bool check_scale_values(ros::NodeHandle * nodeH);
 bool run_startup_checks_error(ros::NodeHandle * nodeH);
-
-}  // namespace Joystick
-}  // namespace AS
 
 #endif  // PACMOD_GAME_CONTROL_STARTUP_CHECKS_H

@@ -19,11 +19,6 @@
 #include <pacmod_msgs/SystemCmdInt.h>
 #include <pacmod_msgs/SystemRptInt.h>
 
-namespace AS
-{
-namespace Joystick
-{
-
 class PublishControl
 {
   public:
@@ -104,8 +99,5 @@ class PublishControl
     static bool recent_state_change;
     static uint8_t state_change_debounce_count;
 };
-
-}  // namespace Joystick
-}  // namespace AS
 
 #endif  // PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H

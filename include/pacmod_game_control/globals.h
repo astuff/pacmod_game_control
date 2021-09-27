@@ -17,10 +17,6 @@
 #include <std_msgs/Bool.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
 
-namespace AS
-{
-namespace Joystick
-{
 enum GamepadType
 {
   LOGITECH_F310,
@@ -109,8 +105,5 @@ static std::mutex state_change_mutex;
 static std::mutex shift_mutex;
 static std::mutex turn_mutex;
 static std::mutex rear_pass_door_mutex;
-
-}  // namespace Joystick
-}  // namespace AS
 
 #endif  // PACMOD_GAME_CONTROL_GLOBALS_H
