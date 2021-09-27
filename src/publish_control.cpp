@@ -9,34 +9,13 @@
 
 #include <unordered_map>
 
-JoyAxis PublishControl::steering_axis = LEFT_STICK_LR;
-float PublishControl::max_rot_rad = MAX_ROT_RAD_DEFAULT;
-int PublishControl::vehicle_type = INVALID;
-GamepadType PublishControl::controller = LOGITECH_F310;
-int PublishControl::board_rev = INVALID;
-double PublishControl::max_veh_speed = INVALID;
-double PublishControl::accel_scale_val = 1.0;
-double PublishControl::brake_scale_val = 1.0;
-double PublishControl::steering_max_speed = INVALID;
-std::unordered_map<JoyAxis, int, EnumHash> PublishControl::axes;
-std::unordered_map<JoyButton, int, EnumHash> PublishControl::btns;
-pacmod_msgs::VehicleSpeedRpt::ConstPtr PublishControl::last_speed_rpt = NULL;
-bool PublishControl::pacmod_enable;
-bool PublishControl::prev_enable = false;
-bool PublishControl::local_enable = false;
-bool PublishControl::last_pacmod_state = false;
-bool PublishControl::accel_0_rcvd = false;
-bool PublishControl::brake_0_rcvd = false;
-int PublishControl::headlight_state = 0;
-bool PublishControl::headlight_state_change = false;
-int PublishControl::wiper_state = 0;
-int PublishControl::last_shift_cmd = pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
-int PublishControl::last_turn_cmd = pacmod_msgs::SystemCmdInt::TURN_NONE;
-int PublishControl::last_rear_pass_door_cmd = pacmod_msgs::SystemCmdInt::DOOR_NEUTRAL;
-float PublishControl::last_brake_cmd = 0.0;
-
-PublishControl::PublishControl()
+void PublishControl::init()
 {
+  if (run_startup_checks_error())
+  {
+    ros::shutdown();
+  }
+
   // Subs
   joy_sub = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
   speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed, this);

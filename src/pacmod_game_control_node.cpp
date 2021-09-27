@@ -6,8 +6,6 @@
 */
 
 #include "pacmod_game_control/publish_control.h"
-#include "pacmod_game_control/globals.h"
-#include "pacmod_game_control/startup_checks.h"
 
 #include <memory>
 
@@ -19,10 +17,8 @@ int main(int argc, char *argv[])
 
   ros::Time::waitForValid();
 
-  if (run_startup_checks_error(&priv) == true)
-    return 0;
-
   PublishControl pub_control;
+  pub_control.init();
 
   spinner.start();
   ros::waitForShutdown();

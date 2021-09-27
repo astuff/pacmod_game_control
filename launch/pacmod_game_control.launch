@@ -59,7 +59,7 @@
       <param name="deadzone" value="0.0"/>
     </node>
 
-    <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control">
+    <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control" output="screen">
       <param name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)"/>
       <param name="steering_stick" value="$(arg steering_stick)"/>
       <param name="controller_type" value="$(arg controller_type)"/>
