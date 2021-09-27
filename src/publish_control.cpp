@@ -132,7 +132,8 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
   else
     range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
-  float speed_scale = 1.0;
+  // Decreases the angular rotation rate of the steering wheel when moving faster
+  float speed_based_damping = 1.0;
   bool speed_valid = false;
   float current_speed = 0.0;
 
@@ -148,13 +149,13 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
 
   if (speed_valid)
     if (current_speed < max_veh_speed)
-      speed_scale = STEER_OFFSET - fabs(
+      speed_based_damping = STEER_OFFSET - fabs(
         (current_speed / (max_veh_speed * STEER_SCALE_FACTOR)));  // this could go negative.
     else
-       speed_scale = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
+       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
 
   steer_msg.command = (range_scale * max_rot_rad) * msg->axes[axes[steering_axis]];
-  steer_msg.rotation_rate = steering_max_speed * speed_scale;
+  steer_msg.rotation_rate = steering_max_speed * speed_based_damping;
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }
 
