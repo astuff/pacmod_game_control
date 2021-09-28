@@ -39,11 +39,11 @@ bool PublishControl::check_steering_stick_left_right(const ros::NodeHandle& node
 
     if (steering_stick_string == "LEFT")
     {
-      steering_axis = LEFT_STICK_LR;
+      steering_axis = JoyAxis::LEFT_STICK_LR;
     }
     else if (steering_stick_string == "RIGHT")
     {
-      steering_axis = RIGHT_STICK_LR;
+      steering_axis = JoyAxis::RIGHT_STICK_LR;
     }
     else
     {
@@ -64,30 +64,30 @@ bool PublishControl::check_vehicle_type(const ros::NodeHandle& nodeH)
 {
   bool exit = false;
   std::string vehicle_type_string;
-  int vehicle_type = -1;
+  VehicleType vehicle_type;
 
   if (nodeH.getParam("pacmod_vehicle_type", vehicle_type_string))
   {
     ROS_INFO("Got pacmod_vehicle_type: %s", vehicle_type_string.c_str());
 
     if (vehicle_type_string == "POLARIS_GEM")
-      vehicle_type = POLARIS_GEM;
+      vehicle_type = VehicleType::POLARIS_GEM;
     else if (vehicle_type_string == "POLARIS_RANGER")
-      vehicle_type = POLARIS_RANGER;
+      vehicle_type = VehicleType::POLARIS_RANGER;
     else if (vehicle_type_string == "LEXUS_RX_450H")
-      vehicle_type = LEXUS_RX_450H;
+      vehicle_type = VehicleType::LEXUS_RX_450H;
     else if (vehicle_type_string == "JUPITER_SPIRIT")
-      vehicle_type = JUPITER_SPIRIT;
+      vehicle_type = VehicleType::JUPITER_SPIRIT;
     else if (vehicle_type_string == "INTERNATIONAL_PROSTAR_122")
-      vehicle_type = INTERNATIONAL_PROSTAR;
+      vehicle_type = VehicleType::INTERNATIONAL_PROSTAR;
     else if (vehicle_type_string == "FREIGHTLINER_CASCADIA")
-      vehicle_type = FREIGHTLINER_CASCADIA;
+      vehicle_type = VehicleType::FREIGHTLINER_CASCADIA;
     else if (vehicle_type_string == "VEHICLE_4")
-      vehicle_type = VEHICLE_4;
+      vehicle_type = VehicleType::VEHICLE_4;
     else if (vehicle_type_string == "VEHICLE_5")
-      vehicle_type = VEHICLE_5;
+      vehicle_type = VehicleType::VEHICLE_5;
     else if (vehicle_type_string == "VEHICLE_6")
-      vehicle_type = VEHICLE_6;
+      vehicle_type = VehicleType::VEHICLE_6;
     else
     {
       ROS_ERROR("pacmod_vehicle_type is invalid");
@@ -100,17 +100,17 @@ bool PublishControl::check_vehicle_type(const ros::NodeHandle& nodeH)
     exit = true;
   }
 
-  if (vehicle_type == LEXUS_RX_450H)
+  if (vehicle_type == VehicleType::LEXUS_RX_450H)
     max_rot_rad = MAX_ROT_RAD_VEHICLE2;
-  else if (vehicle_type == FREIGHTLINER_CASCADIA)
+  else if (vehicle_type == VehicleType::FREIGHTLINER_CASCADIA)
     max_rot_rad = MAX_ROT_RAD_FREIGHTLINER_CASCADIA;
-  else if (vehicle_type == JUPITER_SPIRIT)
+  else if (vehicle_type == VehicleType::JUPITER_SPIRIT)
     max_rot_rad = MAX_ROT_RAD_JUPITER_SPIRIT;
-  else if (vehicle_type == VEHICLE_4)
+  else if (vehicle_type == VehicleType::VEHICLE_4)
     max_rot_rad = MAX_ROT_RAD_VEHICLE4;
-  else if (vehicle_type == VEHICLE_5)
+  else if (vehicle_type == VehicleType::VEHICLE_5)
     max_rot_rad = MAX_ROT_RAD_VEHICLE5;
-  else if (vehicle_type == VEHICLE_6)
+  else if (vehicle_type == VehicleType::VEHICLE_6)
     max_rot_rad = MAX_ROT_RAD_VEHICLE6;
 
   vehicle_type = vehicle_type;
@@ -129,94 +129,94 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
 
     if (controller_string == "LOGITECH_F310" || controller_string == "XBOX_ONE")
     {
-      controller = (controller_string == "LOGITECH_F310") ? LOGITECH_F310 : XBOX_ONE;
+      controller = (controller_string == "LOGITECH_F310") ? GamepadType::LOGITECH_F310 : GamepadType::XBOX_ONE;
 
-      axes[LEFT_STICK_LR] = 0;
-      axes[LEFT_STICK_UD] = 1;
-      axes[LEFT_TRIGGER_AXIS] = 2;
-      axes[RIGHT_STICK_LR] = 3;
-      axes[RIGHT_STICK_UD] = 4;
-      axes[RIGHT_TRIGGER_AXIS] = 5;
-      axes[DPAD_LR] = 6;
-      axes[DPAD_UD] = 7;
+      axes[JoyAxis::LEFT_STICK_LR] = 0;
+      axes[JoyAxis::LEFT_STICK_UD] = 1;
+      axes[JoyAxis::LEFT_TRIGGER_AXIS] = 2;
+      axes[JoyAxis::RIGHT_STICK_LR] = 3;
+      axes[JoyAxis::RIGHT_STICK_UD] = 4;
+      axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 5;
+      axes[JoyAxis::DPAD_LR] = 6;
+      axes[JoyAxis::DPAD_UD] = 7;
 
-      btns[BOTTOM_BTN] = 0;
-      btns[RIGHT_BTN] = 1;
-      btns[LEFT_BTN] = 2;
-      btns[TOP_BTN] = 3;
-      btns[LEFT_BUMPER] = 4;
-      btns[RIGHT_BUMPER] = 5;
-      btns[BACK_SELECT_MINUS] = 6;
-      btns[START_PLUS] = 7;
-      btns[LEFT_STICK_PUSH] = 9;
-      btns[RIGHT_STICK_PUSH] = 10;
+      btns[JoyButton::BOTTOM_BTN] = 0;
+      btns[JoyButton::RIGHT_BTN] = 1;
+      btns[JoyButton::LEFT_BTN] = 2;
+      btns[JoyButton::TOP_BTN] = 3;
+      btns[JoyButton::LEFT_BUMPER] = 4;
+      btns[JoyButton::RIGHT_BUMPER] = 5;
+      btns[JoyButton::BACK_SELECT_MINUS] = 6;
+      btns[JoyButton::START_PLUS] = 7;
+      btns[JoyButton::LEFT_STICK_PUSH] = 9;
+      btns[JoyButton::RIGHT_STICK_PUSH] = 10;
     }
     else if (controller_string == "HRI_SAFE_REMOTE")
     {
-      controller = HRI_SAFE_REMOTE;
+      controller = GamepadType::HRI_SAFE_REMOTE;
 
       // TODO(jwhitleyastuff): Complete missing buttons
-      axes[LEFT_STICK_LR] = 0;
-      axes[RIGHT_STICK_LR] = 3;
-      axes[RIGHT_STICK_UD] = 4;
-      axes[DPAD_LR] = 6;
-      axes[DPAD_UD] = 7;
+      axes[JoyAxis::LEFT_STICK_LR] = 0;
+      axes[JoyAxis::RIGHT_STICK_LR] = 3;
+      axes[JoyAxis::RIGHT_STICK_UD] = 4;
+      axes[JoyAxis::DPAD_LR] = 6;
+      axes[JoyAxis::DPAD_UD] = 7;
 
-      btns[BOTTOM_BTN] = 0;
-      btns[RIGHT_BTN] = 1;
-      btns[TOP_BTN] = 2;
-      btns[LEFT_BTN] = 3;
+      btns[JoyButton::BOTTOM_BTN] = 0;
+      btns[JoyButton::RIGHT_BTN] = 1;
+      btns[JoyButton::TOP_BTN] = 2;
+      btns[JoyButton::LEFT_BTN] = 3;
     }
     else if (controller_string == "LOGITECH_G29")
     {
-      controller = LOGITECH_G29;
+      controller = GamepadType::LOGITECH_G29;
 
       // Set to match the G29 controller's max center-to-lock steering angle (radians).
       max_rot_rad = 7.85;
       // steering wheel, not right stick
-      axes[RIGHT_STICK_LR] = 0;
+      axes[JoyAxis::RIGHT_STICK_LR] = 0;
       // throttle pedal, not right trigger
-      axes[RIGHT_TRIGGER_AXIS] = 2;
+      axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 2;
       // brake pedal, not left trigger
-      axes[LEFT_TRIGGER_AXIS] = 3;
-      axes[DPAD_LR] = 4;
-      axes[DPAD_UD] = 5;
+      axes[JoyAxis::LEFT_TRIGGER_AXIS] = 3;
+      axes[JoyAxis::DPAD_LR] = 4;
+      axes[JoyAxis::DPAD_UD] = 5;
 
-      btns[BOTTOM_BTN] = 0;
-      btns[RIGHT_BTN] = 2;
-      btns[LEFT_BTN] = 1;
-      btns[TOP_BTN] = 3;
+      btns[JoyButton::BOTTOM_BTN] = 0;
+      btns[JoyButton::RIGHT_BTN] = 2;
+      btns[JoyButton::LEFT_BTN] = 1;
+      btns[JoyButton::TOP_BTN] = 3;
 
       // Following two are two blue buttons on the left
-      btns[LEFT_BUMPER] = 7;
-      btns[BACK_SELECT_MINUS] = 11;
+      btns[JoyButton::LEFT_BUMPER] = 7;
+      btns[JoyButton::BACK_SELECT_MINUS] = 11;
       // Following two are two blue buttons on the right
-      btns[RIGHT_BUMPER] = 6;
-      btns[START_PLUS] = 10;
+      btns[JoyButton::RIGHT_BUMPER] = 6;
+      btns[JoyButton::START_PLUS] = 10;
     }
     else if (controller_string == "NINTENDO_SWITCH_WIRED_PLUS")
     {
-      controller = NINTENDO_SWITCH_WIRED_PLUS;
+      controller = GamepadType::NINTENDO_SWITCH_WIRED_PLUS;
 
-      axes[LEFT_STICK_LR] = 0;
-      axes[LEFT_STICK_UD] = 1;
-      axes[RIGHT_STICK_LR] = 2;
-      axes[RIGHT_STICK_UD] = 3;
-      axes[DPAD_LR] = 4;
-      axes[DPAD_UD] = 5;
+      axes[JoyAxis::LEFT_STICK_LR] = 0;
+      axes[JoyAxis::LEFT_STICK_UD] = 1;
+      axes[JoyAxis::RIGHT_STICK_LR] = 2;
+      axes[JoyAxis::RIGHT_STICK_UD] = 3;
+      axes[JoyAxis::DPAD_LR] = 4;
+      axes[JoyAxis::DPAD_UD] = 5;
 
-      btns[LEFT_BTN] = 0;
-      btns[BOTTOM_BTN] = 1;
-      btns[RIGHT_BTN] = 2;
-      btns[TOP_BTN] = 3;
-      btns[LEFT_BUMPER] = 4;
-      btns[RIGHT_BUMPER] = 5;
-      btns[LEFT_TRIGGER_BTN] = 6;
-      btns[RIGHT_TRIGGER_BTN] = 7;
-      btns[BACK_SELECT_MINUS] = 8;
-      btns[START_PLUS] = 9;
-      btns[LEFT_STICK_PUSH] = 10;
-      btns[RIGHT_STICK_PUSH] = 11;
+      btns[JoyButton::LEFT_BTN] = 0;
+      btns[JoyButton::BOTTOM_BTN] = 1;
+      btns[JoyButton::RIGHT_BTN] = 2;
+      btns[JoyButton::TOP_BTN] = 3;
+      btns[JoyButton::LEFT_BUMPER] = 4;
+      btns[JoyButton::RIGHT_BUMPER] = 5;
+      btns[JoyButton::LEFT_TRIGGER_BTN] = 6;
+      btns[JoyButton::RIGHT_TRIGGER_BTN] = 7;
+      btns[JoyButton::BACK_SELECT_MINUS] = 8;
+      btns[JoyButton::START_PLUS] = 9;
+      btns[JoyButton::LEFT_STICK_PUSH] = 10;
+      btns[JoyButton::RIGHT_STICK_PUSH] = 11;
     }
     else
     {

@@ -32,10 +32,10 @@ public:
   void callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
 
   // public variables
-  JoyAxis steering_axis = LEFT_STICK_LR;
+  JoyAxis steering_axis = JoyAxis::LEFT_STICK_LR;
   float max_rot_rad = MAX_ROT_RAD_DEFAULT;
-  int vehicle_type = INVALID;
-  GamepadType controller = LOGITECH_F310;
+  VehicleType vehicle_type;
+  GamepadType controller = GamepadType::LOGITECH_F310;
   double max_veh_speed = INVALID;
   double accel_scale_val = 1.0;
   double brake_scale_val = 1.0;

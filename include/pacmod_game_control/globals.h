@@ -17,7 +17,7 @@
 #include <std_msgs/Bool.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
 
-enum GamepadType
+enum class GamepadType
 {
   LOGITECH_F310,
   HRI_SAFE_REMOTE,
@@ -26,7 +26,7 @@ enum GamepadType
   XBOX_ONE
 };
 
-enum VehicleType
+enum class VehicleType
 {
   POLARIS_GEM,
   POLARIS_RANGER,
@@ -39,7 +39,7 @@ enum VehicleType
   JUPITER_SPIRIT
 };
 
-enum JoyAxis
+enum class JoyAxis
 {
   LEFT_STICK_UD,
   LEFT_STICK_LR,
@@ -51,7 +51,7 @@ enum JoyAxis
   RIGHT_TRIGGER_AXIS  // Sometimes button, sometimes axis
 };
 
-enum JoyButton
+enum class JoyButton
 {
   TOP_BTN,
   LEFT_BTN,
