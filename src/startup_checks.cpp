@@ -19,10 +19,10 @@ bool PublishControl::run_startup_checks_error()
   ros::NodeHandle pnh("~");
 
   // Run startup checks
-  willExit = check_steering_stick_left_right(pnh);
-  willExit = check_vehicle_type(pnh);
-  willExit = check_controller_type(pnh);
-  willExit = check_scale_values(pnh);
+  willExit = willExit || check_steering_stick_left_right(pnh);
+  willExit = willExit || check_vehicle_type(pnh);
+  willExit = willExit || check_controller_type(pnh);
+  willExit = willExit || check_scale_values(pnh);
 
   return willExit;
 }
