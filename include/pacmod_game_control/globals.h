@@ -1,9 +1,9 @@
 /*
-* Unpublished Copyright (c) 2009-2018 AutonomouStuff, LLC, All Rights Reserved.
-*
-* This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
-* See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
-*/
+ * Unpublished Copyright (c) 2009-2021 AutonomouStuff, LLC, All Rights Reserved.
+ *
+ * This file is part of the PACMod ROS 1.0 driver which is released under the MIT license.
+ * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
+ */
 
 #ifndef PACMOD_GAME_CONTROL_GLOBALS_H
 #define PACMOD_GAME_CONTROL_GLOBALS_H
@@ -17,11 +17,7 @@
 #include <std_msgs/Bool.h>
 #include <pacmod_msgs/VehicleSpeedRpt.h>
 
-namespace AS
-{
-namespace Joystick
-{
-enum GamepadType
+enum class GamepadType
 {
   LOGITECH_F310,
   HRI_SAFE_REMOTE,
@@ -30,7 +26,7 @@ enum GamepadType
   XBOX_ONE
 };
 
-enum VehicleType
+enum class VehicleType
 {
   POLARIS_GEM,
   POLARIS_RANGER,
@@ -43,7 +39,7 @@ enum VehicleType
   JUPITER_SPIRIT
 };
 
-enum JoyAxis
+enum class JoyAxis
 {
   LEFT_STICK_UD,
   LEFT_STICK_LR,
@@ -51,11 +47,11 @@ enum JoyAxis
   RIGHT_STICK_LR,
   DPAD_UD,
   DPAD_LR,
-  LEFT_TRIGGER_AXIS,   // Sometimes button, sometimes axis
-  RIGHT_TRIGGER_AXIS   // Sometimes button, sometimes axis
+  LEFT_TRIGGER_AXIS,  // Sometimes button, sometimes axis
+  RIGHT_TRIGGER_AXIS  // Sometimes button, sometimes axis
 };
 
-enum JoyButton
+enum class JoyButton
 {
   TOP_BTN,
   LEFT_BTN,
@@ -80,37 +76,26 @@ struct EnumHash
   }
 };
 
-// static constants
-static const float ROT_RANGE_SCALER_LB = 0.05;
-static const float ACCEL_SCALE_FACTOR = 0.6;
-static const float ACCEL_OFFSET = 0.21;
-static const float STEER_SCALE_FACTOR = 1.5;
-static const float STEER_OFFSET = 1.0;
-static const float MAX_ROT_RAD_VEHICLE2 = 8.5;
-static const float MAX_ROT_RAD_VEHICLE4 = 8.5;
-static const float MAX_ROT_RAD_VEHICLE5 = 8.1;
-static const float MAX_ROT_RAD_VEHICLE6 = 8.5;
-static const float MAX_ROT_RAD_FREIGHTLINER_CASCADIA = 14.0;
-static const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
-static const float MAX_ROT_RAD_DEFAULT = 10.9956;
-static const float AXES_MIN = -1.0;
-static const float AXES_MAX = 1.0;
-static const uint16_t NUM_WIPER_STATES = 8;
-static const uint16_t WIPER_STATE_START_VALUE = 0;
-static const uint16_t NUM_HEADLIGHT_STATES = 3;
-static const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
-static const uint16_t INVALID = -1;
-static const uint16_t BUTTON_DOWN = 1;
-
-// mutex
-static std::mutex enable_mutex;
-static std::mutex speed_mutex;
-static std::mutex state_change_mutex;
-static std::mutex shift_mutex;
-static std::mutex turn_mutex;
-static std::mutex rear_pass_door_mutex;
-
-}  // namespace Joystick
-}  // namespace AS
+// constants
+const float ROT_RANGE_SCALER_LB = 0.05;
+const float ACCEL_SCALE_FACTOR = 0.6;
+const float ACCEL_OFFSET = 0.21;
+const float STEER_SCALE_FACTOR = 1.5;
+const float STEER_OFFSET = 1.0;
+const float MAX_ROT_RAD_VEHICLE2 = 8.5;
+const float MAX_ROT_RAD_VEHICLE4 = 8.5;
+const float MAX_ROT_RAD_VEHICLE5 = 8.1;
+const float MAX_ROT_RAD_VEHICLE6 = 8.5;
+const float MAX_ROT_RAD_FREIGHTLINER_CASCADIA = 14.0;
+const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
+const float MAX_ROT_RAD_DEFAULT = 10.9956;
+const float AXES_MIN = -1.0;
+const float AXES_MAX = 1.0;
+const uint16_t NUM_WIPER_STATES = 8;
+const uint16_t WIPER_STATE_START_VALUE = 0;
+const uint16_t NUM_HEADLIGHT_STATES = 3;
+const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
+const uint16_t INVALID = -1;
+const uint16_t BUTTON_DOWN = 1;
 
 #endif  // PACMOD_GAME_CONTROL_GLOBALS_H
