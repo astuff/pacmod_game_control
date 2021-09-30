@@ -245,30 +245,17 @@ void PublishControl::publish_accelerator_message(const sensor_msgs::Joy::ConstPt
     accelerator_cmd_pub_msg.clear_faults = true;
   }
 
-  if (controller_type == GamepadType::HRI_SAFE_REMOTE)
+  if (vehicle_type == VehicleType::POLARIS_RANGER || vehicle_type == VehicleType::LEXUS_RX_450H ||
+      vehicle_type == VehicleType::FREIGHTLINER_CASCADIA || vehicle_type == VehicleType::JUPITER_SPIRIT ||
+      vehicle_type == VehicleType::VEHICLE_4 || vehicle_type == VehicleType::VEHICLE_5 ||
+      vehicle_type == VehicleType::VEHICLE_6)
   {
     accelerator_cmd_pub_msg.command = accel_scale_val * controller->get_accelerator_value();
   }
   else
   {
-    if (msg->axes[axes[JoyAxis::RIGHT_TRIGGER_AXIS]] != 0)
-      PublishControl::accel_0_rcvd = true;
-
-    if (PublishControl::accel_0_rcvd)
-    {
-      if (vehicle_type == VehicleType::POLARIS_RANGER || vehicle_type == VehicleType::LEXUS_RX_450H ||
-          vehicle_type == VehicleType::FREIGHTLINER_CASCADIA || vehicle_type == VehicleType::JUPITER_SPIRIT ||
-          vehicle_type == VehicleType::VEHICLE_4 || vehicle_type == VehicleType::VEHICLE_5 ||
-          vehicle_type == VehicleType::VEHICLE_6)
-        accelerator_cmd_pub_msg.command = accel_scale_val * controller->get_accelerator_value();
-      else
-        accelerator_cmd_pub_msg.command =
-            accel_scale_val * controller->get_accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
-    }
-    else
-    {
-      accelerator_cmd_pub_msg.command = 0;
-    }
+    accelerator_cmd_pub_msg.command =
+        accel_scale_val * controller->get_accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
   }
 
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
@@ -287,46 +274,16 @@ void PublishControl::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg
     brake_msg.clear_override = true;
     brake_msg.clear_faults = true;
   }
-  if (controller_type == GamepadType::HRI_SAFE_REMOTE)
-  {
-    brake_msg.command = brake_scale_val * controller->get_brake_value();
-  }
-  else if (controller_type == GamepadType::LOGITECH_G29)
-  {
-    if (msg->axes[axes[JoyAxis::LEFT_TRIGGER_AXIS]] != 0)
-      PublishControl::brake_0_rcvd = true;
 
-    if (PublishControl::brake_0_rcvd)
-    {
-      brake_msg.command = brake_scale_val * controller->get_brake_value();
-    }
-    else
-    {
-      brake_msg.command = 0;
-    }
+  float brake_value = brake_scale_val * controller->get_brake_value();
+  if (vehicle_type == VehicleType::LEXUS_RX_450H)
+  {
+    // These constants came from playing around in excel until stuff looked good. Seems to work okay
+    brake_msg.command = fmin(pow(brake_value, 3) * 2.0F - pow(brake_value, 2) * 1.5F + brake_value * 0.625F, 1.0F);
   }
   else
   {
-    if (msg->axes[axes[JoyAxis::LEFT_TRIGGER_AXIS]] != 0)
-      PublishControl::brake_0_rcvd = true;
-
-    if (PublishControl::brake_0_rcvd)
-    {
-      float brake_value = brake_scale_val * controller->get_brake_value();
-      if (vehicle_type == VehicleType::LEXUS_RX_450H)
-      {
-        // These constants came from playing around in excel until stuff looked good. Seems to work okay
-        brake_msg.command = fmin(pow(brake_value, 3) * 2.0F - pow(brake_value, 2) * 1.5F + brake_value * 0.625F, 1.0F);
-      }
-      else
-      {
-        brake_msg.command = brake_value;
-      }
-    }
-    else
-    {
-      brake_msg.command = 0;
-    }
+    brake_msg.command = brake_value;
   }
 
   last_brake_cmd = brake_msg.command;

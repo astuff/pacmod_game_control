@@ -47,8 +47,6 @@ public:
   bool pacmod_enable = false;
   bool prev_enable = false;
   bool last_pacmod_state = false;
-  bool accel_0_rcvd = false;
-  bool brake_0_rcvd = false;
   int headlight_state = 0;
   bool headlight_state_change = false;
   int wiper_state = 0;
