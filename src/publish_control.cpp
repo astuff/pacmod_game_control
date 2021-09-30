@@ -173,7 +173,7 @@ void PublishControl::publish_turn_signal_message()
 
   if (local_enable != prev_enable)
   {
-    // TODO: What is special about vehicle 6?
+    // TODO(icolwell-as): What is special about vehicle 6?
     if (vehicle_type == VehicleType::VEHICLE_6)
       turn_signal_cmd = pacmod_msgs::SystemCmdInt::TURN_NONE;
     else
@@ -307,7 +307,7 @@ void PublishControl::publish_lights_horn_wipers_message()
     // Headlights
     if (controller->get_headlight_change())
     {
-      // TODO: What is special about vehicle 5?
+      // TODO(icolwell-as): What is special about vehicle 5?
       if (vehicle_type == VehicleType::VEHICLE_5)
       {
         if (headlight_state == 1)
