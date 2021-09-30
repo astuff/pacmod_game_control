@@ -57,6 +57,11 @@ float Controller::get_brake_value()
   return -(input_msg_.axes[axes_[JoyAxis::LEFT_TRIGGER_AXIS]] - 1.0) / 2.0;
 }
 
+float Controller::get_steering_value(JoyAxis steering_axis)
+{
+  return input_msg_.axes[axes_[steering_axis]];
+}
+
 int Controller::get_turn_signal_cmd()
 {
   // Left on directional pad
@@ -151,8 +156,6 @@ bool Controller::get_disable()
 // --- Logitech G29, racing wheel with pedals
 LogitechG29Controller::LogitechG29Controller()
 {
-  // Set to match the G29 controller_type's max center-to-lock steering angle (radians)
-  // max_rot_rad = 7.85;
   // steering wheel, not right stick
   axes_[JoyAxis::RIGHT_STICK_LR] = 0;
   // throttle pedal, not right trigger

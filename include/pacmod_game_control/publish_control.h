@@ -41,8 +41,6 @@ public:
   double accel_scale_val = 1.0;
   double brake_scale_val = 1.0;
   double steering_max_speed = INVALID;
-  std::unordered_map<JoyAxis, int, EnumHash> axes;
-  std::unordered_map<JoyButton, int, EnumHash> btns;
   pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
   bool pacmod_enable = false;
   bool prev_enable = false;

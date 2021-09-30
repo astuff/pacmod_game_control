@@ -131,29 +131,11 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
     {
       controller_type = (controller_string == "LOGITECH_F310") ? GamepadType::LOGITECH_F310 : GamepadType::XBOX_ONE;
       controller = new Controller();
-
-      axes[JoyAxis::LEFT_STICK_LR] = 0;
-      axes[JoyAxis::LEFT_STICK_UD] = 1;
-      axes[JoyAxis::LEFT_TRIGGER_AXIS] = 2;
-      axes[JoyAxis::RIGHT_STICK_LR] = 3;
-      axes[JoyAxis::RIGHT_STICK_UD] = 4;
-      axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 5;
-      axes[JoyAxis::DPAD_LR] = 6;
-      axes[JoyAxis::DPAD_UD] = 7;
     }
     else if (controller_string == "HRI_SAFE_REMOTE")
     {
       controller_type = GamepadType::HRI_SAFE_REMOTE;
       controller = new HriSafeController();
-
-      axes[JoyAxis::LEFT_STICK_LR] = 0;
-      axes[JoyAxis::LEFT_STICK_UD] = 1;
-      axes[JoyAxis::LEFT_TRIGGER_AXIS] = 2;
-      axes[JoyAxis::RIGHT_STICK_LR] = 3;
-      axes[JoyAxis::RIGHT_STICK_UD] = 4;
-      axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 5;
-      axes[JoyAxis::DPAD_LR] = 6;
-      axes[JoyAxis::DPAD_UD] = 7;
     }
     else if (controller_string == "LOGITECH_G29")
     {
@@ -162,14 +144,6 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
 
       // Set to match the G29 controller_type's max center-to-lock steering angle (radians).
       max_rot_rad = 7.85;
-      // steering wheel, not right stick
-      axes[JoyAxis::RIGHT_STICK_LR] = 0;
-      // throttle pedal, not right trigger
-      axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 2;
-      // brake pedal, not left trigger
-      axes[JoyAxis::LEFT_TRIGGER_AXIS] = 3;
-      axes[JoyAxis::DPAD_LR] = 4;
-      axes[JoyAxis::DPAD_UD] = 5;
     }
     else
     {
