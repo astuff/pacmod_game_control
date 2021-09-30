@@ -107,8 +107,6 @@ void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt
 // Publishing
 void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
 {
-  // Steering
-  // Axis 0 is left thumbstick, axis 3 is right. Speed in rad/sec.
   pacmod_msgs::SteerSystemCmd steer_msg;
 
   steer_msg.enable = local_enable;

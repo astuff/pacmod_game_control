@@ -140,17 +140,6 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
       axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 5;
       axes[JoyAxis::DPAD_LR] = 6;
       axes[JoyAxis::DPAD_UD] = 7;
-
-      btns[JoyButton::BOTTOM_BTN] = 0;
-      btns[JoyButton::RIGHT_BTN] = 1;
-      btns[JoyButton::LEFT_BTN] = 2;
-      btns[JoyButton::TOP_BTN] = 3;
-      btns[JoyButton::LEFT_BUMPER] = 4;
-      btns[JoyButton::RIGHT_BUMPER] = 5;
-      btns[JoyButton::BACK_SELECT_MINUS] = 6;
-      btns[JoyButton::START_PLUS] = 7;
-      btns[JoyButton::LEFT_STICK_PUSH] = 9;
-      btns[JoyButton::RIGHT_STICK_PUSH] = 10;
     }
     else if (controller_string == "HRI_SAFE_REMOTE")
     {
@@ -165,12 +154,6 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
       axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 5;
       axes[JoyAxis::DPAD_LR] = 6;
       axes[JoyAxis::DPAD_UD] = 7;
-
-      // TODO(jwhitleyastuff): Complete missing buttons
-      btns[JoyButton::BOTTOM_BTN] = 0;
-      btns[JoyButton::RIGHT_BTN] = 1;
-      btns[JoyButton::TOP_BTN] = 2;
-      btns[JoyButton::LEFT_BTN] = 3;
     }
     else if (controller_string == "LOGITECH_G29")
     {
@@ -187,18 +170,6 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
       axes[JoyAxis::LEFT_TRIGGER_AXIS] = 3;
       axes[JoyAxis::DPAD_LR] = 4;
       axes[JoyAxis::DPAD_UD] = 5;
-
-      btns[JoyButton::BOTTOM_BTN] = 0;
-      btns[JoyButton::RIGHT_BTN] = 2;
-      btns[JoyButton::LEFT_BTN] = 1;
-      btns[JoyButton::TOP_BTN] = 3;
-
-      // Following two are two blue buttons on the left
-      btns[JoyButton::LEFT_BUMPER] = 7;
-      btns[JoyButton::BACK_SELECT_MINUS] = 11;
-      // Following two are two blue buttons on the right
-      btns[JoyButton::RIGHT_BUMPER] = 6;
-      btns[JoyButton::START_PLUS] = 10;
     }
     else
     {
