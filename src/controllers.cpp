@@ -152,7 +152,6 @@ bool Controller::get_disable()
           input_msg_.buttons[btns_[JoyButton::START_PLUS]] != BUTTON_DOWN);
 }
 
-
 // --- Logitech G29, racing wheel with pedals
 LogitechG29Controller::LogitechG29Controller()
 {
@@ -190,7 +189,6 @@ float LogitechG29Controller::get_brake_value()
   return (input_msg_.axes[axes_[JoyAxis::LEFT_TRIGGER_AXIS]] + 1.0) / 2.0;
 }
 
-
 // --- HRI Safe Remote Controller
 HriSafeController::HriSafeController()
 {
@@ -220,7 +218,7 @@ float HriSafeController::get_accelerator_value()
   // Only consider center-to-up range as accelerator value
   if (input_msg_.axes[axes_[JoyAxis::RIGHT_TRIGGER_AXIS]] <= 0.0)
   {
-    return  -(input_msg_.axes[axes_[JoyAxis::RIGHT_TRIGGER_AXIS]]);
+    return -(input_msg_.axes[axes_[JoyAxis::RIGHT_TRIGGER_AXIS]]);
   }
   return 0.0;
 }

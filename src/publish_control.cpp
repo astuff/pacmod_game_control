@@ -125,7 +125,8 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
       vehicle_type == VehicleType::JUPITER_SPIRIT)
     range_scale = 1.0;
   else
-    range_scale = fabs(controller->get_steering_value(steering_axis)) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+    range_scale = fabs(controller->get_steering_value(steering_axis)) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) +
+                  ROT_RANGE_SCALER_LB;
 
   // Decreases the angular rotation rate of the steering wheel when moving faster
   float speed_based_damping = 1.0;
@@ -179,7 +180,8 @@ void PublishControl::publish_turn_signal_message()
       turn_signal_cmd = turn_signal_rpt;
   }
 
-  // Only publish if we are requesting a different turn signal than is currently active, or we just engaged and need to clear override
+  // Only publish if we are requesting a different turn signal than is currently active, or we just engaged and need to
+  // clear override
   if (turn_signal_cmd != turn_signal_rpt || local_enable != prev_enable)
   {
     turn_signal_cmd_pub_msg.command = turn_signal_cmd;
