@@ -27,6 +27,7 @@ add_executable(pacmod_game_control_node
   src/pacmod_game_control_node.cpp
   src/startup_checks.cpp
   src/publish_control.cpp
+  src/controllers.cpp
 )
 
 add_dependencies(pacmod_game_control_node

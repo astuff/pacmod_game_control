@@ -41,27 +41,27 @@ void PublishControl::init()
 
 void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 {
+  controller->set_controller_input(*msg);
   try
   {
     // Only send messages when enabled, or when the state changes between enabled/disabled
-    check_is_enabled(msg);
+    check_is_enabled();
 
     if (local_enable == true || local_enable != prev_enable)
     {
       publish_steering_message(msg);
-      publish_turn_signal_message(msg);
-      publish_rear_pass_door_message(msg);
-      publish_shifting_message(msg);
+      publish_turn_signal_message();
+      publish_shifting_message();
       publish_accelerator_message(msg);
       publish_brake_message(msg);
-      publish_lights_horn_wipers_message(msg);
+      publish_lights_horn_wipers_message();
     }
 
     prev_enable = local_enable;
   }
   catch (const std::out_of_range& oor)
   {
-    ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller type.");
+    ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller_type type.");
   }
 
   last_axes.clear();
@@ -95,7 +95,7 @@ void PublishControl::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPt
 void PublishControl::callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock(turn_mutex);
-  last_turn_cmd = msg->output;
+  turn_signal_rpt = msg->output;
 }
 
 void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
@@ -156,7 +156,7 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }
 
-void PublishControl::publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::publish_turn_signal_message()
 {
   pacmod_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
 
@@ -170,51 +170,26 @@ void PublishControl::publish_turn_signal_message(const sensor_msgs::Joy::ConstPt
     turn_signal_cmd_pub_msg.clear_faults = true;
   }
 
-  // Hazard lights (both left and right turn signals), and HRI support
-  if (controller == GamepadType::HRI_SAFE_REMOTE)
-  {
-    // Axis 2 is the "left trigger" and axis 5 is the "right trigger" single
-    // axis joysticks on the back of the controller
-    if (msg->axes[4] < -0.5)
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_HAZARDS;
-    else if (msg->axes[3] > 0.5)
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_LEFT;
-    else if (msg->axes[3] < -0.5)
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_RIGHT;
-    else
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_NONE;
+  int turn_signal_cmd = controller->get_turn_signal_cmd();
 
-    if (last_axes.empty() || last_axes[4] != msg->axes[4] || last_axes[3] != msg->axes[3] ||
-        local_enable != prev_enable)
-      turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
+  if (local_enable != prev_enable)
+  {
+    // TODO: What is special about vehicle 6?
+    if (vehicle_type == VehicleType::VEHICLE_6)
+      turn_signal_cmd = pacmod_msgs::SystemCmdInt::TURN_NONE;
+    else
+      turn_signal_cmd = turn_signal_rpt;
   }
-  else  // Every other controller
-  {
-    if (msg->axes[axes[JoyAxis::DPAD_LR]] == AXES_MAX)
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_LEFT;
-    else if (msg->axes[axes[JoyAxis::DPAD_LR]] == AXES_MIN)
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_RIGHT;
-    else if (msg->axes[axes[JoyAxis::DPAD_UD]] == AXES_MIN && msg->buttons[btns[JoyButton::LEFT_BUMPER]] != BUTTON_DOWN)
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_HAZARDS;
-    else if (local_enable != prev_enable)
-    {
-      if (vehicle_type == VehicleType::VEHICLE_6)
-        turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_NONE;
-      else
-        turn_signal_cmd_pub_msg.command = last_turn_cmd;
-    }
-    else
-      turn_signal_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::TURN_NONE;
 
-    if (last_axes.empty() || last_axes[axes[JoyAxis::DPAD_LR]] != msg->axes[axes[JoyAxis::DPAD_LR]] ||
-        last_axes[axes[JoyAxis::DPAD_UD]] != msg->axes[axes[JoyAxis::DPAD_UD]] || local_enable != prev_enable)
-    {
-      turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
-    }
+  // Only publish if we are requesting a different turn signal than is currently active, or we just engaged and need to clear override
+  if (turn_signal_cmd != turn_signal_rpt || local_enable != prev_enable)
+  {
+    turn_signal_cmd_pub_msg.command = turn_signal_cmd;
+    turn_signal_cmd_pub.publish(turn_signal_cmd_pub_msg);
   }
 }
 
-void PublishControl::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::publish_shifting_message()
 {
   // Only shift if brake command is higher than 25%
   if (last_brake_cmd > 0.25)
@@ -230,31 +205,14 @@ void PublishControl::publish_shifting_message(const sensor_msgs::Joy::ConstPtr& 
       shift_cmd_pub_msg.clear_faults = true;
     }
 
-    uint8_t desired_gear = 0x0;
-    desired_gear |=
-        (msg->buttons[btns[JoyButton::RIGHT_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE |
-        (msg->buttons[btns[JoyButton::BOTTOM_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_HIGH |
-        (msg->buttons[btns[JoyButton::TOP_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_PARK |
-        (msg->buttons[btns[JoyButton::LEFT_BTN]] == BUTTON_DOWN) << pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
+    int shift_cmd = controller->get_shift_cmd();
 
-    switch (desired_gear)
+    // Skip if invalid (multiple buttons pressed)
+    if (shift_cmd == -1)
     {
-      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_REVERSE:
-        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_REVERSE;
-        break;
-      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_HIGH:
-        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_HIGH;
-        break;
-      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_PARK:
-        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_PARK;
-        break;
-      case 1 << pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL:
-        shift_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::SHIFT_NEUTRAL;
-        break;
-      // If we've got an invalid command (or multiple buttons pressed) return and don't publish the message
-      default:
-        return;
+      return;
     }
+    shift_cmd_pub_msg.command = shift_cmd;
     shift_cmd_pub.publish(shift_cmd_pub_msg);
   }
   else if (local_enable != prev_enable)  // If only an enable/disable button was pressed
@@ -289,37 +247,9 @@ void PublishControl::publish_accelerator_message(const sensor_msgs::Joy::ConstPt
     accelerator_cmd_pub_msg.clear_faults = true;
   }
 
-  if (controller == GamepadType::HRI_SAFE_REMOTE)
+  if (controller_type == GamepadType::HRI_SAFE_REMOTE)
   {
-    // Accelerator
-    if (msg->axes[5] <= 0.0)
-    {
-      // only consider center-to-up range as accelerator motion
-      accelerator_cmd_pub_msg.command = accel_scale_val * -(msg->axes[5]);
-    }
-  }
-  else if (controller == GamepadType::LOGITECH_G29)
-  {
-    if (msg->axes[axes[JoyAxis::RIGHT_TRIGGER_AXIS]] != 0)
-      PublishControl::accel_0_rcvd = true;
-
-    if (PublishControl::accel_0_rcvd)
-    {
-      if (vehicle_type == VehicleType::POLARIS_RANGER || vehicle_type == VehicleType::LEXUS_RX_450H ||
-          vehicle_type == VehicleType::FREIGHTLINER_CASCADIA || vehicle_type == VehicleType::JUPITER_SPIRIT ||
-          vehicle_type == VehicleType::VEHICLE_4 || vehicle_type == VehicleType::VEHICLE_5 ||
-          vehicle_type == VehicleType::VEHICLE_6)
-        accelerator_cmd_pub_msg.command =
-            accel_scale_val * (0.5 * (msg->axes[axes[JoyAxis::RIGHT_TRIGGER_AXIS]] + 1.0));
-      else
-        accelerator_cmd_pub_msg.command =
-            accel_scale_val * (0.5 * (msg->axes[axes[JoyAxis::RIGHT_TRIGGER_AXIS]] + 1.0)) * ACCEL_SCALE_FACTOR +
-            ACCEL_OFFSET;
-    }
-    else
-    {
-      accelerator_cmd_pub_msg.command = 0;
-    }
+    accelerator_cmd_pub_msg.command = accel_scale_val * controller->get_accelerator_value();
   }
   else
   {
@@ -332,12 +262,10 @@ void PublishControl::publish_accelerator_message(const sensor_msgs::Joy::ConstPt
           vehicle_type == VehicleType::FREIGHTLINER_CASCADIA || vehicle_type == VehicleType::JUPITER_SPIRIT ||
           vehicle_type == VehicleType::VEHICLE_4 || vehicle_type == VehicleType::VEHICLE_5 ||
           vehicle_type == VehicleType::VEHICLE_6)
-        accelerator_cmd_pub_msg.command =
-            accel_scale_val * (-0.5 * (msg->axes[axes[JoyAxis::RIGHT_TRIGGER_AXIS]] - 1.0));
+        accelerator_cmd_pub_msg.command = accel_scale_val * controller->get_accelerator_value();
       else
         accelerator_cmd_pub_msg.command =
-            accel_scale_val * (-0.5 * (msg->axes[axes[JoyAxis::RIGHT_TRIGGER_AXIS]] - 1.0)) * ACCEL_SCALE_FACTOR +
-            ACCEL_OFFSET;
+            accel_scale_val * controller->get_accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
     }
     else
     {
@@ -361,18 +289,18 @@ void PublishControl::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg
     brake_msg.clear_override = true;
     brake_msg.clear_faults = true;
   }
-  if (controller == GamepadType::HRI_SAFE_REMOTE)
+  if (controller_type == GamepadType::HRI_SAFE_REMOTE)
   {
-    brake_msg.command = (msg->axes[2] > 0.0) ? 0.0 : (brake_scale_val * -msg->axes[2]);
+    brake_msg.command = brake_scale_val * controller->get_brake_value();
   }
-  else if (controller == GamepadType::LOGITECH_G29)
+  else if (controller_type == GamepadType::LOGITECH_G29)
   {
     if (msg->axes[axes[JoyAxis::LEFT_TRIGGER_AXIS]] != 0)
       PublishControl::brake_0_rcvd = true;
 
     if (PublishControl::brake_0_rcvd)
     {
-      brake_msg.command = ((msg->axes[axes[JoyAxis::LEFT_TRIGGER_AXIS]] + 1.0) / 2.0) * brake_scale_val;
+      brake_msg.command = brake_scale_val * controller->get_brake_value();
     }
     else
     {
@@ -386,7 +314,7 @@ void PublishControl::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg
 
     if (PublishControl::brake_0_rcvd)
     {
-      float brake_value = -((msg->axes[axes[JoyAxis::LEFT_TRIGGER_AXIS]] - 1.0) / 2.0) * brake_scale_val;
+      float brake_value = brake_scale_val * controller->get_brake_value();
       if (vehicle_type == VehicleType::LEXUS_RX_450H)
       {
         // These constants came from playing around in excel until stuff looked good. Seems to work okay
@@ -408,38 +336,39 @@ void PublishControl::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg
   brake_set_position_pub.publish(brake_msg);
 }
 
-void PublishControl::publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::publish_lights_horn_wipers_message()
 {
   if ((vehicle_type == VehicleType::LEXUS_RX_450H || vehicle_type == VehicleType::VEHICLE_5 ||
        vehicle_type == VehicleType::VEHICLE_6 || vehicle_type == VehicleType::FREIGHTLINER_CASCADIA ||
        vehicle_type == VehicleType::JUPITER_SPIRIT) &&
-      controller != GamepadType::HRI_SAFE_REMOTE)
+      controller_type != GamepadType::HRI_SAFE_REMOTE)
   {
     pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
     headlight_cmd_pub_msg.enable = local_enable;
     headlight_cmd_pub_msg.ignore_overrides = false;
 
     // Headlights
-    if (msg->axes[axes[JoyAxis::DPAD_UD]] == AXES_MAX && msg->buttons[btns[JoyButton::LEFT_BUMPER]] != BUTTON_DOWN)
+    if (controller->get_headlight_change())
     {
+      // TODO: What is special about vehicle 5?
       if (vehicle_type == VehicleType::VEHICLE_5)
       {
-        if (PublishControl::headlight_state == 1)
-          PublishControl::headlight_state = 2;
+        if (headlight_state == 1)
+          headlight_state = 2;
         else
-          PublishControl::headlight_state = 1;
+          headlight_state = 1;
       }
       else
       {
         // Rotate through headlight states as button is pressed
-        if (!PublishControl::headlight_state_change)
+        if (!headlight_state_change)
         {
-          PublishControl::headlight_state++;
-          PublishControl::headlight_state_change = true;
+          headlight_state++;
+          headlight_state_change = true;
         }
 
-        if (PublishControl::headlight_state >= NUM_HEADLIGHT_STATES)
-          PublishControl::headlight_state = HEADLIGHT_STATE_START_VALUE;
+        if (headlight_state >= NUM_HEADLIGHT_STATES)
+          headlight_state = HEADLIGHT_STATE_START_VALUE;
       }
 
       // If the enable flag just went to true, send an override clear
@@ -447,15 +376,15 @@ void PublishControl::publish_lights_horn_wipers_message(const sensor_msgs::Joy::
       {
         headlight_cmd_pub_msg.clear_override = true;
         headlight_cmd_pub_msg.clear_faults = true;
-        PublishControl::headlight_state = HEADLIGHT_STATE_START_VALUE;
+        headlight_state = HEADLIGHT_STATE_START_VALUE;
       }
     }
     else
     {
-      PublishControl::headlight_state_change = false;
+      headlight_state_change = false;
     }
 
-    headlight_cmd_pub_msg.command = PublishControl::headlight_state;
+    headlight_cmd_pub_msg.command = headlight_state;
     headlight_cmd_pub.publish(headlight_cmd_pub_msg);
 
     // Horn
@@ -470,22 +399,18 @@ void PublishControl::publish_lights_horn_wipers_message(const sensor_msgs::Joy::
       horn_cmd_pub_msg.clear_faults = true;
     }
 
-    if (msg->buttons[btns[JoyButton::RIGHT_BUMPER]] == BUTTON_DOWN)
-      horn_cmd_pub_msg.command = 1;
-    else
-      horn_cmd_pub_msg.command = 0;
-
+    horn_cmd_pub_msg.command = controller->get_horn_cmd();
     horn_cmd_pub.publish(horn_cmd_pub_msg);
   }
 
-  if (vehicle_type == VehicleType::INTERNATIONAL_PROSTAR && controller != GamepadType::HRI_SAFE_REMOTE)  // Semi
+  if (vehicle_type == VehicleType::INTERNATIONAL_PROSTAR)
   {
     pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
     wiper_cmd_pub_msg.enable = local_enable;
     wiper_cmd_pub_msg.ignore_overrides = false;
 
     // Windshield wipers
-    if (msg->axes[7] == AXES_MAX)
+    if (controller->get_wiper_change())
     {
       // Rotate through wiper states as button is pressed
       PublishControl::wiper_state++;
@@ -508,44 +433,7 @@ void PublishControl::publish_lights_horn_wipers_message(const sensor_msgs::Joy::
   }
 }
 
-void PublishControl::publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg)
-{
-  pacmod_msgs::SystemCmdInt rear_pass_door_cmd_pub_msg;
-
-  rear_pass_door_cmd_pub_msg.enable = local_enable;
-  rear_pass_door_cmd_pub_msg.ignore_overrides = false;
-
-  // If the enable flag just went to true, send an override clear
-  if (!prev_enable && local_enable)
-  {
-    rear_pass_door_cmd_pub_msg.clear_override = true;
-    rear_pass_door_cmd_pub_msg.clear_faults = true;
-  }
-
-  if (vehicle_type == VehicleType::JUPITER_SPIRIT)
-  {
-    if (controller != GamepadType::HRI_SAFE_REMOTE)
-    {
-      if (msg->axes[axes[JoyAxis::DPAD_UD]] == AXES_MAX && msg->buttons[btns[JoyButton::LEFT_BUMPER]] == BUTTON_DOWN)
-        rear_pass_door_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::DOOR_CLOSE;
-      else if (msg->axes[axes[JoyAxis::DPAD_UD]] == AXES_MIN &&
-               msg->buttons[btns[JoyButton::LEFT_BUMPER]] == BUTTON_DOWN)
-        rear_pass_door_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::DOOR_OPEN;
-      else if (local_enable != prev_enable)
-        rear_pass_door_cmd_pub_msg.command = last_rear_pass_door_cmd;
-      else
-        rear_pass_door_cmd_pub_msg.command = pacmod_msgs::SystemCmdInt::DOOR_NEUTRAL;
-      // Send messages when enabled, or when the state changes between axes[DPAD_UD], or between enabled/disabled
-      if (last_axes.empty() || last_axes[axes[JoyAxis::DPAD_UD]] != msg->axes[axes[JoyAxis::DPAD_UD]] ||
-          local_enable != prev_enable)
-      {
-        rear_pass_door_cmd_pub.publish(rear_pass_door_cmd_pub_msg);
-      }
-    }
-  }
-}
-
-void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::check_is_enabled()
 {
   bool state_changed = false;
 
@@ -553,55 +441,26 @@ void PublishControl::check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg)
   local_enable = pacmod_enable;
   enable_mutex.unlock();
 
-  if (controller == GamepadType::HRI_SAFE_REMOTE)
+  // Enable
+  if (controller->get_enable() && !local_enable)
   {
-    // Enable
-    if (msg->axes[axes[JoyAxis::DPAD_LR]] <= -0.9 && !local_enable)
-    {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
+    std_msgs::Bool bool_pub_msg;
+    bool_pub_msg.data = true;
+    local_enable = true;
+    enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
-    }
-
-    // Disable
-    if (msg->axes[axes[JoyAxis::DPAD_LR]] >= +0.9 && local_enable)
-    {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
-
-      state_changed = true;
-    }
+    state_changed = true;
   }
-  else
+
+  // Disable
+  if (controller->get_disable() && local_enable)
   {
-    // Enable
-    if (msg->buttons[btns[JoyButton::START_PLUS]] == BUTTON_DOWN &&
-        msg->buttons[btns[JoyButton::BACK_SELECT_MINUS]] == BUTTON_DOWN && !local_enable)
-    {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = true;
-      local_enable = true;
-      enable_pub.publish(bool_pub_msg);
+    std_msgs::Bool bool_pub_msg;
+    bool_pub_msg.data = false;
+    local_enable = false;
+    enable_pub.publish(bool_pub_msg);
 
-      state_changed = true;
-    }
-
-    // Disable
-    if (msg->buttons[btns[JoyButton::BACK_SELECT_MINUS]] == BUTTON_DOWN &&
-        msg->buttons[btns[JoyButton::START_PLUS]] != BUTTON_DOWN && local_enable)
-    {
-      std_msgs::Bool bool_pub_msg;
-      bool_pub_msg.data = false;
-      local_enable = false;
-      enable_pub.publish(bool_pub_msg);
-
-      state_changed = true;
-    }
+    state_changed = true;
   }
 
   if (state_changed)
