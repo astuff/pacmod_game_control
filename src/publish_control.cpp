@@ -49,11 +49,11 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
     if (local_enable == true || local_enable != prev_enable)
     {
-      publish_steering_message(msg);
+      publish_steering_message();
       publish_turn_signal_message();
       publish_shifting_message();
-      publish_accelerator_message(msg);
-      publish_brake_message(msg);
+      publish_accelerator_message();
+      publish_brake_message();
       publish_lights_horn_wipers_message();
     }
 
@@ -105,7 +105,7 @@ void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt
 }
 
 // Publishing
-void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::publish_steering_message()
 {
   pacmod_msgs::SteerSystemCmd steer_msg;
 
@@ -233,7 +233,7 @@ void PublishControl::publish_shifting_message()
   }
 }
 
-void PublishControl::publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::publish_accelerator_message()
 {
   pacmod_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
 
@@ -263,7 +263,7 @@ void PublishControl::publish_accelerator_message(const sensor_msgs::Joy::ConstPt
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
 }
 
-void PublishControl::publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg)
+void PublishControl::publish_brake_message()
 {
   pacmod_msgs::SystemCmdFloat brake_msg;
 

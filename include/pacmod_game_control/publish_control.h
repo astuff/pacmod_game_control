@@ -55,11 +55,11 @@ public:
 
 private:
   void check_is_enabled();
-  void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_steering_message();
   void publish_turn_signal_message();
   void publish_shifting_message();
-  void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void publish_accelerator_message();
+  void publish_brake_message();
   void publish_lights_horn_wipers_message();
 
   // Startup checks
