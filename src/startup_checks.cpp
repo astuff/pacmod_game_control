@@ -10,6 +10,7 @@
 
 #include "pacmod_game_control/publish_control.h"
 
+#include <memory>
 #include <string>
 
 bool PublishControl::run_startup_checks_error()
