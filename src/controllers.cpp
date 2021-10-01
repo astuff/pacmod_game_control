@@ -40,29 +40,33 @@ Controller::Controller()
   btns_[JoyButton::RIGHT_STICK_PUSH] = 10;
 }
 
+Controller::~Controller()
+{
+}
+
 void Controller::set_controller_input(const sensor_msgs::Joy& joy_msg)
 {
   input_msg_ = joy_msg;
 }
 
-float Controller::get_accelerator_value()
+float Controller::accelerator_value()
 {
   // The triggers report 1.0 when untouched, and change negatively all the way to -1.0 when fully pressed
   return -(input_msg_.axes[axes_[JoyAxis::RIGHT_TRIGGER_AXIS]] - 1.0) / 2;
 }
 
-float Controller::get_brake_value()
+float Controller::brake_value()
 {
   // The triggers report 1.0 when untouched, and change negatively all the way to -1.0 when fully pressed
   return -(input_msg_.axes[axes_[JoyAxis::LEFT_TRIGGER_AXIS]] - 1.0) / 2.0;
 }
 
-float Controller::get_steering_value(JoyAxis steering_axis)
+float Controller::steering_value(JoyAxis steering_axis)
 {
   return input_msg_.axes[axes_[steering_axis]];
 }
 
-int Controller::get_turn_signal_cmd()
+int Controller::turn_signal_cmd()
 {
   // Left on directional pad
   if (input_msg_.axes[axes_[JoyAxis::DPAD_LR]] == AXES_MAX)
@@ -85,7 +89,7 @@ int Controller::get_turn_signal_cmd()
   }
 }
 
-int Controller::get_shift_cmd()
+int Controller::shift_cmd()
 {
   uint8_t desired_gear = 0x0;
   desired_gear |=
@@ -110,43 +114,29 @@ int Controller::get_shift_cmd()
   }
 }
 
-bool Controller::get_horn_cmd()
+bool Controller::horn_cmd()
 {
-  if (input_msg_.buttons[btns_[JoyButton::RIGHT_BUMPER]] == BUTTON_DOWN)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return (input_msg_.buttons[btns_[JoyButton::RIGHT_BUMPER]] == BUTTON_DOWN);
 }
 
-bool Controller::get_headlight_change()
+bool Controller::headlight_change()
 {
   // Up on directional pad
   return (input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MAX);
 }
 
-bool Controller::get_wiper_change()
+bool Controller::wiper_change()
 {
-  if (input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_DOWN)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return (input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_DOWN);
 }
 
-bool Controller::get_enable()
+bool Controller::enable()
 {
   return (input_msg_.buttons[btns_[JoyButton::START_PLUS]] == BUTTON_DOWN &&
           input_msg_.buttons[btns_[JoyButton::BACK_SELECT_MINUS]] == BUTTON_DOWN);
 }
 
-bool Controller::get_disable()
+bool Controller::disable()
 {
   return (input_msg_.buttons[btns_[JoyButton::BACK_SELECT_MINUS]] == BUTTON_DOWN &&
           input_msg_.buttons[btns_[JoyButton::START_PLUS]] != BUTTON_DOWN);
@@ -177,13 +167,13 @@ LogitechG29Controller::LogitechG29Controller()
   btns_[JoyButton::START_PLUS] = 10;
 }
 
-float LogitechG29Controller::get_accelerator_value()
+float LogitechG29Controller::accelerator_value()
 {
   // The pedals report -1.0 when untouched, and change positively to 1.0 when full pressed
   return (input_msg_.axes[axes_[JoyAxis::RIGHT_TRIGGER_AXIS]] + 1.0) / 2.0;
 }
 
-float LogitechG29Controller::get_brake_value()
+float LogitechG29Controller::brake_value()
 {
   // The pedals report -1.0 when untouched, and change positively to 1.0 when full pressed
   return (input_msg_.axes[axes_[JoyAxis::LEFT_TRIGGER_AXIS]] + 1.0) / 2.0;
@@ -213,7 +203,7 @@ HriSafeController::HriSafeController()
   // HRI Safe Remote has no bumper buttons!
 }
 
-float HriSafeController::get_accelerator_value()
+float HriSafeController::accelerator_value()
 {
   // Only consider center-to-up range as accelerator value
   if (input_msg_.axes[axes_[JoyAxis::RIGHT_TRIGGER_AXIS]] <= 0.0)
@@ -223,7 +213,7 @@ float HriSafeController::get_accelerator_value()
   return 0.0;
 }
 
-float HriSafeController::get_brake_value()
+float HriSafeController::brake_value()
 {
   // Only consider center-to-up range as brake value
   if (input_msg_.axes[axes_[JoyAxis::LEFT_TRIGGER_AXIS]] <= 0.0)
@@ -233,7 +223,7 @@ float HriSafeController::get_brake_value()
   return 0.0;
 }
 
-int HriSafeController::get_turn_signal_cmd()
+int HriSafeController::turn_signal_cmd()
 {
   if (input_msg_.axes[axes_[JoyAxis::RIGHT_STICK_UD]] < -0.5)
   {
@@ -253,24 +243,24 @@ int HriSafeController::get_turn_signal_cmd()
   }
 }
 
-bool HriSafeController::get_horn_cmd()
+bool HriSafeController::horn_cmd()
 {
   // Currently no button assigned to horn commands
   return false;
 }
 
-bool HriSafeController::get_wiper_change()
+bool HriSafeController::wiper_change()
 {
   // Currently no button assigned to wiper commands
   return false;
 }
 
-bool HriSafeController::get_enable()
+bool HriSafeController::enable()
 {
   return (input_msg_.axes[axes_[JoyAxis::DPAD_LR]] <= -0.9);
 }
 
-bool HriSafeController::get_disable()
+bool HriSafeController::disable()
 {
   return (input_msg_.axes[axes_[JoyAxis::DPAD_LR]] >= 0.9);
 }

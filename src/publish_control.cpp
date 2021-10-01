@@ -125,8 +125,8 @@ void PublishControl::publish_steering_message()
       vehicle_type == VehicleType::JUPITER_SPIRIT)
     range_scale = 1.0;
   else
-    range_scale = fabs(controller->get_steering_value(steering_axis)) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) +
-                  ROT_RANGE_SCALER_LB;
+    range_scale =
+        fabs(controller->steering_value(steering_axis)) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
   // Decreases the angular rotation rate of the steering wheel when moving faster
   float speed_based_damping = 1.0;
@@ -150,7 +150,7 @@ void PublishControl::publish_steering_message()
     else
       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
 
-  steer_msg.command = (range_scale * max_rot_rad) * controller->get_steering_value(steering_axis);
+  steer_msg.command = (range_scale * max_rot_rad) * controller->steering_value(steering_axis);
   steer_msg.rotation_rate = steering_max_speed * speed_based_damping;
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }
@@ -169,7 +169,7 @@ void PublishControl::publish_turn_signal_message()
     turn_signal_cmd_pub_msg.clear_faults = true;
   }
 
-  int turn_signal_cmd = controller->get_turn_signal_cmd();
+  int turn_signal_cmd = controller->turn_signal_cmd();
 
   if (local_enable != prev_enable)
   {
@@ -205,7 +205,7 @@ void PublishControl::publish_shifting_message()
       shift_cmd_pub_msg.clear_faults = true;
     }
 
-    int shift_cmd = controller->get_shift_cmd();
+    int shift_cmd = controller->shift_cmd();
 
     // Skip if invalid (multiple buttons pressed)
     if (shift_cmd == -1)
@@ -252,12 +252,12 @@ void PublishControl::publish_accelerator_message()
       vehicle_type == VehicleType::VEHICLE_4 || vehicle_type == VehicleType::VEHICLE_5 ||
       vehicle_type == VehicleType::VEHICLE_6)
   {
-    accelerator_cmd_pub_msg.command = accel_scale_val * controller->get_accelerator_value();
+    accelerator_cmd_pub_msg.command = accel_scale_val * controller->accelerator_value();
   }
   else
   {
     accelerator_cmd_pub_msg.command =
-        accel_scale_val * controller->get_accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+        accel_scale_val * controller->accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
   }
 
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
@@ -277,7 +277,7 @@ void PublishControl::publish_brake_message()
     brake_msg.clear_faults = true;
   }
 
-  float brake_value = brake_scale_val * controller->get_brake_value();
+  float brake_value = brake_scale_val * controller->brake_value();
   if (vehicle_type == VehicleType::LEXUS_RX_450H)
   {
     // These constants came from playing around in excel until stuff looked good. Seems to work okay
@@ -305,7 +305,7 @@ void PublishControl::publish_lights_horn_wipers_message()
     headlight_cmd_pub_msg.ignore_overrides = false;
 
     // Headlights
-    if (controller->get_headlight_change())
+    if (controller->headlight_change())
     {
       // TODO(icolwell-as): What is special about vehicle 5?
       if (vehicle_type == VehicleType::VEHICLE_5)
@@ -356,7 +356,7 @@ void PublishControl::publish_lights_horn_wipers_message()
       horn_cmd_pub_msg.clear_faults = true;
     }
 
-    horn_cmd_pub_msg.command = controller->get_horn_cmd();
+    horn_cmd_pub_msg.command = controller->horn_cmd();
     horn_cmd_pub.publish(horn_cmd_pub_msg);
   }
 
@@ -367,7 +367,7 @@ void PublishControl::publish_lights_horn_wipers_message()
     wiper_cmd_pub_msg.ignore_overrides = false;
 
     // Windshield wipers
-    if (controller->get_wiper_change())
+    if (controller->wiper_change())
     {
       // Rotate through wiper states as button is pressed
       PublishControl::wiper_state++;
@@ -399,7 +399,7 @@ void PublishControl::check_is_enabled()
   enable_mutex.unlock();
 
   // Enable
-  if (controller->get_enable() && !local_enable)
+  if (controller->enable() && !local_enable)
   {
     std_msgs::Bool bool_pub_msg;
     bool_pub_msg.data = true;
@@ -410,7 +410,7 @@ void PublishControl::check_is_enabled()
   }
 
   // Disable
-  if (controller->get_disable() && local_enable)
+  if (controller->disable() && local_enable)
   {
     std_msgs::Bool bool_pub_msg;
     bool_pub_msg.data = false;

@@ -18,17 +18,18 @@ class Controller
 {
 public:
   Controller();
+  virtual ~Controller();
   void set_controller_input(const sensor_msgs::Joy& joy_msg);
-  virtual float get_accelerator_value();
-  virtual float get_brake_value();
-  virtual float get_steering_value(JoyAxis steering_axis);
-  virtual int get_turn_signal_cmd();
-  virtual int get_shift_cmd();
-  virtual bool get_horn_cmd();
-  virtual bool get_headlight_change();
-  virtual bool get_wiper_change();
-  virtual bool get_enable();
-  virtual bool get_disable();
+  virtual float accelerator_value();
+  virtual float brake_value();
+  virtual float steering_value(JoyAxis steering_axis);
+  virtual int turn_signal_cmd();
+  virtual int shift_cmd();
+  virtual bool horn_cmd();
+  virtual bool headlight_change();
+  virtual bool wiper_change();
+  virtual bool enable();
+  virtual bool disable();
 
 protected:
   sensor_msgs::Joy input_msg_;
@@ -40,21 +41,21 @@ class LogitechG29Controller : public Controller
 {
 public:
   LogitechG29Controller();
-  float get_accelerator_value();
-  float get_brake_value();
+  float accelerator_value() override;
+  float brake_value() override;
 };
 
 class HriSafeController : public Controller
 {
 public:
   HriSafeController();
-  float get_accelerator_value();
-  float get_brake_value();
-  int get_turn_signal_cmd();
-  bool get_horn_cmd();
-  bool get_wiper_change();
-  bool get_enable();
-  bool get_disable();
+  float accelerator_value() override;
+  float brake_value() override;
+  int turn_signal_cmd() override;
+  bool horn_cmd() override;
+  bool wiper_change() override;
+  bool enable() override;
+  bool disable() override;
 };
 
 #endif  // PACMOD_GAME_CONTROL_CONTROLLERS_H

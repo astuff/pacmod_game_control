@@ -37,10 +37,10 @@ public:
   float max_rot_rad = MAX_ROT_RAD_DEFAULT;
   VehicleType vehicle_type;
   GamepadType controller_type = GamepadType::LOGITECH_F310;
-  double max_veh_speed = INVALID;
-  double accel_scale_val = 1.0;
-  double brake_scale_val = 1.0;
-  double steering_max_speed = INVALID;
+  float max_veh_speed = std::numeric_limits<float>::quiet_NaN();
+  float accel_scale_val = 1.0;
+  float brake_scale_val = 1.0;
+  float steering_max_speed = std::numeric_limits<float>::quiet_NaN();
   pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
   bool pacmod_enable = false;
   bool prev_enable = false;
@@ -97,7 +97,7 @@ private:
   std::vector<int> last_buttons;
 
   // Other Variables
-  Controller* controller;
+  std::unique_ptr<Controller> controller;
   bool local_enable;
   bool recent_state_change;
   uint8_t state_change_debounce_count;
