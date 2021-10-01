@@ -10,6 +10,7 @@
 
 #include "pacmod_game_control/publish_control.h"
 
+#include <memory>
 #include <string>
 
 bool PublishControl::run_startup_checks_error()
@@ -129,94 +130,21 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
 
     if (controller_string == "LOGITECH_F310" || controller_string == "XBOX_ONE")
     {
-      controller = (controller_string == "LOGITECH_F310") ? GamepadType::LOGITECH_F310 : GamepadType::XBOX_ONE;
-
-      axes[JoyAxis::LEFT_STICK_LR] = 0;
-      axes[JoyAxis::LEFT_STICK_UD] = 1;
-      axes[JoyAxis::LEFT_TRIGGER_AXIS] = 2;
-      axes[JoyAxis::RIGHT_STICK_LR] = 3;
-      axes[JoyAxis::RIGHT_STICK_UD] = 4;
-      axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 5;
-      axes[JoyAxis::DPAD_LR] = 6;
-      axes[JoyAxis::DPAD_UD] = 7;
-
-      btns[JoyButton::BOTTOM_BTN] = 0;
-      btns[JoyButton::RIGHT_BTN] = 1;
-      btns[JoyButton::LEFT_BTN] = 2;
-      btns[JoyButton::TOP_BTN] = 3;
-      btns[JoyButton::LEFT_BUMPER] = 4;
-      btns[JoyButton::RIGHT_BUMPER] = 5;
-      btns[JoyButton::BACK_SELECT_MINUS] = 6;
-      btns[JoyButton::START_PLUS] = 7;
-      btns[JoyButton::LEFT_STICK_PUSH] = 9;
-      btns[JoyButton::RIGHT_STICK_PUSH] = 10;
+      controller_type = (controller_string == "LOGITECH_F310") ? GamepadType::LOGITECH_F310 : GamepadType::XBOX_ONE;
+      controller = std::make_unique<Controller>();
     }
     else if (controller_string == "HRI_SAFE_REMOTE")
     {
-      controller = GamepadType::HRI_SAFE_REMOTE;
-
-      // TODO(jwhitleyastuff): Complete missing buttons
-      axes[JoyAxis::LEFT_STICK_LR] = 0;
-      axes[JoyAxis::RIGHT_STICK_LR] = 3;
-      axes[JoyAxis::RIGHT_STICK_UD] = 4;
-      axes[JoyAxis::DPAD_LR] = 6;
-      axes[JoyAxis::DPAD_UD] = 7;
-
-      btns[JoyButton::BOTTOM_BTN] = 0;
-      btns[JoyButton::RIGHT_BTN] = 1;
-      btns[JoyButton::TOP_BTN] = 2;
-      btns[JoyButton::LEFT_BTN] = 3;
+      controller_type = GamepadType::HRI_SAFE_REMOTE;
+      controller = std::make_unique<HriSafeController>();
     }
     else if (controller_string == "LOGITECH_G29")
     {
-      controller = GamepadType::LOGITECH_G29;
+      controller_type = GamepadType::LOGITECH_G29;
+      controller = std::make_unique<LogitechG29Controller>();
 
-      // Set to match the G29 controller's max center-to-lock steering angle (radians).
+      // Set to match the G29 controller_type's max center-to-lock steering angle (radians).
       max_rot_rad = 7.85;
-      // steering wheel, not right stick
-      axes[JoyAxis::RIGHT_STICK_LR] = 0;
-      // throttle pedal, not right trigger
-      axes[JoyAxis::RIGHT_TRIGGER_AXIS] = 2;
-      // brake pedal, not left trigger
-      axes[JoyAxis::LEFT_TRIGGER_AXIS] = 3;
-      axes[JoyAxis::DPAD_LR] = 4;
-      axes[JoyAxis::DPAD_UD] = 5;
-
-      btns[JoyButton::BOTTOM_BTN] = 0;
-      btns[JoyButton::RIGHT_BTN] = 2;
-      btns[JoyButton::LEFT_BTN] = 1;
-      btns[JoyButton::TOP_BTN] = 3;
-
-      // Following two are two blue buttons on the left
-      btns[JoyButton::LEFT_BUMPER] = 7;
-      btns[JoyButton::BACK_SELECT_MINUS] = 11;
-      // Following two are two blue buttons on the right
-      btns[JoyButton::RIGHT_BUMPER] = 6;
-      btns[JoyButton::START_PLUS] = 10;
-    }
-    else if (controller_string == "NINTENDO_SWITCH_WIRED_PLUS")
-    {
-      controller = GamepadType::NINTENDO_SWITCH_WIRED_PLUS;
-
-      axes[JoyAxis::LEFT_STICK_LR] = 0;
-      axes[JoyAxis::LEFT_STICK_UD] = 1;
-      axes[JoyAxis::RIGHT_STICK_LR] = 2;
-      axes[JoyAxis::RIGHT_STICK_UD] = 3;
-      axes[JoyAxis::DPAD_LR] = 4;
-      axes[JoyAxis::DPAD_UD] = 5;
-
-      btns[JoyButton::LEFT_BTN] = 0;
-      btns[JoyButton::BOTTOM_BTN] = 1;
-      btns[JoyButton::RIGHT_BTN] = 2;
-      btns[JoyButton::TOP_BTN] = 3;
-      btns[JoyButton::LEFT_BUMPER] = 4;
-      btns[JoyButton::RIGHT_BUMPER] = 5;
-      btns[JoyButton::LEFT_TRIGGER_BTN] = 6;
-      btns[JoyButton::RIGHT_TRIGGER_BTN] = 7;
-      btns[JoyButton::BACK_SELECT_MINUS] = 8;
-      btns[JoyButton::START_PLUS] = 9;
-      btns[JoyButton::LEFT_STICK_PUSH] = 10;
-      btns[JoyButton::RIGHT_STICK_PUSH] = 11;
     }
     else
     {
