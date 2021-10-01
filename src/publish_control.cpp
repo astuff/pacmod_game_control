@@ -127,7 +127,7 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
       vehicle_type == VehicleType::JUPITER_SPIRIT)
     range_scale = 1.0;
   else
-    range_scale = fabs(msg->axes[axes[steering_axis]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+    range_scale = fabs(msg->axes[axes[JoyAxis::LEFT_STICK_LR]]) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
   // Decreases the angular rotation rate of the steering wheel when moving faster
   float speed_based_damping = 1.0;
@@ -151,7 +151,7 @@ void PublishControl::publish_steering_message(const sensor_msgs::Joy::ConstPtr& 
     else
       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
 
-  steer_msg.command = (range_scale * max_rot_rad) * msg->axes[axes[steering_axis]];
+  steer_msg.command = (range_scale * max_rot_rad) * msg->axes[axes[JoyAxis::LEFT_STICK_LR]];
   steer_msg.rotation_rate = steering_max_speed * speed_based_damping;
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }
