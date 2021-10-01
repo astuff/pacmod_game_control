@@ -26,6 +26,10 @@ void PublishControl::init()
   rear_pass_door_sub =
       n.subscribe("/pacmod/parsed_tx/rear_pass_door_rpt", 20, &PublishControl::callback_rear_pass_door_rpt, this);
 
+  lights_sub = n.subscribe("/pacmod/parsed_tx/headlight_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  horn_sub = n.subscribe("/pacmod/parsed_tx/horn_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  wiper_sub = n.subscribe("/pacmod/parsed_tx/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+
   // Pubs
   enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
   turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
@@ -54,7 +58,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
       publish_shifting_message();
       publish_accelerator_message();
       publish_brake_message();
-      publish_lights_horn_wipers_message();
+      publish_wipers();
     }
 
     prev_enable = local_enable;
@@ -104,6 +108,24 @@ void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt
   last_rear_pass_door_cmd = msg->output;
 }
 
+void PublishControl::callback_lights_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+{
+  lights_api_available = true;
+  ROS_INFO("Headlights API detected");
+}
+
+void PublishControl::callback_horn_rpt(const pacmod_msgs::SystemRptBool::ConstPtr& msg)
+{
+  horn_api_available = true;
+  ROS_INFO("Horn API detected");
+}
+
+void PublishControl::callback_wiper_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+{
+  wiper_api_available = true;
+  ROS_INFO("Wiper API detected");
+}
+
 // Publishing
 void PublishControl::publish_steering_message()
 {
@@ -120,13 +142,15 @@ void PublishControl::publish_steering_message()
   }
 
   float range_scale;
-  if (vehicle_type == VehicleType::VEHICLE_4 || vehicle_type == VehicleType::VEHICLE_6 ||
-      vehicle_type == VehicleType::LEXUS_RX_450H || vehicle_type == VehicleType::FREIGHTLINER_CASCADIA ||
-      vehicle_type == VehicleType::JUPITER_SPIRIT)
-    range_scale = 1.0;
-  else
+  if (vehicle_type == VehicleType::POLARIS_GEM)
+  {
     range_scale =
         fabs(controller->steering_value(steering_axis)) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+  }
+  else
+  {
+    range_scale = 1.0;
+  }
 
   // Decreases the angular rotation rate of the steering wheel when moving faster
   float speed_based_damping = 1.0;
@@ -247,17 +271,14 @@ void PublishControl::publish_accelerator_message()
     accelerator_cmd_pub_msg.clear_faults = true;
   }
 
-  if (vehicle_type == VehicleType::POLARIS_RANGER || vehicle_type == VehicleType::LEXUS_RX_450H ||
-      vehicle_type == VehicleType::FREIGHTLINER_CASCADIA || vehicle_type == VehicleType::JUPITER_SPIRIT ||
-      vehicle_type == VehicleType::VEHICLE_4 || vehicle_type == VehicleType::VEHICLE_5 ||
-      vehicle_type == VehicleType::VEHICLE_6)
-  {
-    accelerator_cmd_pub_msg.command = accel_scale_val * controller->accelerator_value();
-  }
-  else
+  if (vehicle_type == VehicleType::POLARIS_GEM)
   {
     accelerator_cmd_pub_msg.command =
         accel_scale_val * controller->accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+  }
+  else
+  {
+    accelerator_cmd_pub_msg.command = accel_scale_val * controller->accelerator_value();
   }
 
   accelerator_cmd_pub.publish(accelerator_cmd_pub_msg);
@@ -293,101 +314,111 @@ void PublishControl::publish_brake_message()
   brake_set_position_pub.publish(brake_msg);
 }
 
-void PublishControl::publish_lights_horn_wipers_message()
+void PublishControl::publish_lights()
 {
-  if ((vehicle_type == VehicleType::LEXUS_RX_450H || vehicle_type == VehicleType::VEHICLE_5 ||
-       vehicle_type == VehicleType::VEHICLE_6 || vehicle_type == VehicleType::FREIGHTLINER_CASCADIA ||
-       vehicle_type == VehicleType::JUPITER_SPIRIT) &&
-      controller_type != GamepadType::HRI_SAFE_REMOTE)
+  if (!lights_api_available)
   {
-    pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
-    headlight_cmd_pub_msg.enable = local_enable;
-    headlight_cmd_pub_msg.ignore_overrides = false;
+    return;
+  }
 
-    // Headlights
-    if (controller->headlight_change())
+  pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
+  headlight_cmd_pub_msg.enable = local_enable;
+  headlight_cmd_pub_msg.ignore_overrides = false;
+
+  // Headlights
+  if (controller->headlight_change())
+  {
+    // TODO(icolwell-as): What is special about vehicle 5?
+    if (vehicle_type == VehicleType::VEHICLE_5)
     {
-      // TODO(icolwell-as): What is special about vehicle 5?
-      if (vehicle_type == VehicleType::VEHICLE_5)
-      {
-        if (headlight_state == 1)
-          headlight_state = 2;
-        else
-          headlight_state = 1;
-      }
+      if (headlight_state == 1)
+        headlight_state = 2;
       else
-      {
-        // Rotate through headlight states as button is pressed
-        if (!headlight_state_change)
-        {
-          headlight_state++;
-          headlight_state_change = true;
-        }
-
-        if (headlight_state >= NUM_HEADLIGHT_STATES)
-          headlight_state = HEADLIGHT_STATE_START_VALUE;
-      }
-
-      // If the enable flag just went to true, send an override clear
-      if (!prev_enable && local_enable)
-      {
-        headlight_cmd_pub_msg.clear_override = true;
-        headlight_cmd_pub_msg.clear_faults = true;
-        headlight_state = HEADLIGHT_STATE_START_VALUE;
-      }
+        headlight_state = 1;
     }
     else
     {
-      headlight_state_change = false;
+      // Rotate through headlight states as button is pressed
+      if (!headlight_state_change)
+      {
+        headlight_state++;
+        headlight_state_change = true;
+      }
+
+      if (headlight_state >= NUM_HEADLIGHT_STATES)
+        headlight_state = HEADLIGHT_STATE_START_VALUE;
     }
-
-    headlight_cmd_pub_msg.command = headlight_state;
-    headlight_cmd_pub.publish(headlight_cmd_pub_msg);
-
-    // Horn
-    pacmod_msgs::SystemCmdBool horn_cmd_pub_msg;
-    horn_cmd_pub_msg.enable = local_enable;
-    horn_cmd_pub_msg.ignore_overrides = false;
 
     // If the enable flag just went to true, send an override clear
     if (!prev_enable && local_enable)
     {
-      horn_cmd_pub_msg.clear_override = true;
-      horn_cmd_pub_msg.clear_faults = true;
+      headlight_cmd_pub_msg.clear_override = true;
+      headlight_cmd_pub_msg.clear_faults = true;
+      headlight_state = HEADLIGHT_STATE_START_VALUE;
     }
-
-    horn_cmd_pub_msg.command = controller->horn_cmd();
-    horn_cmd_pub.publish(horn_cmd_pub_msg);
   }
-
-  if (vehicle_type == VehicleType::INTERNATIONAL_PROSTAR)
+  else
   {
-    pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
-    wiper_cmd_pub_msg.enable = local_enable;
-    wiper_cmd_pub_msg.ignore_overrides = false;
+    headlight_state_change = false;
+  }
 
-    // Windshield wipers
-    if (controller->wiper_change())
+  headlight_cmd_pub_msg.command = headlight_state;
+  headlight_cmd_pub.publish(headlight_cmd_pub_msg);
+}
+
+void PublishControl::publish_horn()
+{
+  if (!horn_api_available)
+  {
+    return;
+  }
+
+  pacmod_msgs::SystemCmdBool horn_cmd_pub_msg;
+  horn_cmd_pub_msg.enable = local_enable;
+  horn_cmd_pub_msg.ignore_overrides = false;
+
+  // If the enable flag just went to true, send an override clear
+  if (!prev_enable && local_enable)
+  {
+    horn_cmd_pub_msg.clear_override = true;
+    horn_cmd_pub_msg.clear_faults = true;
+  }
+
+  horn_cmd_pub_msg.command = controller->horn_cmd();
+  horn_cmd_pub.publish(horn_cmd_pub_msg);
+}
+
+void PublishControl::publish_wipers()
+{
+  if (!wiper_api_available)
+  {
+    return;
+  }
+
+  pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
+  wiper_cmd_pub_msg.enable = local_enable;
+  wiper_cmd_pub_msg.ignore_overrides = false;
+
+  if (controller->wiper_change())
+  {
+    // Rotate through wiper states as button is pressed
+    PublishControl::wiper_state++;
+
+    if (PublishControl::wiper_state >= NUM_WIPER_STATES)
+      PublishControl::wiper_state = WIPER_STATE_START_VALUE;
+
+    // If the enable flag just went to true, send an override clear
+    if (!prev_enable && local_enable)
     {
-      // Rotate through wiper states as button is pressed
-      PublishControl::wiper_state++;
-
-      if (PublishControl::wiper_state >= NUM_WIPER_STATES)
-        PublishControl::wiper_state = WIPER_STATE_START_VALUE;
-
-      // If the enable flag just went to true, send an override clear
-      if (!prev_enable && local_enable)
-      {
-        wiper_cmd_pub_msg.clear_override = true;
-        wiper_cmd_pub_msg.clear_faults = true;
-        PublishControl::wiper_state = WIPER_STATE_START_VALUE;
-      }
-
-      wiper_cmd_pub_msg.command = PublishControl::wiper_state;
+      wiper_cmd_pub_msg.clear_override = true;
+      wiper_cmd_pub_msg.clear_faults = true;
+      PublishControl::wiper_state = WIPER_STATE_START_VALUE;
     }
 
-    wiper_cmd_pub.publish(wiper_cmd_pub_msg);
+    wiper_cmd_pub_msg.command = PublishControl::wiper_state;
   }
+
+  wiper_cmd_pub.publish(wiper_cmd_pub_msg);
 }
 
 void PublishControl::check_is_enabled()
