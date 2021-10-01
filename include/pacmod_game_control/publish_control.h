@@ -11,6 +11,8 @@
 #include "pacmod_game_control/globals.h"
 #include "pacmod_game_control/controllers.h"
 
+#include <limits>
+#include <memory>
 #include <vector>
 #include <unordered_map>
 
