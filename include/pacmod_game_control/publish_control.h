@@ -9,7 +9,10 @@
 #define PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
 
 #include "pacmod_game_control/globals.h"
+#include "pacmod_game_control/controllers.h"
 
+#include <limits>
+#include <memory>
 #include <vector>
 #include <unordered_map>
 
@@ -34,36 +37,31 @@ public:
   // public variables
   float max_rot_rad = MAX_ROT_RAD_DEFAULT;
   VehicleType vehicle_type;
-  GamepadType controller = GamepadType::LOGITECH_F310;
-  double max_veh_speed = INVALID;
-  double accel_scale_val = 1.0;
-  double brake_scale_val = 1.0;
-  double steering_max_speed = INVALID;
-  std::unordered_map<JoyAxis, int, EnumHash> axes;
-  std::unordered_map<JoyButton, int, EnumHash> btns;
+  GamepadType controller_type = GamepadType::LOGITECH_F310;
+  float max_veh_speed = std::numeric_limits<float>::quiet_NaN();
+  float accel_scale_val = 1.0;
+  float brake_scale_val = 1.0;
+  float steering_max_speed = std::numeric_limits<float>::quiet_NaN();
   pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
   bool pacmod_enable = false;
   bool prev_enable = false;
   bool last_pacmod_state = false;
-  bool accel_0_rcvd = false;
-  bool brake_0_rcvd = false;
   int headlight_state = 0;
   bool headlight_state_change = false;
   int wiper_state = 0;
   int last_shift_cmd = 0;
-  int last_turn_cmd = 0;
+  int turn_signal_rpt = pacmod_msgs::SystemRptInt::TURN_NONE;
   int last_rear_pass_door_cmd = 0;
   float last_brake_cmd = 0.0;
 
 private:
-  void check_is_enabled(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_steering_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_turn_signal_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_rear_pass_door_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_shifting_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_accelerator_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_brake_message(const sensor_msgs::Joy::ConstPtr& msg);
-  void publish_lights_horn_wipers_message(const sensor_msgs::Joy::ConstPtr& msg);
+  void check_is_enabled();
+  void publish_steering_message();
+  void publish_turn_signal_message();
+  void publish_shifting_message();
+  void publish_accelerator_message();
+  void publish_brake_message();
+  void publish_lights_horn_wipers_message();
 
   // Startup checks
   bool run_startup_checks_error();
@@ -99,6 +97,7 @@ private:
   std::vector<int> last_buttons;
 
   // Other Variables
+  std::unique_ptr<Controller> controller;
   bool local_enable;
   bool recent_state_change;
   uint8_t state_change_debounce_count;
