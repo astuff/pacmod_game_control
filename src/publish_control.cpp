@@ -145,7 +145,7 @@ void PublishControl::publish_steering_message()
   if (vehicle_type == VehicleType::POLARIS_GEM)
   {
     range_scale =
-        fabs(controller->steering_value(steering_axis)) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+        fabs(controller->steering_value()) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
   }
   else
   {
@@ -174,7 +174,7 @@ void PublishControl::publish_steering_message()
     else
       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
 
-  steer_msg.command = (range_scale * max_rot_rad) * controller->steering_value(steering_axis);
+  steer_msg.command = (range_scale * max_rot_rad) * controller->steering_value();
   steer_msg.rotation_rate = steering_max_speed * speed_based_damping;
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }

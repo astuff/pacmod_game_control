@@ -22,7 +22,7 @@ public:
   void set_controller_input(const sensor_msgs::Joy& joy_msg);
   virtual float accelerator_value();
   virtual float brake_value();
-  virtual float steering_value(JoyAxis steering_axis);
+  virtual float steering_value();
   virtual int turn_signal_cmd();
   virtual int shift_cmd();
   virtual bool horn_cmd();

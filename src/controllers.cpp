@@ -61,9 +61,9 @@ float Controller::brake_value()
   return -(input_msg_.axes[axes_[JoyAxis::LEFT_TRIGGER_AXIS]] - 1.0) / 2.0;
 }
 
-float Controller::steering_value(JoyAxis steering_axis)
+float Controller::steering_value()
 {
-  return input_msg_.axes[axes_[steering_axis]];
+  return input_msg_.axes[axes_[JoyAxis::LEFT_STICK_LR]];
 }
 
 int Controller::turn_signal_cmd()

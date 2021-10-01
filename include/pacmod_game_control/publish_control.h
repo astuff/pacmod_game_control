@@ -39,7 +39,6 @@ public:
   void callback_wiper_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
 
   // public variables
-  JoyAxis steering_axis = JoyAxis::LEFT_STICK_LR;
   float max_rot_rad = MAX_ROT_RAD_DEFAULT;
   VehicleType vehicle_type;
   GamepadType controller_type = GamepadType::LOGITECH_F310;
@@ -72,7 +71,6 @@ private:
 
   // Startup checks
   bool run_startup_checks_error();
-  bool check_steering_stick_left_right(const ros::NodeHandle& nodeH);
   bool check_vehicle_type(const ros::NodeHandle& nodeH);
   bool check_controller_type(const ros::NodeHandle& nodeH);
   bool check_scale_values(const ros::NodeHandle& nodeH);
