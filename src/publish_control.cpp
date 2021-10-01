@@ -126,7 +126,7 @@ void PublishControl::publish_steering_message()
     range_scale = 1.0;
   else
     range_scale =
-        fabs(controller->steering_value(steering_axis)) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+        fabs(controller->steering_value()) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
 
   // Decreases the angular rotation rate of the steering wheel when moving faster
   float speed_based_damping = 1.0;
@@ -150,7 +150,7 @@ void PublishControl::publish_steering_message()
     else
       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
 
-  steer_msg.command = (range_scale * max_rot_rad) * controller->steering_value(steering_axis);
+  steer_msg.command = (range_scale * max_rot_rad) * controller->steering_value();
   steer_msg.rotation_rate = steering_max_speed * speed_based_damping;
   steering_set_position_with_speed_limit_pub.publish(steer_msg);
 }

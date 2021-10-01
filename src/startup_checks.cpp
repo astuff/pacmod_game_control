@@ -20,45 +20,11 @@ bool PublishControl::run_startup_checks_error()
   ros::NodeHandle pnh("~");
 
   // Run startup checks
-  willExit = willExit || check_steering_stick_left_right(pnh);
   willExit = willExit || check_vehicle_type(pnh);
   willExit = willExit || check_controller_type(pnh);
   willExit = willExit || check_scale_values(pnh);
 
   return willExit;
-}
-
-// Check which steering stick we should use on the joypad
-bool PublishControl::check_steering_stick_left_right(const ros::NodeHandle& nodeH)
-{
-  std::string steering_stick_string;
-  bool exit = false;
-
-  if (nodeH.getParam("steering_stick", steering_stick_string))
-  {
-    ROS_INFO("Got steering_stick: %s", steering_stick_string.c_str());
-
-    if (steering_stick_string == "LEFT")
-    {
-      steering_axis = JoyAxis::LEFT_STICK_LR;
-    }
-    else if (steering_stick_string == "RIGHT")
-    {
-      steering_axis = JoyAxis::RIGHT_STICK_LR;
-    }
-    else
-    {
-      ROS_ERROR("steering_stick is invalid. Exiting.");
-      exit = true;
-    }
-  }
-  else
-  {
-    ROS_ERROR("Parameter steering_stick is missing. Exiting.");
-    exit = true;
-  }
-
-  return exit;
 }
 
 bool PublishControl::check_vehicle_type(const ros::NodeHandle& nodeH)
