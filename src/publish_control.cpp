@@ -283,19 +283,8 @@ void PublishControl::publish_brake_message()
     brake_msg.clear_override = true;
   }
 
-  float brake_value = brake_scale_val * controller->brake_value();
-  if (vehicle_type == VehicleType::LEXUS_RX_450H)
-  {
-    // These constants came from playing around in excel until stuff looked good. Seems to work okay
-    brake_msg.command = fmin(pow(brake_value, 3) * 2.0F - pow(brake_value, 2) * 1.5F + brake_value * 0.625F, 1.0F);
-  }
-  else
-  {
-    brake_msg.command = brake_value;
-  }
-
+  brake_msg.command = brake_scale_val * controller->brake_value();
   last_brake_cmd = brake_msg.command;
-
   brake_set_position_pub.publish(brake_msg);
 }
 

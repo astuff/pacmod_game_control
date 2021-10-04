@@ -1,71 +1,5 @@
 version: 2
 jobs:
-  kinetic:
-    docker:
-      - image: autonomoustuff/docker-builds:kinetic-ros-base
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            apt-get update -qq
-            source `find /opt/ros -name setup.bash | sort | head -1`
-            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
-            rosdep install --from-paths . --ignore-src -y
-            cd ..
-            catkin init
-            catkin config --extend /opt/ros/$ROS_DISTRO
-      - run:
-          name: Build
-          command: |
-            cd ..
-            catkin build
-      - run:
-          name: Lint
-          command: |
-            catkin build pacmod_game_control --no-deps --make-args roslint
-      - run:
-          name: Run Tests
-          command: |
-            source /opt/ros/kinetic/setup.bash
-            cd ..
-            catkin run_tests pacmod_game_control --no-deps
-            catkin_test_results
-    working_directory: ~/src
-
-  melodic:
-    docker:
-      - image: autonomoustuff/docker-builds:melodic-ros-base
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            apt-get update -qq
-            source `find /opt/ros -name setup.bash | sort | head -1`
-            mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
-            rosdep install --from-paths . --ignore-src -y
-            cd ..
-            catkin init
-            catkin config --extend /opt/ros/$ROS_DISTRO
-      - run:
-          name: Build
-          command: |
-            cd ..
-            catkin build
-      - run:
-          name: Lint
-          command: |
-            catkin build pacmod_game_control --no-deps --make-args roslint
-      - run:
-          name: Run Tests
-          command: |
-            source /opt/ros/melodic/setup.bash
-            cd ..
-            catkin run_tests pacmod_game_control --no-deps
-            catkin_test_results
-    working_directory: ~/src
-
   noetic:
     docker:
       - image: autonomoustuff/docker-builds:noetic-ros-base
@@ -75,7 +9,7 @@ jobs:
           name: Set Up Container
           command: |
             apt-get update -qq
-            source `find /opt/ros -name setup.bash | sort | head -1`
+            source /opt/ros/*/setup.bash
             mkdir pacmod_game_control && mv `find -maxdepth 1 -not -name . -not -name pacmod_game_control` pacmod_game_control/
             rosdep install --from-paths . --ignore-src -y
             cd ..
@@ -103,6 +37,4 @@ workflows:
   version: 2
   ros_build:
     jobs:
-      - kinetic
-      - melodic
       - noetic
