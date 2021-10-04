@@ -58,6 +58,8 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
       publish_shifting_message();
       publish_accelerator_message();
       publish_brake_message();
+      publish_lights();
+      publish_horn();
       publish_wipers();
     }
 
