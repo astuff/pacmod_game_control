@@ -26,8 +26,8 @@ void PublishControl::init()
   rear_pass_door_sub =
       n.subscribe("/pacmod/parsed_tx/rear_pass_door_rpt", 20, &PublishControl::callback_rear_pass_door_rpt, this);
 
-  lights_sub = n.subscribe("/pacmod/parsed_tx/headlight_rpt", 10, &PublishControl::callback_wiper_rpt, this);
-  horn_sub = n.subscribe("/pacmod/parsed_tx/horn_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  lights_sub = n.subscribe("/pacmod/parsed_tx/headlight_rpt", 10, &PublishControl::callback_lights_rpt, this);
+  horn_sub = n.subscribe("/pacmod/parsed_tx/horn_rpt", 10, &PublishControl::callback_horn_rpt, this);
   wiper_sub = n.subscribe("/pacmod/parsed_tx/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
 
   // Pubs
