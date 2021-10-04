@@ -20,6 +20,7 @@
 #include <pacmod_msgs/SystemCmdBool.h>
 #include <pacmod_msgs/SystemCmdFloat.h>
 #include <pacmod_msgs/SystemCmdInt.h>
+#include <pacmod_msgs/SystemRptBool.h>
 #include <pacmod_msgs/SystemRptInt.h>
 
 class PublishControl
@@ -33,6 +34,9 @@ public:
   void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
   void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
   void callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+  void callback_lights_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+  void callback_horn_rpt(const pacmod_msgs::SystemRptBool::ConstPtr& msg);
+  void callback_wiper_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
 
   // public variables
   float max_rot_rad = MAX_ROT_RAD_DEFAULT;
@@ -61,7 +65,9 @@ private:
   void publish_shifting_message();
   void publish_accelerator_message();
   void publish_brake_message();
-  void publish_lights_horn_wipers_message();
+  void publish_lights();
+  void publish_horn();
+  void publish_wipers();
 
   // Startup checks
   bool run_startup_checks_error();
@@ -91,6 +97,9 @@ private:
   ros::Subscriber shift_sub;
   ros::Subscriber turn_sub;
   ros::Subscriber rear_pass_door_sub;
+  ros::Subscriber lights_sub;
+  ros::Subscriber horn_sub;
+  ros::Subscriber wiper_sub;
 
   // state vectors
   std::vector<float> last_axes;
@@ -101,6 +110,10 @@ private:
   bool local_enable;
   bool recent_state_change;
   uint8_t state_change_debounce_count;
+
+  bool lights_api_available = false;
+  bool horn_api_available = false;
+  bool wiper_api_available = false;
 
   // mutex
   std::mutex enable_mutex;

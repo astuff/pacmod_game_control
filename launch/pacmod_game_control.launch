@@ -29,10 +29,10 @@
   <!-- 4.71239 is fast but jerky. Speed in rad/sec.-->
   <arg name="steering_max_speed" default="3.3"/>
 
-  <!-- Scales raw joystick input -->
+  <!-- Scales accel commands, useful for decreasing sensitivity -->
   <arg name="accel_scale_val" default="1.0"/>
 
-  <!-- Scales raw joystick input -->
+  <!-- Scales brake commands, useful for decreasing sensitivity -->
   <arg name="brake_scale_val" default="1.0"/>
 
   <!-- For GEM, 11.176m/s -->
