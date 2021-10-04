@@ -35,7 +35,6 @@ public:
   void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
   void callback_shift_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
   void callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
-  void callback_rear_pass_door_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
   void callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
   void callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg);
   void callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
@@ -57,7 +56,6 @@ public:
   int wiper_state = 0;
   int last_shift_cmd = 0;
   int turn_signal_rpt = pacmod3_msgs::SystemRptInt::TURN_NONE;
-  int last_rear_pass_door_cmd = 0;
   float last_brake_cmd = 0.0;
 
 private:
@@ -82,7 +80,6 @@ private:
 
   // ROS publishers
   ros::Publisher turn_signal_cmd_pub;
-  ros::Publisher rear_pass_door_cmd_pub;
   ros::Publisher headlight_cmd_pub;
   ros::Publisher horn_cmd_pub;
   ros::Publisher wiper_cmd_pub;
@@ -98,7 +95,6 @@ private:
   ros::Subscriber enable_sub;
   ros::Subscriber shift_sub;
   ros::Subscriber turn_sub;
-  ros::Subscriber rear_pass_door_sub;
   ros::Subscriber lights_sub;
   ros::Subscriber horn_sub;
   ros::Subscriber wiper_sub;

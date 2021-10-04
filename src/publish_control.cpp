@@ -20,29 +20,24 @@ void PublishControl::init()
 
   // Subs
   joy_sub = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
-  speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed, this);
-
-  enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, &PublishControl::callback_pacmod_enable, this);
-  shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControl::callback_shift_rpt, this);
-  turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControl::callback_turn_rpt, this);
-  rear_pass_door_sub =
-      n.subscribe("/pacmod/parsed_tx/rear_pass_door_rpt", 20, &PublishControl::callback_rear_pass_door_rpt, this);
-
-  lights_sub = n.subscribe("/pacmod/parsed_tx/headlight_rpt", 10, &PublishControl::callback_wiper_rpt, this);
-  horn_sub = n.subscribe("/pacmod/parsed_tx/horn_rpt", 10, &PublishControl::callback_wiper_rpt, this);
-  wiper_sub = n.subscribe("/pacmod/parsed_tx/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  speed_sub = n.subscribe("pacmod/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed, this);
+  enable_sub = n.subscribe("pacmod/enabled", 20, &PublishControl::callback_pacmod_enable, this);
+  shift_sub = n.subscribe("pacmod/shift_rpt", 20, &PublishControl::callback_shift_rpt, this);
+  turn_sub = n.subscribe("pacmod/turn_rpt", 20, &PublishControl::callback_turn_rpt, this);
+  lights_sub = n.subscribe("pacmod/headlight_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  horn_sub = n.subscribe("pacmod/horn_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  wiper_sub = n.subscribe("pacmod/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
 
   // Pubs
-  enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
-  turn_signal_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
-  rear_pass_door_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("/pacmod/as_rx/rear_pass_door_cmd", 20);
-  headlight_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
-  horn_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdBool>("/pacmod/as_rx/horn_cmd", 20);
-  wiper_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("/pacmod/as_rx/wiper_cmd", 20);
-  shift_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("/pacmod/as_rx/shift_cmd", 20);
-  accelerator_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
-  steering_set_position_with_speed_limit_pub = n.advertise<pacmod3_msgs::SteeringCmd>("/pacmod/as_rx/steer_cmd", 20);
-  brake_set_position_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
+  enable_pub = n.advertise<std_msgs::Bool>("pacmod/enable", 20);
+  turn_signal_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
+  headlight_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
+  horn_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
+  wiper_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
+  shift_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
+  accelerator_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
+  steering_set_position_with_speed_limit_pub = n.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steer_cmd", 20);
+  brake_set_position_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
 }
 
 void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
@@ -102,12 +97,6 @@ void PublishControl::callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPt
 {
   std::unique_lock<std::mutex> lock(turn_mutex);
   turn_signal_rpt = msg->output;
-}
-
-void PublishControl::callback_rear_pass_door_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
-{
-  std::unique_lock<std::mutex> lock(rear_pass_door_mutex);
-  last_rear_pass_door_cmd = msg->output;
 }
 
 void PublishControl::callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
