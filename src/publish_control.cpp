@@ -24,8 +24,8 @@ void PublishControl::init()
   enable_sub = n.subscribe("pacmod/enabled", 20, &PublishControl::callback_pacmod_enable, this);
   shift_sub = n.subscribe("pacmod/shift_rpt", 20, &PublishControl::callback_shift_rpt, this);
   turn_sub = n.subscribe("pacmod/turn_rpt", 20, &PublishControl::callback_turn_rpt, this);
-  lights_sub = n.subscribe("pacmod/headlight_rpt", 10, &PublishControl::callback_wiper_rpt, this);
-  horn_sub = n.subscribe("pacmod/horn_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  lights_sub = n.subscribe("pacmod/headlight_rpt", 10, &PublishControl::callback_lights_rpt, this);
+  horn_sub = n.subscribe("pacmod/horn_rpt", 10, &PublishControl::callback_horn_rpt, this);
   wiper_sub = n.subscribe("pacmod/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
 
   // Pubs
@@ -36,7 +36,7 @@ void PublishControl::init()
   wiper_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
   shift_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
   accelerator_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
-  steering_set_position_with_speed_limit_pub = n.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steer_cmd", 20);
+  steering_set_position_with_speed_limit_pub = n.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steering_cmd", 20);
   brake_set_position_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
 }
 
