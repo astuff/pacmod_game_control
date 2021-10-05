@@ -116,15 +116,14 @@ private:
 
   std::unique_ptr<controllers::Controller> controller_;
   bool local_enable_;
-  bool recent_state_change_;
-  uint8_t state_change_debounce_count_;
 
   bool lights_api_available_ = false;
   bool horn_api_available_ = false;
   bool wiper_api_available_ = false;
 
-  float max_rot_rad_ = MAX_ROT_RAD_DEFAULT;
   VehicleType vehicle_type_;
+  float max_rot_rad_ = MAX_ROT_RAD_DEFAULT;
+
   float max_veh_speed_ = std::numeric_limits<float>::quiet_NaN();
   float accel_scale_val_ = 1.0;
   float brake_scale_val_ = 1.0;
@@ -137,7 +136,6 @@ private:
   int wiper_state_ = 0;
   int shift_rpt_ = 0;
   int turn_signal_rpt_ = pacmod3_msgs::SystemRptInt::TURN_NONE;
-  int last_rear_pass_door_cmd_ = 0;
   float last_brake_cmd_ = 0.0;
 
   // mutex

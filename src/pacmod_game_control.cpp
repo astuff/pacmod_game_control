@@ -100,20 +100,29 @@ void GameControl::callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& 
 
 void GameControl::callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
-  lights_api_available_ = true;
-  ROS_INFO("Headlights API detected");
+  if (!lights_api_available_)
+  {
+    lights_api_available_ = true;
+    ROS_INFO("Headlights API detected");
+  }
 }
 
 void GameControl::callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
 {
-  horn_api_available_ = true;
-  ROS_INFO("Horn API detected");
+  if (!horn_api_available_)
+  {
+    horn_api_available_ = true;
+    ROS_INFO("Horn API detected");
+  }
 }
 
 void GameControl::callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
-  wiper_api_available_ = true;
-  ROS_INFO("Wiper API detected");
+  if (!wiper_api_available_)
+  {
+    wiper_api_available_ = true;
+    ROS_INFO("Wiper API detected");
+  }
 }
 
 // Publishing
@@ -184,12 +193,8 @@ void GameControl::publish_turn_signal_message()
   int turn_signal_cmd = controller_->turn_signal_cmd();
 
   if (local_enable_ != prev_enable_)
-  {
-    // TODO(icolwell-as): What is special about vehicle 6?
-    if (vehicle_type_ == VehicleType::VEHICLE_6)
-      turn_signal_cmd = pacmod3_msgs::SystemCmdInt::TURN_NONE;
-    else
-      turn_signal_cmd = turn_signal_rpt_;
+{
+    turn_signal_cmd = turn_signal_rpt_;
   }
 
   // Only publish if we are requesting a different turn signal than is currently active, or we just engaged and need to
