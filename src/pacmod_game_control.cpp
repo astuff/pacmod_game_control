@@ -49,7 +49,8 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     check_is_enabled();
 
     // if (local_enable_ == true || local_enable_ != prev_enable_)
-    if (pacmod_enabled_rpt_ == true || pacmod_enabled_rpt_ != prev_pacmod_enabled_rpt_)
+    // if (pacmod_enabled_rpt_ == true || pacmod_enabled_rpt_ != prev_pacmod_enabled_rpt_)
+    if (pacmod_enabled_rpt_ || enable_cmd_)
     {
       // publish_steering_message();
       // publish_turn_signal_message();
@@ -191,7 +192,7 @@ void GameControl::publish_steering_message()
 {
   pacmod3_msgs::SteeringCmd steer_msg;
 
-  steer_msg.enable = local_enable_;
+  steer_msg.enable = enable_cmd_;
   steer_msg.clear_override = clear_override_cmd_;
   steer_msg.ignore_overrides = false;
 
@@ -233,7 +234,7 @@ void GameControl::publish_turn_signal_message()
 {
   pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
 
-  turn_signal_cmd_pub_msg.enable = local_enable_;
+  turn_signal_cmd_pub_msg.enable = enable_cmd_;
   turn_signal_cmd_pub_msg.clear_override = clear_override_cmd_;
   turn_signal_cmd_pub_msg.ignore_overrides = false;
 
@@ -259,7 +260,7 @@ void GameControl::publish_shifting_message()
   if (last_brake_cmd_ > 0.25)
   {
     pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable_;
+    shift_cmd_pub_msg.enable = enable_cmd_;
     shift_cmd_pub_msg.clear_override = clear_override_cmd_;
     shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -276,7 +277,7 @@ void GameControl::publish_shifting_message()
   else if (clear_override_cmd_)  // If only an enable/disable button was pressed
   {
     pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = local_enable_;
+    shift_cmd_pub_msg.enable = enable_cmd_;
     shift_cmd_pub_msg.clear_override = clear_override_cmd_;
     shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -289,7 +290,7 @@ void GameControl::publish_accelerator_message()
 {
   pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
 
-  accelerator_cmd_pub_msg.enable = local_enable_;
+  accelerator_cmd_pub_msg.enable = enable_cmd_;
   accelerator_cmd_pub_msg.clear_override = clear_override_cmd_;
   accelerator_cmd_pub_msg.ignore_overrides = false;
 
@@ -310,7 +311,7 @@ void GameControl::publish_brake_message()
 {
   pacmod3_msgs::SystemCmdFloat brake_msg;
 
-  brake_msg.enable = local_enable_;
+  brake_msg.enable = enable_cmd_;
   brake_msg.clear_override = clear_override_cmd_;
   brake_msg.ignore_overrides = false;
 
@@ -327,7 +328,7 @@ void GameControl::publish_lights()
   }
 
   pacmod3_msgs::SystemCmdInt headlight_cmd_pub_msg;
-  headlight_cmd_pub_msg.enable = local_enable_;
+  headlight_cmd_pub_msg.enable = enable_cmd_;
   headlight_cmd_pub_msg.clear_override = clear_override_cmd_;
   headlight_cmd_pub_msg.ignore_overrides = false;
 
@@ -359,7 +360,7 @@ void GameControl::publish_horn()
   }
 
   pacmod3_msgs::SystemCmdBool horn_cmd_pub_msg;
-  horn_cmd_pub_msg.enable = local_enable_;
+  horn_cmd_pub_msg.enable = enable_cmd_;
   horn_cmd_pub_msg.clear_override = clear_override_cmd_;
   horn_cmd_pub_msg.ignore_overrides = false;
 
@@ -375,7 +376,7 @@ void GameControl::publish_wipers()
   }
 
   pacmod3_msgs::SystemCmdInt wiper_cmd_pub_msg;
-  wiper_cmd_pub_msg.enable = local_enable_;
+  wiper_cmd_pub_msg.enable = enable_cmd_;
   wiper_cmd_pub_msg.clear_override = clear_override_cmd_;
   wiper_cmd_pub_msg.ignore_overrides = false;
 
