@@ -28,8 +28,10 @@
 class PublishControl
 {
 public:
-  // public functions
   void init();
+
+private:
+  // Subscriber callbacks
   void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
   void callback_veh_speed(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg);
   void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
@@ -39,27 +41,7 @@ public:
   void callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg);
   void callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
 
-  // public variables
-  float max_rot_rad = MAX_ROT_RAD_DEFAULT;
-  VehicleType vehicle_type;
-  GamepadType controller_type = GamepadType::LOGITECH_F310;
-  float max_veh_speed = std::numeric_limits<float>::quiet_NaN();
-  float accel_scale_val = 1.0;
-  float brake_scale_val = 1.0;
-  float steering_max_speed = std::numeric_limits<float>::quiet_NaN();
-  pacmod3_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
-  bool pacmod_enable = false;
-  bool prev_enable = false;
-  bool last_pacmod_state = false;
-  int headlight_state = 0;
-  bool headlight_state_change = false;
-  int wiper_state = 0;
-  int last_shift_cmd = 0;
-  int turn_signal_rpt = pacmod3_msgs::SystemRptInt::TURN_NONE;
-  float last_brake_cmd = 0.0;
-
-private:
-  void check_is_enabled();
+  // Command publishing
   void publish_steering_message();
   void publish_turn_signal_message();
   void publish_shifting_message();
@@ -68,6 +50,8 @@ private:
   void publish_lights();
   void publish_horn();
   void publish_wipers();
+
+  void check_is_enabled();
 
   // Startup checks
   bool run_startup_checks_error();
@@ -79,39 +63,53 @@ private:
   ros::NodeHandle n;
 
   // ROS publishers
-  ros::Publisher turn_signal_cmd_pub;
-  ros::Publisher headlight_cmd_pub;
-  ros::Publisher horn_cmd_pub;
-  ros::Publisher wiper_cmd_pub;
-  ros::Publisher shift_cmd_pub;
-  ros::Publisher accelerator_cmd_pub;
-  ros::Publisher steering_set_position_with_speed_limit_pub;
-  ros::Publisher brake_set_position_pub;
-  ros::Publisher enable_pub;
+  ros::Publisher turn_signal_cmd_pub_;
+  ros::Publisher headlight_cmd_pub_;
+  ros::Publisher horn_cmd_pub_;
+  ros::Publisher wiper_cmd_pub_;
+  ros::Publisher shift_cmd_pub_;
+  ros::Publisher accelerator_cmd_pub_;
+  ros::Publisher steering_cmd_pub_;
+  ros::Publisher brake_cmd_pub_;
+  ros::Publisher enable_pub_;
 
   // ROS subscribers
-  ros::Subscriber joy_sub;
-  ros::Subscriber speed_sub;
-  ros::Subscriber enable_sub;
-  ros::Subscriber shift_sub;
-  ros::Subscriber turn_sub;
-  ros::Subscriber lights_sub;
-  ros::Subscriber horn_sub;
-  ros::Subscriber wiper_sub;
+  ros::Subscriber joy_sub_;
+  ros::Subscriber speed_sub_;
+  ros::Subscriber enable_sub_;
+  ros::Subscriber shift_sub_;
+  ros::Subscriber turn_sub_;
+  ros::Subscriber lights_sub_;
+  ros::Subscriber horn_sub_;
+  ros::Subscriber wiper_sub_;
 
-  // state vectors
-  std::vector<float> last_axes;
-  std::vector<int> last_buttons;
+  std::unique_ptr<Controller> controller_;
+  bool local_enable_;
+  bool recent_state_change_;
+  uint8_t state_change_debounce_count_;
 
-  // Other Variables
-  std::unique_ptr<Controller> controller;
-  bool local_enable;
-  bool recent_state_change;
-  uint8_t state_change_debounce_count;
+  bool lights_api_available_ = false;
+  bool horn_api_available_ = false;
+  bool wiper_api_available_ = false;
 
-  bool lights_api_available = false;
-  bool horn_api_available = false;
-  bool wiper_api_available = false;
+  float max_rot_rad_ = MAX_ROT_RAD_DEFAULT;
+  VehicleType vehicle_type_;
+  GamepadType controller_type_ = GamepadType::LOGITECH_F310;
+  float max_veh_speed_ = std::numeric_limits<float>::quiet_NaN();
+  float accel_scale_val_ = 1.0;
+  float brake_scale_val_ = 1.0;
+  float steering_max_speed_ = std::numeric_limits<float>::quiet_NaN();
+  pacmod3_msgs::VehicleSpeedRpt::ConstPtr veh_speed_rpt_ = NULL;
+  bool pacmod_enable_ = false;
+  bool prev_enable_ = false;
+  bool last_pacmod_state_ = false;
+  int headlight_state_ = 0;
+  bool headlight_button_pressed_ = false;
+  int wiper_state_ = 0;
+  int shift_rpt_ = 0;
+  int turn_signal_rpt_ = pacmod3_msgs::SystemRptInt::TURN_NONE;
+  int last_rear_pass_door_cmd_ = 0;
+  float last_brake_cmd_ = 0.0;
 
   // mutex
   std::mutex enable_mutex;
