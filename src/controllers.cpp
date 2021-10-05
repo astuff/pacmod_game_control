@@ -145,7 +145,7 @@ bool Controller::enable()
 bool Controller::disable()
 {
   return (input_msg_.buttons[btns_[JoyButton::BACK_SELECT_MINUS]] == BUTTON_PRESSED &&
-          input_msg_.buttons[btns_[JoyButton::START_PLUS]] != BUTTON_PRESSED);
+          input_msg_.buttons[btns_[JoyButton::START_PLUS]] == BUTTON_DEPRESSED);
 }
 
 // --- Logitech G29, racing wheel with pedals

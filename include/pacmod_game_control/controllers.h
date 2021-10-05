@@ -15,7 +15,7 @@
 namespace controllers
 {
 const uint16_t BUTTON_PRESSED = 1;
-const uint16_t BUTTON_DEPRESSED = 1;
+const uint16_t BUTTON_DEPRESSED = 0;
 const float AXES_MIN = -1.0;
 const float AXES_MAX = 1.0;
 
