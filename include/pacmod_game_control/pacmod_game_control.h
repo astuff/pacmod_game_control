@@ -5,8 +5,8 @@
  * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
  */
 
-#ifndef PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
-#define PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
+#ifndef PACMOD_GAME_CONTROL_PACMOD_GAME_CONTROL_H
+#define PACMOD_GAME_CONTROL_PACMOD_GAME_CONTROL_H
 
 #include "pacmod_game_control/controllers.h"
 
@@ -134,4 +134,4 @@ private:
   pacmod3_msgs::VehicleSpeedRpt::ConstPtr veh_speed_rpt_ = NULL;
 };
 
-#endif  // PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
+#endif  // PACMOD_GAME_CONTROL_PACMOD_GAME_CONTROL_H

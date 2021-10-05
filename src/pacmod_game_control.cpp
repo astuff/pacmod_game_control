@@ -139,8 +139,7 @@ void GameControl::PublishSteering()
   float range_scale;
   if (vehicle_type_ == VehicleType::POLARIS_GEM)
   {
-    range_scale =
-        fabs(controller_->steering_value()) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
+    range_scale = fabs(controller_->steering_value()) * (STEER_OFFSET - ROT_RANGE_SCALER_LB) + ROT_RANGE_SCALER_LB;
   }
   else
   {
@@ -318,5 +317,3 @@ void GameControl::PublishWipers()
 
   wiper_cmd_pub_.publish(wiper_cmd_pub_msg);
 }
-
-

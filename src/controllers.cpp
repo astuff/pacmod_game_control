@@ -11,7 +11,6 @@
 
 namespace controllers
 {
-
 // --- Generic gamepad controller (Logitech F310, XBOX)
 Controller::Controller()
 {
@@ -127,14 +126,14 @@ bool Controller::headlight_change()
 {
   // Up on directional pad. Only register a change when changing from depressed to pressed.
   return (prev_input_msg_.axes[axes_[JoyAxis::DPAD_UD]] < AXES_MAX &&
-    input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MAX);
+          input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MAX);
 }
 
 bool Controller::wiper_change()
 {
   // Only register a change when changing from depressed to pressed.
   return (prev_input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_DEPRESSED &&
-    input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_PRESSED);
+          input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_PRESSED);
 }
 
 bool Controller::enable()
@@ -272,4 +271,4 @@ bool HriSafeController::disable()
   return (input_msg_.axes[axes_[JoyAxis::DPAD_LR]] >= 0.9);
 }
 
-} // namespace controllers
+}  // namespace controllers

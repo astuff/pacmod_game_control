@@ -14,7 +14,6 @@
 
 namespace controllers
 {
-
 const uint16_t BUTTON_PRESSED = 1;
 const uint16_t BUTTON_DEPRESSED = 1;
 const float AXES_MIN = -1.0;
@@ -102,6 +101,6 @@ public:
   bool disable() override;
 };
 
-} // namespace controllers
+}  // namespace controllers
 
 #endif  // PACMOD_GAME_CONTROL_CONTROLLERS_H
