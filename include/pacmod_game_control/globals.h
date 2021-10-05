@@ -12,11 +12,6 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <ros/ros.h>
-#include <sensor_msgs/Joy.h>
-#include <std_msgs/Bool.h>
-#include <pacmod_msgs/VehicleSpeedRpt.h>
-
 enum class GamepadType
 {
   LOGITECH_F310,

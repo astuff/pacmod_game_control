@@ -16,12 +16,14 @@
 #include <vector>
 #include <unordered_map>
 
-#include <pacmod_msgs/SteerSystemCmd.h>
-#include <pacmod_msgs/SystemCmdBool.h>
-#include <pacmod_msgs/SystemCmdFloat.h>
-#include <pacmod_msgs/SystemCmdInt.h>
-#include <pacmod_msgs/SystemRptBool.h>
-#include <pacmod_msgs/SystemRptInt.h>
+#include <ros/ros.h>
+#include <pacmod3_msgs/SystemCmdBool.h>
+#include <pacmod3_msgs/SystemCmdFloat.h>
+#include <pacmod3_msgs/SystemCmdInt.h>
+#include <pacmod3_msgs/SystemRptBool.h>
+#include <pacmod3_msgs/SystemRptInt.h>
+#include <pacmod3_msgs/VehicleSpeedRpt.h>
+#include <std_msgs/Bool.h>
 
 class PublishControl
 {
@@ -29,14 +31,13 @@ public:
   // public functions
   void init();
   void callback_control(const sensor_msgs::Joy::ConstPtr& msg);
-  void callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg);
+  void callback_veh_speed(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg);
   void callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg);
-  void callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
-  void callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
-  void callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
-  void callback_lights_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
-  void callback_horn_rpt(const pacmod_msgs::SystemRptBool::ConstPtr& msg);
-  void callback_wiper_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg);
+  void callback_shift_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
+  void callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
+  void callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
+  void callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg);
+  void callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
 
   // public variables
   float max_rot_rad = MAX_ROT_RAD_DEFAULT;
@@ -46,7 +47,7 @@ public:
   float accel_scale_val = 1.0;
   float brake_scale_val = 1.0;
   float steering_max_speed = std::numeric_limits<float>::quiet_NaN();
-  pacmod_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
+  pacmod3_msgs::VehicleSpeedRpt::ConstPtr last_speed_rpt = NULL;
   bool pacmod_enable = false;
   bool prev_enable = false;
   bool last_pacmod_state = false;
@@ -54,8 +55,7 @@ public:
   bool headlight_state_change = false;
   int wiper_state = 0;
   int last_shift_cmd = 0;
-  int turn_signal_rpt = pacmod_msgs::SystemRptInt::TURN_NONE;
-  int last_rear_pass_door_cmd = 0;
+  int turn_signal_rpt = pacmod3_msgs::SystemRptInt::TURN_NONE;
   float last_brake_cmd = 0.0;
 
 private:
@@ -80,7 +80,6 @@ private:
 
   // ROS publishers
   ros::Publisher turn_signal_cmd_pub;
-  ros::Publisher rear_pass_door_cmd_pub;
   ros::Publisher headlight_cmd_pub;
   ros::Publisher horn_cmd_pub;
   ros::Publisher wiper_cmd_pub;
@@ -96,7 +95,6 @@ private:
   ros::Subscriber enable_sub;
   ros::Subscriber shift_sub;
   ros::Subscriber turn_sub;
-  ros::Subscriber rear_pass_door_sub;
   ros::Subscriber lights_sub;
   ros::Subscriber horn_sub;
   ros::Subscriber wiper_sub;

@@ -9,6 +9,8 @@
 
 #include <unordered_map>
 
+#include <pacmod3_msgs/SteeringCmd.h>
+
 void PublishControl::init()
 {
   if (run_startup_checks_error())
@@ -18,29 +20,24 @@ void PublishControl::init()
 
   // Subs
   joy_sub = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
-  speed_sub = n.subscribe("/pacmod/parsed_tx/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed, this);
-
-  enable_sub = n.subscribe("/pacmod/as_tx/enabled", 20, &PublishControl::callback_pacmod_enable, this);
-  shift_sub = n.subscribe("/pacmod/parsed_tx/shift_rpt", 20, &PublishControl::callback_shift_rpt, this);
-  turn_sub = n.subscribe("/pacmod/parsed_tx/turn_rpt", 20, &PublishControl::callback_turn_rpt, this);
-  rear_pass_door_sub =
-      n.subscribe("/pacmod/parsed_tx/rear_pass_door_rpt", 20, &PublishControl::callback_rear_pass_door_rpt, this);
-
-  lights_sub = n.subscribe("/pacmod/parsed_tx/headlight_rpt", 10, &PublishControl::callback_lights_rpt, this);
-  horn_sub = n.subscribe("/pacmod/parsed_tx/horn_rpt", 10, &PublishControl::callback_horn_rpt, this);
-  wiper_sub = n.subscribe("/pacmod/parsed_tx/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  speed_sub = n.subscribe("pacmod/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed, this);
+  enable_sub = n.subscribe("pacmod/enabled", 20, &PublishControl::callback_pacmod_enable, this);
+  shift_sub = n.subscribe("pacmod/shift_rpt", 20, &PublishControl::callback_shift_rpt, this);
+  turn_sub = n.subscribe("pacmod/turn_rpt", 20, &PublishControl::callback_turn_rpt, this);
+  lights_sub = n.subscribe("pacmod/headlight_rpt", 10, &PublishControl::callback_lights_rpt, this);
+  horn_sub = n.subscribe("pacmod/horn_rpt", 10, &PublishControl::callback_horn_rpt, this);
+  wiper_sub = n.subscribe("pacmod/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
 
   // Pubs
-  enable_pub = n.advertise<std_msgs::Bool>("/pacmod/as_rx/enable", 20);
-  turn_signal_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/turn_cmd", 20);
-  rear_pass_door_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/rear_pass_door_cmd", 20);
-  headlight_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/headlight_cmd", 20);
-  horn_cmd_pub = n.advertise<pacmod_msgs::SystemCmdBool>("/pacmod/as_rx/horn_cmd", 20);
-  wiper_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/wiper_cmd", 20);
-  shift_cmd_pub = n.advertise<pacmod_msgs::SystemCmdInt>("/pacmod/as_rx/shift_cmd", 20);
-  accelerator_cmd_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/accel_cmd", 20);
-  steering_set_position_with_speed_limit_pub = n.advertise<pacmod_msgs::SteerSystemCmd>("/pacmod/as_rx/steer_cmd", 20);
-  brake_set_position_pub = n.advertise<pacmod_msgs::SystemCmdFloat>("/pacmod/as_rx/brake_cmd", 20);
+  enable_pub = n.advertise<std_msgs::Bool>("pacmod/enable", 20);
+  turn_signal_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
+  headlight_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
+  horn_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
+  wiper_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
+  shift_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
+  accelerator_cmd_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
+  steering_set_position_with_speed_limit_pub = n.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steering_cmd", 20);
+  brake_set_position_pub = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
 }
 
 void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
@@ -86,43 +83,37 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 }
 
 // Feedback callbacks
-void PublishControl::callback_veh_speed(const pacmod_msgs::VehicleSpeedRpt::ConstPtr& msg)
+void PublishControl::callback_veh_speed(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock(speed_mutex);
   last_speed_rpt = msg;
 }
 
-void PublishControl::callback_shift_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+void PublishControl::callback_shift_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock(shift_mutex);
   last_shift_cmd = msg->output;
 }
 
-void PublishControl::callback_turn_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+void PublishControl::callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock(turn_mutex);
   turn_signal_rpt = msg->output;
 }
 
-void PublishControl::callback_rear_pass_door_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
-{
-  std::unique_lock<std::mutex> lock(rear_pass_door_mutex);
-  last_rear_pass_door_cmd = msg->output;
-}
-
-void PublishControl::callback_lights_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+void PublishControl::callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   lights_api_available = true;
   ROS_INFO("Headlights API detected");
 }
 
-void PublishControl::callback_horn_rpt(const pacmod_msgs::SystemRptBool::ConstPtr& msg)
+void PublishControl::callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
 {
   horn_api_available = true;
   ROS_INFO("Horn API detected");
 }
 
-void PublishControl::callback_wiper_rpt(const pacmod_msgs::SystemRptInt::ConstPtr& msg)
+void PublishControl::callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   wiper_api_available = true;
   ROS_INFO("Wiper API detected");
@@ -131,16 +122,15 @@ void PublishControl::callback_wiper_rpt(const pacmod_msgs::SystemRptInt::ConstPt
 // Publishing
 void PublishControl::publish_steering_message()
 {
-  pacmod_msgs::SteerSystemCmd steer_msg;
+  pacmod3_msgs::SteeringCmd steer_msg;
 
   steer_msg.enable = local_enable;
   steer_msg.ignore_overrides = false;
 
-  // If the enable flag just went to true, send an override clear and clear_faults
+  // If the enable flag just went to true, send an override clear
   if (!prev_enable && local_enable)
   {
     steer_msg.clear_override = true;
-    steer_msg.clear_faults = true;
   }
 
   float range_scale;
@@ -183,7 +173,7 @@ void PublishControl::publish_steering_message()
 
 void PublishControl::publish_turn_signal_message()
 {
-  pacmod_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
+  pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
 
   turn_signal_cmd_pub_msg.enable = local_enable;
   turn_signal_cmd_pub_msg.ignore_overrides = false;
@@ -192,7 +182,6 @@ void PublishControl::publish_turn_signal_message()
   if (!prev_enable && local_enable)
   {
     turn_signal_cmd_pub_msg.clear_override = true;
-    turn_signal_cmd_pub_msg.clear_faults = true;
   }
 
   int turn_signal_cmd = controller->turn_signal_cmd();
@@ -201,7 +190,7 @@ void PublishControl::publish_turn_signal_message()
   {
     // TODO(icolwell-as): What is special about vehicle 6?
     if (vehicle_type == VehicleType::VEHICLE_6)
-      turn_signal_cmd = pacmod_msgs::SystemCmdInt::TURN_NONE;
+      turn_signal_cmd = pacmod3_msgs::SystemCmdInt::TURN_NONE;
     else
       turn_signal_cmd = turn_signal_rpt;
   }
@@ -220,7 +209,7 @@ void PublishControl::publish_shifting_message()
   // Only shift if brake command is higher than 25%
   if (last_brake_cmd > 0.25)
   {
-    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+    pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -228,7 +217,6 @@ void PublishControl::publish_shifting_message()
     if (!prev_enable && local_enable)
     {
       shift_cmd_pub_msg.clear_override = true;
-      shift_cmd_pub_msg.clear_faults = true;
     }
 
     int shift_cmd = controller->shift_cmd();
@@ -243,7 +231,7 @@ void PublishControl::publish_shifting_message()
   }
   else if (local_enable != prev_enable)  // If only an enable/disable button was pressed
   {
-    pacmod_msgs::SystemCmdInt shift_cmd_pub_msg;
+    pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable;
     shift_cmd_pub_msg.ignore_overrides = false;
 
@@ -251,7 +239,6 @@ void PublishControl::publish_shifting_message()
     if (!prev_enable && local_enable)
     {
       shift_cmd_pub_msg.clear_override = true;
-      shift_cmd_pub_msg.clear_faults = true;
     }
 
     shift_cmd_pub_msg.command = last_shift_cmd;
@@ -261,7 +248,7 @@ void PublishControl::publish_shifting_message()
 
 void PublishControl::publish_accelerator_message()
 {
-  pacmod_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
+  pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
 
   accelerator_cmd_pub_msg.enable = local_enable;
   accelerator_cmd_pub_msg.ignore_overrides = false;
@@ -270,7 +257,6 @@ void PublishControl::publish_accelerator_message()
   if (!prev_enable && local_enable)
   {
     accelerator_cmd_pub_msg.clear_override = true;
-    accelerator_cmd_pub_msg.clear_faults = true;
   }
 
   if (vehicle_type == VehicleType::POLARIS_GEM)
@@ -288,7 +274,7 @@ void PublishControl::publish_accelerator_message()
 
 void PublishControl::publish_brake_message()
 {
-  pacmod_msgs::SystemCmdFloat brake_msg;
+  pacmod3_msgs::SystemCmdFloat brake_msg;
 
   brake_msg.enable = local_enable;
   brake_msg.ignore_overrides = false;
@@ -297,22 +283,10 @@ void PublishControl::publish_brake_message()
   if (!prev_enable && local_enable)
   {
     brake_msg.clear_override = true;
-    brake_msg.clear_faults = true;
   }
 
-  float brake_value = brake_scale_val * controller->brake_value();
-  if (vehicle_type == VehicleType::LEXUS_RX_450H)
-  {
-    // These constants came from playing around in excel until stuff looked good. Seems to work okay
-    brake_msg.command = fmin(pow(brake_value, 3) * 2.0F - pow(brake_value, 2) * 1.5F + brake_value * 0.625F, 1.0F);
-  }
-  else
-  {
-    brake_msg.command = brake_value;
-  }
-
+  brake_msg.command = brake_scale_val * controller->brake_value();
   last_brake_cmd = brake_msg.command;
-
   brake_set_position_pub.publish(brake_msg);
 }
 
@@ -323,7 +297,7 @@ void PublishControl::publish_lights()
     return;
   }
 
-  pacmod_msgs::SystemCmdInt headlight_cmd_pub_msg;
+  pacmod3_msgs::SystemCmdInt headlight_cmd_pub_msg;
   headlight_cmd_pub_msg.enable = local_enable;
   headlight_cmd_pub_msg.ignore_overrides = false;
 
@@ -355,7 +329,6 @@ void PublishControl::publish_lights()
     if (!prev_enable && local_enable)
     {
       headlight_cmd_pub_msg.clear_override = true;
-      headlight_cmd_pub_msg.clear_faults = true;
       headlight_state = HEADLIGHT_STATE_START_VALUE;
     }
   }
@@ -375,7 +348,7 @@ void PublishControl::publish_horn()
     return;
   }
 
-  pacmod_msgs::SystemCmdBool horn_cmd_pub_msg;
+  pacmod3_msgs::SystemCmdBool horn_cmd_pub_msg;
   horn_cmd_pub_msg.enable = local_enable;
   horn_cmd_pub_msg.ignore_overrides = false;
 
@@ -383,7 +356,6 @@ void PublishControl::publish_horn()
   if (!prev_enable && local_enable)
   {
     horn_cmd_pub_msg.clear_override = true;
-    horn_cmd_pub_msg.clear_faults = true;
   }
 
   horn_cmd_pub_msg.command = controller->horn_cmd();
@@ -397,7 +369,7 @@ void PublishControl::publish_wipers()
     return;
   }
 
-  pacmod_msgs::SystemCmdInt wiper_cmd_pub_msg;
+  pacmod3_msgs::SystemCmdInt wiper_cmd_pub_msg;
   wiper_cmd_pub_msg.enable = local_enable;
   wiper_cmd_pub_msg.ignore_overrides = false;
 
@@ -413,7 +385,6 @@ void PublishControl::publish_wipers()
     if (!prev_enable && local_enable)
     {
       wiper_cmd_pub_msg.clear_override = true;
-      wiper_cmd_pub_msg.clear_faults = true;
       PublishControl::wiper_state = WIPER_STATE_START_VALUE;
     }
 

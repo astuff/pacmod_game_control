@@ -8,14 +8,14 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   sensor_msgs
-  pacmod_msgs
+  pacmod3_msgs
   joy
 )
 
 catkin_package(CATKIN_DEPENDS
   std_msgs
   sensor_msgs
-  pacmod_msgs
+  pacmod3_msgs
   joy
 )
 
