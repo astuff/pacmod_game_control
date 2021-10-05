@@ -106,6 +106,8 @@ private:
   ros::Subscriber horn_sub_;
   ros::Subscriber wiper_sub_;
 
+  ros::NodeHandle nh_;
+
   std::unique_ptr<controllers::Controller> controller_ = nullptr;
 
   bool lights_api_available_ = false;

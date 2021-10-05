@@ -18,26 +18,24 @@ void GameControl::Init()
     ros::shutdown();
   }
 
-  ros::NodeHandle nh;
-
   // Pubs
-  enable_pub_ = nh.advertise<std_msgs::Bool>("pacmod/enable", 20);
-  turn_signal_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
-  headlight_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
-  horn_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
-  wiper_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
-  shift_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
-  accelerator_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
-  steering_cmd_pub_ = nh.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steering_cmd", 20);
-  brake_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
+  enable_pub_ = nh_.advertise<std_msgs::Bool>("pacmod/enable", 20);
+  turn_signal_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
+  headlight_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
+  horn_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
+  wiper_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
+  shift_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
+  accelerator_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
+  steering_cmd_pub_ = nh_.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steering_cmd", 20);
+  brake_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
 
   // Subs
-  joy_sub_ = nh.subscribe("joy", 1000, &GameControl::GamepadCb, this);
-  speed_sub_ = nh.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::VehicleSpeedCb, this);
-  enable_sub_ = nh.subscribe("pacmod/enabled", 20, &GameControl::PacmodEnabledCb, this);
-  lights_sub_ = nh.subscribe("pacmod/headlight_rpt", 10, &GameControl::LightsRptCb, this);
-  horn_sub_ = nh.subscribe("pacmod/horn_rpt", 10, &GameControl::HornRptCb, this);
-  wiper_sub_ = nh.subscribe("pacmod/wiper_rpt", 10, &GameControl::WiperRptCb, this);
+  joy_sub_ = nh_.subscribe("joy", 1000, &GameControl::GamepadCb, this);
+  speed_sub_ = nh_.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::VehicleSpeedCb, this);
+  enable_sub_ = nh_.subscribe("pacmod/enabled", 20, &GameControl::PacmodEnabledCb, this);
+  lights_sub_ = nh_.subscribe("pacmod/headlight_rpt", 10, &GameControl::LightsRptCb, this);
+  horn_sub_ = nh_.subscribe("pacmod/horn_rpt", 10, &GameControl::HornRptCb, this);
+  wiper_sub_ = nh_.subscribe("pacmod/wiper_rpt", 10, &GameControl::WiperRptCb, this);
 }
 
 void GameControl::GamepadCb(const sensor_msgs::Joy::ConstPtr& msg)
