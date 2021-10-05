@@ -301,26 +301,11 @@ void PublishControl::publish_lights()
   // Headlights
   if (controller_->headlight_change())
   {
-    // TODO(icolwell-as): What is special about vehicle 5?
-    if (vehicle_type_ == VehicleType::VEHICLE_5)
-    {
-      if (headlight_state_ == 1)
-        headlight_state_ = 2;
-      else
-        headlight_state_ = 1;
-    }
-    else
-    {
-      // Rotate through headlight states as button is pressed
-      if (!headlight_button_pressed_)
-      {
-        headlight_state_++;
-        headlight_button_pressed_ = true;
-      }
+    // Rotate through headlight states
+    headlight_state_++;
 
-      if (headlight_state_ >= NUM_HEADLIGHT_STATES)
-        headlight_state_ = HEADLIGHT_STATE_START_VALUE;
-    }
+    if (headlight_state_ >= NUM_HEADLIGHT_STATES)
+      headlight_state_ = HEADLIGHT_STATE_START_VALUE;
 
     // If the enable flag just went to true, send an override clear
     if (!prev_enable_ && local_enable_)
@@ -328,10 +313,6 @@ void PublishControl::publish_lights()
       headlight_cmd_pub_msg.clear_override = true;
       headlight_state_ = HEADLIGHT_STATE_START_VALUE;
     }
-  }
-  else
-  {
-    headlight_button_pressed_ = false;
   }
 
   headlight_cmd_pub_msg.command = headlight_state_;

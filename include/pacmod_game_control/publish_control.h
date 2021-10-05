@@ -104,7 +104,6 @@ private:
   bool prev_enable_ = false;
   bool last_pacmod_state_ = false;
   int headlight_state_ = 0;
-  bool headlight_button_pressed_ = false;
   int wiper_state_ = 0;
   int shift_rpt_ = 0;
   int turn_signal_rpt_ = pacmod3_msgs::SystemRptInt::TURN_NONE;

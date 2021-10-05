@@ -46,6 +46,7 @@ Controller::~Controller()
 
 void Controller::set_controller_input(const sensor_msgs::Joy& joy_msg)
 {
+  prev_input_msg_ = input_msg_;
   input_msg_ = joy_msg;
 }
 
@@ -121,8 +122,9 @@ bool Controller::horn_cmd()
 
 bool Controller::headlight_change()
 {
-  // Up on directional pad
-  return (input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MAX);
+  // Up on directional pad. Only register a change when changing from unpressed to pressed.
+  return (prev_input_msg_.axes[axes_[JoyAxis::DPAD_UD]] < AXES_MAX &&
+    input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MAX);
 }
 
 bool Controller::wiper_change()

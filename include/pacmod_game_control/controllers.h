@@ -33,6 +33,7 @@ public:
 
 protected:
   sensor_msgs::Joy input_msg_;
+  sensor_msgs::Joy prev_input_msg_;
   std::unordered_map<JoyAxis, int, EnumHash> axes_;
   std::unordered_map<JoyButton, int, EnumHash> btns_;
 };
