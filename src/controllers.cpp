@@ -112,9 +112,9 @@ int Controller::shift_cmd()
       return pacmod3_msgs::SystemCmdInt::SHIFT_PARK;
     case 1 << pacmod3_msgs::SystemCmdInt::SHIFT_NEUTRAL:
       return pacmod3_msgs::SystemCmdInt::SHIFT_NEUTRAL;
-    // If we've got an invalid command (or multiple buttons pressed) return invalid
+    // Invalid command (or multiple buttons pressed)
     default:
-      return -1;
+      return pacmod3_msgs::SystemCmdInt::SHIFT_NONE;
   }
 }
 

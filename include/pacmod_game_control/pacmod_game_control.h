@@ -83,7 +83,6 @@ private:
   void publish_wipers();
 
   void PublishCommands();
-  void check_is_enabled();
 
   // Startup checks
   bool run_startup_checks_error();

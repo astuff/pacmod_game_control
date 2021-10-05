@@ -45,21 +45,21 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
   controller_->set_controller_input(*msg);
   try
   {
-    // Only send messages when enabled, or when the state changes between enabled/disabled
-    check_is_enabled();
+    // Enable
+    if (controller_->enable() && !pacmod_enabled_rpt_)
+    {
+      enable_cmd_ = true;
+    }
 
-    // if (local_enable_ == true || local_enable_ != prev_enable_)
-    // if (pacmod_enabled_rpt_ == true || pacmod_enabled_rpt_ != prev_pacmod_enabled_rpt_)
+    // Disable
+    if (controller_->disable() && pacmod_enabled_rpt_)
+    {
+      enable_cmd_ = false;
+    }
+
+    // Only send messages when enabled, or when the state changes between enabled/disabled
     if (pacmod_enabled_rpt_ || enable_cmd_)
     {
-      // publish_steering_message();
-      // publish_turn_signal_message();
-      // publish_shifting_message();
-      // publish_accelerator_message();
-      // publish_brake_message();
-      // publish_lights();
-      // publish_horn();
-      // publish_wipers();
       PublishCommands();
     }
 
@@ -69,44 +69,6 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
   {
     ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller_type type.");
   }
-}
-
-void GameControl::check_is_enabled()
-{
-  // bool state_changed = false;
-
-  // local_enable_ = pacmod_enabled_rpt_;
-
-  // Enable
-  // if (controller_->enable() && !local_enable_)
-  if (controller_->enable() && !pacmod_enabled_rpt_)
-  {
-    // std_msgs::Bool bool_pub_msg;
-    // bool_pub_msg.data = true;
-    // local_enable_ = true;
-    enable_cmd_ = true;
-    // enable_pub_.publish(bool_pub_msg);
-
-    // state_changed = true;
-  }
-
-  // Disable
-  // if (controller_->disable() && local_enable_)
-  if (controller_->disable() && pacmod_enabled_rpt_)
-  {
-    // std_msgs::Bool bool_pub_msg;
-    // bool_pub_msg.data = false;
-    // local_enable_ = false;
-    enable_cmd_ = false;
-    // enable_pub_.publish(bool_pub_msg);
-
-    // state_changed = true;
-  }
-
-  // if (state_changed)
-  // {
-  //   pacmod_enabled_rpt_ = local_enable_;
-  // }
 }
 
 void GameControl::PublishCommands()
@@ -123,18 +85,10 @@ void GameControl::PublishCommands()
 
 void GameControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
-//   if (msg->data == false && last_pacmod_state_ == true)
-//     prev_enable_ = false;
-
-//   pacmod_enabled_rpt_ = msg->data;
-
-//   last_pacmod_state_ = msg->data;
-
-
   prev_pacmod_enabled_rpt_ = pacmod_enabled_rpt_;
   pacmod_enabled_rpt_ = msg->data;
 
-  // Stop trying to enable if pacmod just disabled
+  // Stop trying to enable if pacmod just disabled from an override or something
   if (prev_pacmod_enabled_rpt_ && !pacmod_enabled_rpt_)
   {
     enable_cmd_ = false;
@@ -240,50 +194,27 @@ void GameControl::publish_turn_signal_message()
 
   int turn_signal_cmd = controller_->turn_signal_cmd();
 
-  // if (local_enable_ != prev_enable_)
-  // {
-  //   turn_signal_cmd = turn_signal_rpt_;
-  // }
-
-  // Only publish if we are requesting a different turn signal than is currently active, or we just engaged and need to
-  // clear override
-  if (turn_signal_cmd != turn_signal_rpt_ || clear_override_cmd_)
-  {
-    turn_signal_cmd_pub_msg.command = turn_signal_cmd;
-    turn_signal_cmd_pub_.publish(turn_signal_cmd_pub_msg);
-  }
+  turn_signal_cmd_pub_msg.command = turn_signal_cmd;
+  turn_signal_cmd_pub_.publish(turn_signal_cmd_pub_msg);
 }
 
 void GameControl::publish_shifting_message()
 {
+  pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
+  shift_cmd_pub_msg.enable = enable_cmd_;
+  shift_cmd_pub_msg.clear_override = clear_override_cmd_;
+  shift_cmd_pub_msg.ignore_overrides = false;
+
+  int shift_cmd = pacmod3_msgs::SystemCmdInt::SHIFT_NONE;
+
   // Only shift if brake command is higher than 25%
-  if (last_brake_cmd_ > 0.25)
+  if (last_brake_cmd_ > 0.5)
   {
-    pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = enable_cmd_;
-    shift_cmd_pub_msg.clear_override = clear_override_cmd_;
-    shift_cmd_pub_msg.ignore_overrides = false;
-
-    int shift_cmd = controller_->shift_cmd();
-
-    // Skip if invalid (multiple buttons pressed)
-    if (shift_cmd == -1)
-    {
-      return;
-    }
-    shift_cmd_pub_msg.command = shift_cmd;
-    shift_cmd_pub_.publish(shift_cmd_pub_msg);
+    shift_cmd = controller_->shift_cmd();
   }
-  else if (clear_override_cmd_)  // If only an enable/disable button was pressed
-  {
-    pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
-    shift_cmd_pub_msg.enable = enable_cmd_;
-    shift_cmd_pub_msg.clear_override = clear_override_cmd_;
-    shift_cmd_pub_msg.ignore_overrides = false;
 
-    shift_cmd_pub_msg.command = shift_rpt_;
-    shift_cmd_pub_.publish(shift_cmd_pub_msg);
-  }
+  shift_cmd_pub_msg.command = shift_cmd;
+  shift_cmd_pub_.publish(shift_cmd_pub_msg);
 }
 
 void GameControl::publish_accelerator_message()
