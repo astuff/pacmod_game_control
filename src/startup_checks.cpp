@@ -13,21 +13,21 @@
 #include <memory>
 #include <string>
 
-bool GameControl::run_startup_checks_error()
+bool GameControl::RunStartupChecks()
 {
   bool willExit = false;
 
   ros::NodeHandle pnh("~");
 
   // Run startup checks
-  willExit = willExit || check_vehicle_type(pnh);
-  willExit = willExit || check_controller_type(pnh);
-  willExit = willExit || check_scale_values(pnh);
+  willExit = willExit || CheckVehicleType(pnh);
+  willExit = willExit || CheckControllerType(pnh);
+  willExit = willExit || CheckScaleValues(pnh);
 
   return willExit;
 }
 
-bool GameControl::check_vehicle_type(const ros::NodeHandle& nodeH)
+bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
 {
   bool exit = false;
   std::string vehicle_type_string;
@@ -85,7 +85,7 @@ bool GameControl::check_vehicle_type(const ros::NodeHandle& nodeH)
   return exit;
 }
 
-bool GameControl::check_controller_type(const ros::NodeHandle& nodeH)
+bool GameControl::CheckControllerType(const ros::NodeHandle& nodeH)
 {
   std::string controller_string;
   bool exit = false;
@@ -117,7 +117,7 @@ bool GameControl::check_controller_type(const ros::NodeHandle& nodeH)
   return exit;
 }
 
-bool GameControl::check_scale_values(const ros::NodeHandle& nodeH)
+bool GameControl::CheckScaleValues(const ros::NodeHandle& nodeH)
 {
   bool exit = false;
 

@@ -13,7 +13,7 @@
 
 void GameControl::init()
 {
-  if (run_startup_checks_error())
+  if (RunStartupChecks())
   {
     ros::shutdown();
   }
@@ -30,17 +30,15 @@ void GameControl::init()
   brake_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
 
   // Subs
-  joy_sub_ = n.subscribe("joy", 1000, &GameControl::callback_control, this);
-  speed_sub_ = n.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::callback_veh_speed, this);
-  enable_sub_ = n.subscribe("pacmod/enabled", 20, &GameControl::callback_pacmod_enable, this);
-  shift_sub_ = n.subscribe("pacmod/shift_rpt", 20, &GameControl::callback_shift_rpt, this);
-  turn_sub_ = n.subscribe("pacmod/turn_rpt", 20, &GameControl::callback_turn_rpt, this);
-  lights_sub_ = n.subscribe("pacmod/headlight_rpt", 10, &GameControl::callback_lights_rpt, this);
-  horn_sub_ = n.subscribe("pacmod/horn_rpt", 10, &GameControl::callback_horn_rpt, this);
-  wiper_sub_ = n.subscribe("pacmod/wiper_rpt", 10, &GameControl::callback_wiper_rpt, this);
+  joy_sub_ = n.subscribe("joy", 1000, &GameControl::GamepadCb, this);
+  speed_sub_ = n.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::VehicleSpeedCb, this);
+  enable_sub_ = n.subscribe("pacmod/enabled", 20, &GameControl::PacmodEnabledCb, this);
+  lights_sub_ = n.subscribe("pacmod/headlight_rpt", 10, &GameControl::LightsRptCb, this);
+  horn_sub_ = n.subscribe("pacmod/horn_rpt", 10, &GameControl::HornRptCb, this);
+  wiper_sub_ = n.subscribe("pacmod/wiper_rpt", 10, &GameControl::WiperRptCb, this);
 }
 
-void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
+void GameControl::GamepadCb(const sensor_msgs::Joy::ConstPtr& msg)
 {
   controller_->set_controller_input(*msg);
   try
@@ -73,23 +71,23 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 
 void GameControl::PublishCommands()
 {
-  publish_steering_message();
-  publish_turn_signal_message();
-  publish_shifting_message();
-  publish_accelerator_message();
-  publish_brake_message();
-  publish_lights();
-  publish_horn();
-  publish_wipers();
+  PublishSteering();
+  PublishTurnSignal();
+  PublishShifting();
+  PublishAccelerator();
+  PublishBrake();
+  PublishLights();
+  PublishHorn();
+  PublishWipers();
 }
 
-void GameControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
+void GameControl::PacmodEnabledCb(const std_msgs::Bool::ConstPtr& msg)
 {
-  prev_pacmod_enabled_rpt_ = pacmod_enabled_rpt_;
+  bool prev_pacmod_enabled_rpt = pacmod_enabled_rpt_;
   pacmod_enabled_rpt_ = msg->data;
 
   // Stop trying to enable if pacmod just disabled from an override or something
-  if (prev_pacmod_enabled_rpt_ && !pacmod_enabled_rpt_)
+  if (prev_pacmod_enabled_rpt && !pacmod_enabled_rpt_)
   {
     enable_cmd_ = false;
     PublishCommands();
@@ -97,22 +95,12 @@ void GameControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 }
 
 // Feedback callbacks
-void GameControl::callback_veh_speed(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg)
+void GameControl::VehicleSpeedCb(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
   veh_speed_rpt_ = msg;
 }
 
-void GameControl::callback_shift_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
-{
-  shift_rpt_ = msg->output;
-}
-
-void GameControl::callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
-{
-  turn_signal_rpt_ = msg->output;
-}
-
-void GameControl::callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControl::LightsRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   if (!lights_api_available_)
   {
@@ -121,7 +109,7 @@ void GameControl::callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr
   }
 }
 
-void GameControl::callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
+void GameControl::HornRptCb(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
 {
   if (!horn_api_available_)
   {
@@ -130,7 +118,7 @@ void GameControl::callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr&
   }
 }
 
-void GameControl::callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControl::WiperRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   if (!wiper_api_available_)
   {
@@ -140,7 +128,7 @@ void GameControl::callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr&
 }
 
 // Publishing
-void GameControl::publish_steering_message()
+void GameControl::PublishSteering()
 {
   pacmod3_msgs::SteeringCmd steer_msg;
 
@@ -182,7 +170,7 @@ void GameControl::publish_steering_message()
   steering_cmd_pub_.publish(steer_msg);
 }
 
-void GameControl::publish_turn_signal_message()
+void GameControl::PublishTurnSignal()
 {
   pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
 
@@ -196,7 +184,7 @@ void GameControl::publish_turn_signal_message()
   turn_signal_cmd_pub_.publish(turn_signal_cmd_pub_msg);
 }
 
-void GameControl::publish_shifting_message()
+void GameControl::PublishShifting()
 {
   pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
   shift_cmd_pub_msg.enable = enable_cmd_;
@@ -215,7 +203,7 @@ void GameControl::publish_shifting_message()
   shift_cmd_pub_.publish(shift_cmd_pub_msg);
 }
 
-void GameControl::publish_accelerator_message()
+void GameControl::PublishAccelerator()
 {
   pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
 
@@ -236,7 +224,7 @@ void GameControl::publish_accelerator_message()
   accelerator_cmd_pub_.publish(accelerator_cmd_pub_msg);
 }
 
-void GameControl::publish_brake_message()
+void GameControl::PublishBrake()
 {
   pacmod3_msgs::SystemCmdFloat brake_msg;
 
@@ -249,7 +237,7 @@ void GameControl::publish_brake_message()
   brake_cmd_pub_.publish(brake_msg);
 }
 
-void GameControl::publish_lights()
+void GameControl::PublishLights()
 {
   if (!lights_api_available_)
   {
@@ -265,23 +253,25 @@ void GameControl::publish_lights()
   if (controller_->headlight_change())
   {
     // Rotate through headlight states
-    headlight_state_++;
+    headlight_cmd_++;
 
-    if (headlight_state_ >= NUM_HEADLIGHT_STATES)
-      headlight_state_ = HEADLIGHT_STATE_START_VALUE;
+    if (headlight_cmd_ >= NUM_HEADLIGHT_STATES)
+    {
+      headlight_cmd_ = HEADLIGHT_STATE_START_VALUE;
+    }
 
     // Reset
     if (clear_override_cmd_)
     {
-      headlight_state_ = HEADLIGHT_STATE_START_VALUE;
+      headlight_cmd_ = HEADLIGHT_STATE_START_VALUE;
     }
   }
 
-  headlight_cmd_pub_msg.command = headlight_state_;
+  headlight_cmd_pub_msg.command = headlight_cmd_;
   headlight_cmd_pub_.publish(headlight_cmd_pub_msg);
 }
 
-void GameControl::publish_horn()
+void GameControl::PublishHorn()
 {
   if (!horn_api_available_)
   {
@@ -297,7 +287,7 @@ void GameControl::publish_horn()
   horn_cmd_pub_.publish(horn_cmd_pub_msg);
 }
 
-void GameControl::publish_wipers()
+void GameControl::PublishWipers()
 {
   if (!wiper_api_available_)
   {
@@ -312,18 +302,18 @@ void GameControl::publish_wipers()
   if (controller_->wiper_change())
   {
     // Rotate through wiper states as button is pressed
-    wiper_state_++;
+    wiper_cmd_++;
 
-    if (wiper_state_ >= NUM_WIPER_STATES)
-      wiper_state_ = WIPER_STATE_START_VALUE;
+    if (wiper_cmd_ >= NUM_WIPER_STATES)
+      wiper_cmd_ = WIPER_STATE_START_VALUE;
 
     // Reset
     if (clear_override_cmd_)
     {
-      wiper_state_ = WIPER_STATE_START_VALUE;
+      wiper_cmd_ = WIPER_STATE_START_VALUE;
     }
 
-    wiper_cmd_pub_msg.command = wiper_state_;
+    wiper_cmd_pub_msg.command = wiper_cmd_;
   }
 
   wiper_cmd_pub_.publish(wiper_cmd_pub_msg);
