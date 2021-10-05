@@ -5,7 +5,7 @@
  * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
  */
 
-#include "pacmod_game_control/publish_control.h"
+#include "pacmod_game_control/pacmod_game_control.h"
 
 #include <memory>
 
@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 
   ros::Time::waitForValid();
 
-  PublishControl pub_control;
+  GameControl pub_control;
   pub_control.init();
 
   spinner.start();

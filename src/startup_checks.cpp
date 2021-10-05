@@ -8,12 +8,12 @@
  * Series of startup checks for the pacmod game control node.
  */
 
-#include "pacmod_game_control/publish_control.h"
+#include "pacmod_game_control/pacmod_game_control.h"
 
 #include <memory>
 #include <string>
 
-bool PublishControl::run_startup_checks_error()
+bool GameControl::run_startup_checks_error()
 {
   bool willExit = false;
 
@@ -27,7 +27,7 @@ bool PublishControl::run_startup_checks_error()
   return willExit;
 }
 
-bool PublishControl::check_vehicle_type(const ros::NodeHandle& nodeH)
+bool GameControl::check_vehicle_type(const ros::NodeHandle& nodeH)
 {
   bool exit = false;
   std::string vehicle_type_string;
@@ -85,7 +85,7 @@ bool PublishControl::check_vehicle_type(const ros::NodeHandle& nodeH)
   return exit;
 }
 
-bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
+bool GameControl::check_controller_type(const ros::NodeHandle& nodeH)
 {
   std::string controller_string;
   bool exit = false;
@@ -95,17 +95,14 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
 
   if (controller_string == "LOGITECH_F310" || controller_string == "XBOX_ONE")
   {
-    controller_type_ = (controller_string == "LOGITECH_F310") ? GamepadType::LOGITECH_F310 : GamepadType::XBOX_ONE;
     controller_ = std::make_unique<controllers::Controller>();
   }
   else if (controller_string == "HRI_SAFE_REMOTE")
   {
-    controller_type_ = GamepadType::HRI_SAFE_REMOTE;
     controller_ = std::make_unique<controllers::HriSafeController>();
   }
   else if (controller_string == "LOGITECH_G29")
   {
-    controller_type_ = GamepadType::LOGITECH_G29;
     controller_ = std::make_unique<controllers::LogitechG29Controller>();
 
     // Set to match the G29 controller_type's max center-to-lock steering angle (radians).
@@ -120,7 +117,7 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
   return exit;
 }
 
-bool PublishControl::check_scale_values(const ros::NodeHandle& nodeH)
+bool GameControl::check_scale_values(const ros::NodeHandle& nodeH)
 {
   bool exit = false;
 

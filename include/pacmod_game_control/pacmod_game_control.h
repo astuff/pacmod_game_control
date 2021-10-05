@@ -24,14 +24,6 @@
 #include <pacmod3_msgs/VehicleSpeedRpt.h>
 #include <std_msgs/Bool.h>
 
-enum class GamepadType
-{
-  LOGITECH_F310,
-  HRI_SAFE_REMOTE,
-  LOGITECH_G29,
-  XBOX_ONE
-};
-
 enum class VehicleType
 {
   POLARIS_GEM,
@@ -64,7 +56,7 @@ const uint16_t NUM_HEADLIGHT_STATES = 3;
 const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
 const uint16_t INVALID = -1;
 
-class PublishControl
+class GameControl
 {
 public:
   void init();
@@ -133,7 +125,6 @@ private:
 
   float max_rot_rad_ = MAX_ROT_RAD_DEFAULT;
   VehicleType vehicle_type_;
-  GamepadType controller_type_ = GamepadType::LOGITECH_F310;
   float max_veh_speed_ = std::numeric_limits<float>::quiet_NaN();
   float accel_scale_val_ = 1.0;
   float brake_scale_val_ = 1.0;

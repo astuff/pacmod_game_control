@@ -5,13 +5,13 @@
  * See file LICENSE included with this software or go to https://opensource.org/licenses/MIT for full license details.
  */
 
-#include "pacmod_game_control/publish_control.h"
+#include "pacmod_game_control/pacmod_game_control.h"
 
 #include <unordered_map>
 
 #include <pacmod3_msgs/SteeringCmd.h>
 
-void PublishControl::init()
+void GameControl::init()
 {
   if (run_startup_checks_error())
   {
@@ -30,17 +30,17 @@ void PublishControl::init()
   brake_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
 
   // Subs
-  joy_sub_ = n.subscribe("joy", 1000, &PublishControl::callback_control, this);
-  speed_sub_ = n.subscribe("pacmod/vehicle_speed_rpt", 20, &PublishControl::callback_veh_speed, this);
-  enable_sub_ = n.subscribe("pacmod/enabled", 20, &PublishControl::callback_pacmod_enable, this);
-  shift_sub_ = n.subscribe("pacmod/shift_rpt", 20, &PublishControl::callback_shift_rpt, this);
-  turn_sub_ = n.subscribe("pacmod/turn_rpt", 20, &PublishControl::callback_turn_rpt, this);
-  lights_sub_ = n.subscribe("pacmod/headlight_rpt", 10, &PublishControl::callback_lights_rpt, this);
-  horn_sub_ = n.subscribe("pacmod/horn_rpt", 10, &PublishControl::callback_horn_rpt, this);
-  wiper_sub_ = n.subscribe("pacmod/wiper_rpt", 10, &PublishControl::callback_wiper_rpt, this);
+  joy_sub_ = n.subscribe("joy", 1000, &GameControl::callback_control, this);
+  speed_sub_ = n.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::callback_veh_speed, this);
+  enable_sub_ = n.subscribe("pacmod/enabled", 20, &GameControl::callback_pacmod_enable, this);
+  shift_sub_ = n.subscribe("pacmod/shift_rpt", 20, &GameControl::callback_shift_rpt, this);
+  turn_sub_ = n.subscribe("pacmod/turn_rpt", 20, &GameControl::callback_turn_rpt, this);
+  lights_sub_ = n.subscribe("pacmod/headlight_rpt", 10, &GameControl::callback_lights_rpt, this);
+  horn_sub_ = n.subscribe("pacmod/horn_rpt", 10, &GameControl::callback_horn_rpt, this);
+  wiper_sub_ = n.subscribe("pacmod/wiper_rpt", 10, &GameControl::callback_wiper_rpt, this);
 }
 
-void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
+void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
 {
   controller_->set_controller_input(*msg);
   try
@@ -68,7 +68,7 @@ void PublishControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
   }
 }
 
-void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
+void GameControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
   if (msg->data == false && last_pacmod_state_ == true)
     prev_enable_ = false;
@@ -80,44 +80,44 @@ void PublishControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 }
 
 // Feedback callbacks
-void PublishControl::callback_veh_speed(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg)
+void GameControl::callback_veh_speed(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock(speed_mutex);
   veh_speed_rpt_ = msg;
 }
 
-void PublishControl::callback_shift_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControl::callback_shift_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock(shift_mutex);
   shift_rpt_ = msg->output;
 }
 
-void PublishControl::callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControl::callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   std::unique_lock<std::mutex> lock(turn_mutex);
   turn_signal_rpt_ = msg->output;
 }
 
-void PublishControl::callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControl::callback_lights_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   lights_api_available_ = true;
   ROS_INFO("Headlights API detected");
 }
 
-void PublishControl::callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
+void GameControl::callback_horn_rpt(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
 {
   horn_api_available_ = true;
   ROS_INFO("Horn API detected");
 }
 
-void PublishControl::callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControl::callback_wiper_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
   wiper_api_available_ = true;
   ROS_INFO("Wiper API detected");
 }
 
 // Publishing
-void PublishControl::publish_steering_message()
+void GameControl::publish_steering_message()
 {
   pacmod3_msgs::SteeringCmd steer_msg;
 
@@ -168,7 +168,7 @@ void PublishControl::publish_steering_message()
   steering_cmd_pub_.publish(steer_msg);
 }
 
-void PublishControl::publish_turn_signal_message()
+void GameControl::publish_turn_signal_message()
 {
   pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
 
@@ -201,7 +201,7 @@ void PublishControl::publish_turn_signal_message()
   }
 }
 
-void PublishControl::publish_shifting_message()
+void GameControl::publish_shifting_message()
 {
   // Only shift if brake command is higher than 25%
   if (last_brake_cmd_ > 0.25)
@@ -243,7 +243,7 @@ void PublishControl::publish_shifting_message()
   }
 }
 
-void PublishControl::publish_accelerator_message()
+void GameControl::publish_accelerator_message()
 {
   pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
 
@@ -269,7 +269,7 @@ void PublishControl::publish_accelerator_message()
   accelerator_cmd_pub_.publish(accelerator_cmd_pub_msg);
 }
 
-void PublishControl::publish_brake_message()
+void GameControl::publish_brake_message()
 {
   pacmod3_msgs::SystemCmdFloat brake_msg;
 
@@ -287,7 +287,7 @@ void PublishControl::publish_brake_message()
   brake_cmd_pub_.publish(brake_msg);
 }
 
-void PublishControl::publish_lights()
+void GameControl::publish_lights()
 {
   if (!lights_api_available_)
   {
@@ -319,7 +319,7 @@ void PublishControl::publish_lights()
   headlight_cmd_pub_.publish(headlight_cmd_pub_msg);
 }
 
-void PublishControl::publish_horn()
+void GameControl::publish_horn()
 {
   if (!horn_api_available_)
   {
@@ -340,7 +340,7 @@ void PublishControl::publish_horn()
   horn_cmd_pub_.publish(horn_cmd_pub_msg);
 }
 
-void PublishControl::publish_wipers()
+void GameControl::publish_wipers()
 {
   if (!wiper_api_available_)
   {
@@ -372,7 +372,7 @@ void PublishControl::publish_wipers()
   wiper_cmd_pub_.publish(wiper_cmd_pub_msg);
 }
 
-void PublishControl::check_is_enabled()
+void GameControl::check_is_enabled()
 {
   bool state_changed = false;
 
