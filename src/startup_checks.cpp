@@ -96,17 +96,17 @@ bool PublishControl::check_controller_type(const ros::NodeHandle& nodeH)
   if (controller_string == "LOGITECH_F310" || controller_string == "XBOX_ONE")
   {
     controller_type_ = (controller_string == "LOGITECH_F310") ? GamepadType::LOGITECH_F310 : GamepadType::XBOX_ONE;
-    controller_ = std::make_unique<Controller>();
+    controller_ = std::make_unique<controllers::Controller>();
   }
   else if (controller_string == "HRI_SAFE_REMOTE")
   {
     controller_type_ = GamepadType::HRI_SAFE_REMOTE;
-    controller_ = std::make_unique<HriSafeController>();
+    controller_ = std::make_unique<controllers::HriSafeController>();
   }
   else if (controller_string == "LOGITECH_G29")
   {
     controller_type_ = GamepadType::LOGITECH_G29;
-    controller_ = std::make_unique<LogitechG29Controller>();
+    controller_ = std::make_unique<controllers::LogitechG29Controller>();
 
     // Set to match the G29 controller_type's max center-to-lock steering angle (radians).
     max_rot_rad_ = 7.85;

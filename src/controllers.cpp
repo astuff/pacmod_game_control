@@ -9,6 +9,9 @@
 
 #include <pacmod3_msgs/SystemCmdInt.h>
 
+namespace controllers
+{
+
 // --- Generic gamepad controller (Logitech F310, XBOX)
 Controller::Controller()
 {
@@ -94,10 +97,10 @@ int Controller::shift_cmd()
 {
   uint8_t desired_gear = 0x0;
   desired_gear |=
-      (input_msg_.buttons[btns_[JoyButton::RIGHT_BTN]] == BUTTON_DOWN) << pacmod3_msgs::SystemCmdInt::SHIFT_REVERSE |
-      (input_msg_.buttons[btns_[JoyButton::BOTTOM_BTN]] == BUTTON_DOWN) << pacmod3_msgs::SystemCmdInt::SHIFT_HIGH |
-      (input_msg_.buttons[btns_[JoyButton::TOP_BTN]] == BUTTON_DOWN) << pacmod3_msgs::SystemCmdInt::SHIFT_PARK |
-      (input_msg_.buttons[btns_[JoyButton::LEFT_BTN]] == BUTTON_DOWN) << pacmod3_msgs::SystemCmdInt::SHIFT_NEUTRAL;
+      (input_msg_.buttons[btns_[JoyButton::RIGHT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_REVERSE |
+      (input_msg_.buttons[btns_[JoyButton::BOTTOM_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_HIGH |
+      (input_msg_.buttons[btns_[JoyButton::TOP_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_PARK |
+      (input_msg_.buttons[btns_[JoyButton::LEFT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_NEUTRAL;
 
   switch (desired_gear)
   {
@@ -117,31 +120,33 @@ int Controller::shift_cmd()
 
 bool Controller::horn_cmd()
 {
-  return (input_msg_.buttons[btns_[JoyButton::RIGHT_BUMPER]] == BUTTON_DOWN);
+  return (input_msg_.buttons[btns_[JoyButton::RIGHT_BUMPER]] == BUTTON_PRESSED);
 }
 
 bool Controller::headlight_change()
 {
-  // Up on directional pad. Only register a change when changing from unpressed to pressed.
+  // Up on directional pad. Only register a change when changing from depressed to pressed.
   return (prev_input_msg_.axes[axes_[JoyAxis::DPAD_UD]] < AXES_MAX &&
     input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MAX);
 }
 
 bool Controller::wiper_change()
 {
-  return (input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_DOWN);
+  // Only register a change when changing from depressed to pressed.
+  return (prev_input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_DEPRESSED &&
+    input_msg_.buttons[btns_[JoyButton::LEFT_BUMPER]] == BUTTON_PRESSED);
 }
 
 bool Controller::enable()
 {
-  return (input_msg_.buttons[btns_[JoyButton::START_PLUS]] == BUTTON_DOWN &&
-          input_msg_.buttons[btns_[JoyButton::BACK_SELECT_MINUS]] == BUTTON_DOWN);
+  return (input_msg_.buttons[btns_[JoyButton::START_PLUS]] == BUTTON_PRESSED &&
+          input_msg_.buttons[btns_[JoyButton::BACK_SELECT_MINUS]] == BUTTON_PRESSED);
 }
 
 bool Controller::disable()
 {
-  return (input_msg_.buttons[btns_[JoyButton::BACK_SELECT_MINUS]] == BUTTON_DOWN &&
-          input_msg_.buttons[btns_[JoyButton::START_PLUS]] != BUTTON_DOWN);
+  return (input_msg_.buttons[btns_[JoyButton::BACK_SELECT_MINUS]] == BUTTON_PRESSED &&
+          input_msg_.buttons[btns_[JoyButton::START_PLUS]] != BUTTON_PRESSED);
 }
 
 // --- Logitech G29, racing wheel with pedals
@@ -266,3 +271,5 @@ bool HriSafeController::disable()
 {
   return (input_msg_.axes[axes_[JoyAxis::DPAD_LR]] >= 0.9);
 }
+
+} // namespace controllers

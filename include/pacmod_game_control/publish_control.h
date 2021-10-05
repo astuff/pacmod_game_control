@@ -8,7 +8,6 @@
 #ifndef PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
 #define PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H
 
-#include "pacmod_game_control/globals.h"
 #include "pacmod_game_control/controllers.h"
 
 #include <limits>
@@ -24,6 +23,46 @@
 #include <pacmod3_msgs/SystemRptInt.h>
 #include <pacmod3_msgs/VehicleSpeedRpt.h>
 #include <std_msgs/Bool.h>
+
+enum class GamepadType
+{
+  LOGITECH_F310,
+  HRI_SAFE_REMOTE,
+  LOGITECH_G29,
+  XBOX_ONE
+};
+
+enum class VehicleType
+{
+  POLARIS_GEM,
+  POLARIS_RANGER,
+  LEXUS_RX_450H,
+  INTERNATIONAL_PROSTAR,
+  FREIGHTLINER_CASCADIA,
+  VEHICLE_4,
+  VEHICLE_5,
+  VEHICLE_6,
+  JUPITER_SPIRIT
+};
+
+// constants
+const float ROT_RANGE_SCALER_LB = 0.05;
+const float ACCEL_SCALE_FACTOR = 0.6;
+const float ACCEL_OFFSET = 0.21;
+const float STEER_SCALE_FACTOR = 1.5;
+const float STEER_OFFSET = 1.0;
+const float MAX_ROT_RAD_VEHICLE2 = 8.5;
+const float MAX_ROT_RAD_VEHICLE4 = 8.5;
+const float MAX_ROT_RAD_VEHICLE5 = 8.1;
+const float MAX_ROT_RAD_VEHICLE6 = 8.5;
+const float MAX_ROT_RAD_FREIGHTLINER_CASCADIA = 14.0;
+const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
+const float MAX_ROT_RAD_DEFAULT = 10.9956;
+const uint16_t NUM_WIPER_STATES = 8;
+const uint16_t WIPER_STATE_START_VALUE = 0;
+const uint16_t NUM_HEADLIGHT_STATES = 3;
+const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
+const uint16_t INVALID = -1;
 
 class PublishControl
 {
@@ -83,7 +122,7 @@ private:
   ros::Subscriber horn_sub_;
   ros::Subscriber wiper_sub_;
 
-  std::unique_ptr<Controller> controller_;
+  std::unique_ptr<controllers::Controller> controller_;
   bool local_enable_;
   bool recent_state_change_;
   uint8_t state_change_debounce_count_;

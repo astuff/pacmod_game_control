@@ -8,11 +8,54 @@
 #ifndef PACMOD_GAME_CONTROL_CONTROLLERS_H
 #define PACMOD_GAME_CONTROL_CONTROLLERS_H
 
-#include "pacmod_game_control/globals.h"
-
 #include <unordered_map>
 
 #include <sensor_msgs/Joy.h>
+
+namespace controllers
+{
+
+const uint16_t BUTTON_PRESSED = 1;
+const uint16_t BUTTON_DEPRESSED = 1;
+const float AXES_MIN = -1.0;
+const float AXES_MAX = 1.0;
+
+enum class JoyAxis
+{
+  LEFT_STICK_UD,
+  LEFT_STICK_LR,
+  RIGHT_STICK_UD,
+  RIGHT_STICK_LR,
+  DPAD_UD,
+  DPAD_LR,
+  LEFT_TRIGGER_AXIS,  // Sometimes button, sometimes axis
+  RIGHT_TRIGGER_AXIS  // Sometimes button, sometimes axis
+};
+
+enum class JoyButton
+{
+  TOP_BTN,
+  LEFT_BTN,
+  BOTTOM_BTN,
+  RIGHT_BTN,
+  LEFT_BUMPER,
+  RIGHT_BUMPER,
+  BACK_SELECT_MINUS,
+  START_PLUS,
+  LEFT_TRIGGER_BTN,   // Sometimes button, sometimes axis
+  RIGHT_TRIGGER_BTN,  // Sometimes button, sometimes axis
+  LEFT_STICK_PUSH,
+  RIGHT_STICK_PUSH
+};
+
+struct EnumHash
+{
+  template <typename T>
+  std::size_t operator()(T t) const
+  {
+    return static_cast<std::size_t>(t);
+  }
+};
 
 class Controller
 {
@@ -58,5 +101,7 @@ public:
   bool enable() override;
   bool disable() override;
 };
+
+} // namespace controllers
 
 #endif  // PACMOD_GAME_CONTROL_CONTROLLERS_H
