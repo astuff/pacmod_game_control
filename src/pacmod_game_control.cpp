@@ -49,6 +49,7 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     if (controller_->enable() && !pacmod_enabled_rpt_)
     {
       enable_cmd_ = true;
+      clear_override_cmd_ = true;
     }
 
     // Disable
@@ -61,9 +62,8 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     if (pacmod_enabled_rpt_ || enable_cmd_)
     {
       PublishCommands();
+      clear_override_cmd_ = false;
     }
-
-    // prev_enable_ = local_enable_;
   }
   catch (const std::out_of_range& oor)
   {
@@ -92,9 +92,7 @@ void GameControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
   if (prev_pacmod_enabled_rpt_ && !pacmod_enabled_rpt_)
   {
     enable_cmd_ = false;
-    clear_override_cmd_ = true;
     PublishCommands();
-    clear_override_cmd_ = false;
   }
 }
 
