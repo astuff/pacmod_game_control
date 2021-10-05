@@ -12,17 +12,11 @@
 int main(int argc, char* argv[])
 {
   ros::init(argc, argv, "pacmod_game_control");
-  // ros::AsyncSpinner spinner(2);
-
-  // ros::Time::waitForValid();
 
   GameControl pub_control;
   pub_control.init();
 
   ros::spin();
-
-  // spinner.start();
-  // ros::waitForShutdown();
 
   return 0;
 }

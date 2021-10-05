@@ -82,6 +82,7 @@ private:
   void publish_horn();
   void publish_wipers();
 
+  void PublishCommands();
   void check_is_enabled();
 
   // Startup checks
@@ -128,23 +129,25 @@ private:
   float accel_scale_val_ = 1.0;
   float brake_scale_val_ = 1.0;
   float steering_max_speed_ = std::numeric_limits<float>::quiet_NaN();
-  pacmod3_msgs::VehicleSpeedRpt::ConstPtr veh_speed_rpt_ = NULL;
-  bool pacmod_enable_ = false;
-  bool prev_enable_ = false;
+
+
+  // bool prev_enable_ = false;
   bool last_pacmod_state_ = false;
   int headlight_state_ = 0;
   int wiper_state_ = 0;
-  int shift_rpt_ = 0;
-  int turn_signal_rpt_ = pacmod3_msgs::SystemRptInt::TURN_NONE;
+
+
   float last_brake_cmd_ = 0.0;
 
-  // mutex
-  std::mutex enable_mutex;
-  std::mutex speed_mutex;
-  std::mutex state_change_mutex;
-  std::mutex shift_mutex;
-  std::mutex turn_mutex;
-  std::mutex rear_pass_door_mutex;
+  bool enable_cmd_ = false;
+  bool clear_override_cmd_ = false;
+
+  // Pacmod status reports
+  bool pacmod_enabled_rpt_ = false;
+  bool prev_pacmod_enabled_rpt_ = false;
+  int turn_signal_rpt_ = pacmod3_msgs::SystemRptInt::TURN_NONE;
+  pacmod3_msgs::VehicleSpeedRpt::ConstPtr veh_speed_rpt_ = NULL;
+  int shift_rpt_ = 0;
 };
 
 #endif  // PACMOD_GAME_CONTROL_PUBLISH_CONTROL_H

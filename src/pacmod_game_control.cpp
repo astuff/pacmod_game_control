@@ -48,19 +48,21 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
     // Only send messages when enabled, or when the state changes between enabled/disabled
     check_is_enabled();
 
-    if (local_enable_ == true || local_enable_ != prev_enable_)
+    // if (local_enable_ == true || local_enable_ != prev_enable_)
+    if (pacmod_enabled_rpt_ == true || pacmod_enabled_rpt_ != prev_pacmod_enabled_rpt_)
     {
-      publish_steering_message();
-      publish_turn_signal_message();
-      publish_shifting_message();
-      publish_accelerator_message();
-      publish_brake_message();
-      publish_lights();
-      publish_horn();
-      publish_wipers();
+      // publish_steering_message();
+      // publish_turn_signal_message();
+      // publish_shifting_message();
+      // publish_accelerator_message();
+      // publish_brake_message();
+      // publish_lights();
+      // publish_horn();
+      // publish_wipers();
+      PublishCommands();
     }
 
-    prev_enable_ = local_enable_;
+    // prev_enable_ = local_enable_;
   }
   catch (const std::out_of_range& oor)
   {
@@ -68,33 +70,92 @@ void GameControl::callback_control(const sensor_msgs::Joy::ConstPtr& msg)
   }
 }
 
+void GameControl::check_is_enabled()
+{
+  // bool state_changed = false;
+
+  // local_enable_ = pacmod_enabled_rpt_;
+
+  // Enable
+  // if (controller_->enable() && !local_enable_)
+  if (controller_->enable() && !pacmod_enabled_rpt_)
+  {
+    // std_msgs::Bool bool_pub_msg;
+    // bool_pub_msg.data = true;
+    // local_enable_ = true;
+    enable_cmd_ = true;
+    // enable_pub_.publish(bool_pub_msg);
+
+    // state_changed = true;
+  }
+
+  // Disable
+  // if (controller_->disable() && local_enable_)
+  if (controller_->disable() && pacmod_enabled_rpt_)
+  {
+    // std_msgs::Bool bool_pub_msg;
+    // bool_pub_msg.data = false;
+    // local_enable_ = false;
+    enable_cmd_ = false;
+    // enable_pub_.publish(bool_pub_msg);
+
+    // state_changed = true;
+  }
+
+  // if (state_changed)
+  // {
+  //   pacmod_enabled_rpt_ = local_enable_;
+  // }
+}
+
+void GameControl::PublishCommands()
+{
+  publish_steering_message();
+  publish_turn_signal_message();
+  publish_shifting_message();
+  publish_accelerator_message();
+  publish_brake_message();
+  publish_lights();
+  publish_horn();
+  publish_wipers();
+}
+
 void GameControl::callback_pacmod_enable(const std_msgs::Bool::ConstPtr& msg)
 {
-  if (msg->data == false && last_pacmod_state_ == true)
-    prev_enable_ = false;
+//   if (msg->data == false && last_pacmod_state_ == true)
+//     prev_enable_ = false;
 
-  std::unique_lock<std::mutex> lock(enable_mutex);
-  pacmod_enable_ = msg->data;
+//   pacmod_enabled_rpt_ = msg->data;
 
-  last_pacmod_state_ = msg->data;
+//   last_pacmod_state_ = msg->data;
+
+
+  prev_pacmod_enabled_rpt_ = pacmod_enabled_rpt_;
+  pacmod_enabled_rpt_ = msg->data;
+
+  // Stop trying to enable if pacmod just disabled
+  if (prev_pacmod_enabled_rpt_ && !pacmod_enabled_rpt_)
+  {
+    enable_cmd_ = false;
+    clear_override_cmd_ = true;
+    PublishCommands();
+    clear_override_cmd_ = false;
+  }
 }
 
 // Feedback callbacks
 void GameControl::callback_veh_speed(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock(speed_mutex);
   veh_speed_rpt_ = msg;
 }
 
 void GameControl::callback_shift_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock(shift_mutex);
   shift_rpt_ = msg->output;
 }
 
 void GameControl::callback_turn_rpt(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock(turn_mutex);
   turn_signal_rpt_ = msg->output;
 }
 
@@ -131,13 +192,8 @@ void GameControl::publish_steering_message()
   pacmod3_msgs::SteeringCmd steer_msg;
 
   steer_msg.enable = local_enable_;
+  steer_msg.clear_override = clear_override_cmd_;
   steer_msg.ignore_overrides = false;
-
-  // If the enable flag just went to true, send an override clear
-  if (!prev_enable_ && local_enable_)
-  {
-    steer_msg.clear_override = true;
-  }
 
   float range_scale;
   if (vehicle_type_ == VehicleType::POLARIS_GEM)
@@ -155,15 +211,11 @@ void GameControl::publish_steering_message()
   bool speed_valid = false;
   float current_speed = 0.0;
 
-  speed_mutex.lock();
-
   if (veh_speed_rpt_ != NULL)
     speed_valid = veh_speed_rpt_->vehicle_speed_valid;
 
   if (speed_valid)
     current_speed = veh_speed_rpt_->vehicle_speed;
-
-  speed_mutex.unlock();
 
   if (speed_valid)
     if (current_speed < max_veh_speed_)
@@ -182,24 +234,19 @@ void GameControl::publish_turn_signal_message()
   pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
 
   turn_signal_cmd_pub_msg.enable = local_enable_;
+  turn_signal_cmd_pub_msg.clear_override = clear_override_cmd_;
   turn_signal_cmd_pub_msg.ignore_overrides = false;
-
-  // If the enable flag just went to true, send an override clear
-  if (!prev_enable_ && local_enable_)
-  {
-    turn_signal_cmd_pub_msg.clear_override = true;
-  }
 
   int turn_signal_cmd = controller_->turn_signal_cmd();
 
-  if (local_enable_ != prev_enable_)
-{
-    turn_signal_cmd = turn_signal_rpt_;
-  }
+  // if (local_enable_ != prev_enable_)
+  // {
+  //   turn_signal_cmd = turn_signal_rpt_;
+  // }
 
   // Only publish if we are requesting a different turn signal than is currently active, or we just engaged and need to
   // clear override
-  if (turn_signal_cmd != turn_signal_rpt_ || local_enable_ != prev_enable_)
+  if (turn_signal_cmd != turn_signal_rpt_ || clear_override_cmd_)
   {
     turn_signal_cmd_pub_msg.command = turn_signal_cmd;
     turn_signal_cmd_pub_.publish(turn_signal_cmd_pub_msg);
@@ -213,13 +260,8 @@ void GameControl::publish_shifting_message()
   {
     pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable_;
+    shift_cmd_pub_msg.clear_override = clear_override_cmd_;
     shift_cmd_pub_msg.ignore_overrides = false;
-
-    // If the enable flag just went to true, send an override clear and a faults_clear
-    if (!prev_enable_ && local_enable_)
-    {
-      shift_cmd_pub_msg.clear_override = true;
-    }
 
     int shift_cmd = controller_->shift_cmd();
 
@@ -231,17 +273,12 @@ void GameControl::publish_shifting_message()
     shift_cmd_pub_msg.command = shift_cmd;
     shift_cmd_pub_.publish(shift_cmd_pub_msg);
   }
-  else if (local_enable_ != prev_enable_)  // If only an enable/disable button was pressed
+  else if (clear_override_cmd_)  // If only an enable/disable button was pressed
   {
     pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
     shift_cmd_pub_msg.enable = local_enable_;
+    shift_cmd_pub_msg.clear_override = clear_override_cmd_;
     shift_cmd_pub_msg.ignore_overrides = false;
-
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable_ && local_enable_)
-    {
-      shift_cmd_pub_msg.clear_override = true;
-    }
 
     shift_cmd_pub_msg.command = shift_rpt_;
     shift_cmd_pub_.publish(shift_cmd_pub_msg);
@@ -253,13 +290,8 @@ void GameControl::publish_accelerator_message()
   pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
 
   accelerator_cmd_pub_msg.enable = local_enable_;
+  accelerator_cmd_pub_msg.clear_override = clear_override_cmd_;
   accelerator_cmd_pub_msg.ignore_overrides = false;
-
-  // If the enable flag just went to true, send an override clear
-  if (!prev_enable_ && local_enable_)
-  {
-    accelerator_cmd_pub_msg.clear_override = true;
-  }
 
   if (vehicle_type_ == VehicleType::POLARIS_GEM)
   {
@@ -279,13 +311,8 @@ void GameControl::publish_brake_message()
   pacmod3_msgs::SystemCmdFloat brake_msg;
 
   brake_msg.enable = local_enable_;
+  brake_msg.clear_override = clear_override_cmd_;
   brake_msg.ignore_overrides = false;
-
-  // If the enable flag just went to true, send an override clear
-  if (!prev_enable_ && local_enable_)
-  {
-    brake_msg.clear_override = true;
-  }
 
   brake_msg.command = brake_scale_val_ * controller_->brake_value();
   last_brake_cmd_ = brake_msg.command;
@@ -301,6 +328,7 @@ void GameControl::publish_lights()
 
   pacmod3_msgs::SystemCmdInt headlight_cmd_pub_msg;
   headlight_cmd_pub_msg.enable = local_enable_;
+  headlight_cmd_pub_msg.clear_override = clear_override_cmd_;
   headlight_cmd_pub_msg.ignore_overrides = false;
 
   // Headlights
@@ -312,10 +340,9 @@ void GameControl::publish_lights()
     if (headlight_state_ >= NUM_HEADLIGHT_STATES)
       headlight_state_ = HEADLIGHT_STATE_START_VALUE;
 
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable_ && local_enable_)
+    // Reset
+    if (clear_override_cmd_)
     {
-      headlight_cmd_pub_msg.clear_override = true;
       headlight_state_ = HEADLIGHT_STATE_START_VALUE;
     }
   }
@@ -333,13 +360,8 @@ void GameControl::publish_horn()
 
   pacmod3_msgs::SystemCmdBool horn_cmd_pub_msg;
   horn_cmd_pub_msg.enable = local_enable_;
+  horn_cmd_pub_msg.clear_override = clear_override_cmd_;
   horn_cmd_pub_msg.ignore_overrides = false;
-
-  // If the enable flag just went to true, send an override clear
-  if (!prev_enable_ && local_enable_)
-  {
-    horn_cmd_pub_msg.clear_override = true;
-  }
 
   horn_cmd_pub_msg.command = controller_->horn_cmd();
   horn_cmd_pub_.publish(horn_cmd_pub_msg);
@@ -354,6 +376,7 @@ void GameControl::publish_wipers()
 
   pacmod3_msgs::SystemCmdInt wiper_cmd_pub_msg;
   wiper_cmd_pub_msg.enable = local_enable_;
+  wiper_cmd_pub_msg.clear_override = clear_override_cmd_;
   wiper_cmd_pub_msg.ignore_overrides = false;
 
   if (controller_->wiper_change())
@@ -364,10 +387,9 @@ void GameControl::publish_wipers()
     if (wiper_state_ >= NUM_WIPER_STATES)
       wiper_state_ = WIPER_STATE_START_VALUE;
 
-    // If the enable flag just went to true, send an override clear
-    if (!prev_enable_ && local_enable_)
+    // Reset
+    if (clear_override_cmd_)
     {
-      wiper_cmd_pub_msg.clear_override = true;
       wiper_state_ = WIPER_STATE_START_VALUE;
     }
 
@@ -377,39 +399,4 @@ void GameControl::publish_wipers()
   wiper_cmd_pub_.publish(wiper_cmd_pub_msg);
 }
 
-void GameControl::check_is_enabled()
-{
-  bool state_changed = false;
 
-  enable_mutex.lock();
-  local_enable_ = pacmod_enable_;
-  enable_mutex.unlock();
-
-  // Enable
-  if (controller_->enable() && !local_enable_)
-  {
-    std_msgs::Bool bool_pub_msg;
-    bool_pub_msg.data = true;
-    local_enable_ = true;
-    enable_pub_.publish(bool_pub_msg);
-
-    state_changed = true;
-  }
-
-  // Disable
-  if (controller_->disable() && local_enable_)
-  {
-    std_msgs::Bool bool_pub_msg;
-    bool_pub_msg.data = false;
-    local_enable_ = false;
-    enable_pub_.publish(bool_pub_msg);
-
-    state_changed = true;
-  }
-
-  if (state_changed)
-  {
-    std::unique_lock<std::mutex> lock(enable_mutex);
-    pacmod_enable_ = local_enable_;
-  }
-}
