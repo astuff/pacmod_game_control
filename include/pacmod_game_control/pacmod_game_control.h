@@ -59,7 +59,7 @@ const uint16_t INVALID = -1;
 class GameControl
 {
 public:
-  void init();
+  void Init();
 
 private:
   // Subscriber callbacks
@@ -74,11 +74,11 @@ private:
 
   // Command publishing
   void PublishCommands();
-  void PublishSteering();
-  void PublishTurnSignal();
-  void PublishShifting();
   void PublishAccelerator();
   void PublishBrake();
+  void PublishSteering();
+  void PublishShifting();
+  void PublishTurnSignal();
   void PublishLights();
   void PublishHorn();
   void PublishWipers();
@@ -88,8 +88,6 @@ private:
   bool CheckVehicleType(const ros::NodeHandle& nodeH);
   bool CheckControllerType(const ros::NodeHandle& nodeH);
   bool CheckScaleValues(const ros::NodeHandle& nodeH);
-
-  ros::NodeHandle n;
 
   ros::Publisher turn_signal_cmd_pub_;
   ros::Publisher headlight_cmd_pub_;
@@ -108,7 +106,7 @@ private:
   ros::Subscriber horn_sub_;
   ros::Subscriber wiper_sub_;
 
-  std::unique_ptr<controllers::Controller> controller_;
+  std::unique_ptr<controllers::Controller> controller_ = nullptr;
 
   bool lights_api_available_ = false;
   bool horn_api_available_ = false;

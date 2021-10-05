@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
   ros::init(argc, argv, "pacmod_game_control");
 
   GameControl pub_control;
-  pub_control.init();
+  pub_control.Init();
 
   ros::spin();
 

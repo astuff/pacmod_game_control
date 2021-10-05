@@ -11,35 +11,42 @@
 
 #include <pacmod3_msgs/SteeringCmd.h>
 
-void GameControl::init()
+void GameControl::Init()
 {
   if (RunStartupChecks())
   {
     ros::shutdown();
   }
 
+  ros::NodeHandle nh;
+
   // Pubs
-  enable_pub_ = n.advertise<std_msgs::Bool>("pacmod/enable", 20);
-  turn_signal_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
-  headlight_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
-  horn_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
-  wiper_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
-  shift_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
-  accelerator_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
-  steering_cmd_pub_ = n.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steering_cmd", 20);
-  brake_cmd_pub_ = n.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
+  enable_pub_ = nh.advertise<std_msgs::Bool>("pacmod/enable", 20);
+  turn_signal_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
+  headlight_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
+  horn_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
+  wiper_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
+  shift_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
+  accelerator_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
+  steering_cmd_pub_ = nh.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steering_cmd", 20);
+  brake_cmd_pub_ = nh.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
 
   // Subs
-  joy_sub_ = n.subscribe("joy", 1000, &GameControl::GamepadCb, this);
-  speed_sub_ = n.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::VehicleSpeedCb, this);
-  enable_sub_ = n.subscribe("pacmod/enabled", 20, &GameControl::PacmodEnabledCb, this);
-  lights_sub_ = n.subscribe("pacmod/headlight_rpt", 10, &GameControl::LightsRptCb, this);
-  horn_sub_ = n.subscribe("pacmod/horn_rpt", 10, &GameControl::HornRptCb, this);
-  wiper_sub_ = n.subscribe("pacmod/wiper_rpt", 10, &GameControl::WiperRptCb, this);
+  joy_sub_ = nh.subscribe("joy", 1000, &GameControl::GamepadCb, this);
+  speed_sub_ = nh.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::VehicleSpeedCb, this);
+  enable_sub_ = nh.subscribe("pacmod/enabled", 20, &GameControl::PacmodEnabledCb, this);
+  lights_sub_ = nh.subscribe("pacmod/headlight_rpt", 10, &GameControl::LightsRptCb, this);
+  horn_sub_ = nh.subscribe("pacmod/horn_rpt", 10, &GameControl::HornRptCb, this);
+  wiper_sub_ = nh.subscribe("pacmod/wiper_rpt", 10, &GameControl::WiperRptCb, this);
 }
 
 void GameControl::GamepadCb(const sensor_msgs::Joy::ConstPtr& msg)
 {
+  if (controller_ == nullptr)
+  {
+    return;
+  }
+
   controller_->set_controller_input(*msg);
   try
   {
@@ -69,20 +76,13 @@ void GameControl::GamepadCb(const sensor_msgs::Joy::ConstPtr& msg)
   }
 }
 
-void GameControl::PublishCommands()
-{
-  PublishSteering();
-  PublishTurnSignal();
-  PublishShifting();
-  PublishAccelerator();
-  PublishBrake();
-  PublishLights();
-  PublishHorn();
-  PublishWipers();
-}
-
 void GameControl::PacmodEnabledCb(const std_msgs::Bool::ConstPtr& msg)
 {
+  if (controller_ == nullptr)
+  {
+    return;
+  }
+
   bool prev_pacmod_enabled_rpt = pacmod_enabled_rpt_;
   pacmod_enabled_rpt_ = msg->data;
 
@@ -128,6 +128,52 @@ void GameControl::WiperRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
 }
 
 // Publishing
+void GameControl::PublishCommands()
+{
+  PublishAccelerator();
+  PublishBrake();
+  PublishSteering();
+  PublishShifting();
+  PublishTurnSignal();
+  PublishLights();
+  PublishHorn();
+  PublishWipers();
+}
+
+void GameControl::PublishAccelerator()
+{
+  pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
+
+  accelerator_cmd_pub_msg.enable = enable_cmd_;
+  accelerator_cmd_pub_msg.clear_override = clear_override_cmd_;
+  accelerator_cmd_pub_msg.ignore_overrides = false;
+
+  if (vehicle_type_ == VehicleType::POLARIS_GEM)
+  {
+    accelerator_cmd_pub_msg.command =
+        accel_scale_val_ * controller_->accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
+  }
+  else
+  {
+    accelerator_cmd_pub_msg.command = accel_scale_val_ * controller_->accelerator_value();
+  }
+
+  accelerator_cmd_pub_.publish(accelerator_cmd_pub_msg);
+}
+
+void GameControl::PublishBrake()
+{
+  pacmod3_msgs::SystemCmdFloat brake_msg;
+
+  brake_msg.enable = enable_cmd_;
+  brake_msg.clear_override = clear_override_cmd_;
+  brake_msg.ignore_overrides = false;
+
+  brake_msg.command = brake_scale_val_ * controller_->brake_value();
+  last_brake_cmd_ = brake_msg.command;
+  brake_cmd_pub_.publish(brake_msg);
+}
+
 void GameControl::PublishSteering()
 {
   pacmod3_msgs::SteeringCmd steer_msg;
@@ -169,20 +215,6 @@ void GameControl::PublishSteering()
   steering_cmd_pub_.publish(steer_msg);
 }
 
-void GameControl::PublishTurnSignal()
-{
-  pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
-
-  turn_signal_cmd_pub_msg.enable = enable_cmd_;
-  turn_signal_cmd_pub_msg.clear_override = clear_override_cmd_;
-  turn_signal_cmd_pub_msg.ignore_overrides = false;
-
-  int turn_signal_cmd = controller_->turn_signal_cmd();
-
-  turn_signal_cmd_pub_msg.command = turn_signal_cmd;
-  turn_signal_cmd_pub_.publish(turn_signal_cmd_pub_msg);
-}
-
 void GameControl::PublishShifting()
 {
   pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
@@ -202,38 +234,18 @@ void GameControl::PublishShifting()
   shift_cmd_pub_.publish(shift_cmd_pub_msg);
 }
 
-void GameControl::PublishAccelerator()
+void GameControl::PublishTurnSignal()
 {
-  pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
+  pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
 
-  accelerator_cmd_pub_msg.enable = enable_cmd_;
-  accelerator_cmd_pub_msg.clear_override = clear_override_cmd_;
-  accelerator_cmd_pub_msg.ignore_overrides = false;
+  turn_signal_cmd_pub_msg.enable = enable_cmd_;
+  turn_signal_cmd_pub_msg.clear_override = clear_override_cmd_;
+  turn_signal_cmd_pub_msg.ignore_overrides = false;
 
-  if (vehicle_type_ == VehicleType::POLARIS_GEM)
-  {
-    accelerator_cmd_pub_msg.command =
-        accel_scale_val_ * controller_->accelerator_value() * ACCEL_SCALE_FACTOR + ACCEL_OFFSET;
-  }
-  else
-  {
-    accelerator_cmd_pub_msg.command = accel_scale_val_ * controller_->accelerator_value();
-  }
+  int turn_signal_cmd = controller_->turn_signal_cmd();
 
-  accelerator_cmd_pub_.publish(accelerator_cmd_pub_msg);
-}
-
-void GameControl::PublishBrake()
-{
-  pacmod3_msgs::SystemCmdFloat brake_msg;
-
-  brake_msg.enable = enable_cmd_;
-  brake_msg.clear_override = clear_override_cmd_;
-  brake_msg.ignore_overrides = false;
-
-  brake_msg.command = brake_scale_val_ * controller_->brake_value();
-  last_brake_cmd_ = brake_msg.command;
-  brake_cmd_pub_.publish(brake_msg);
+  turn_signal_cmd_pub_msg.command = turn_signal_cmd;
+  turn_signal_cmd_pub_.publish(turn_signal_cmd_pub_msg);
 }
 
 void GameControl::PublishLights()
