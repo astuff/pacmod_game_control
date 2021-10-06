@@ -45,7 +45,7 @@ bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
   else if (vehicle_type_string == "LEXUS_RX_450H")
   {
     vehicle_type_ = VehicleType::LEXUS_RX_450H;
-    max_rot_rad_ = MAX_ROT_RAD_VEHICLE2;
+    max_rot_rad_ = MAX_ROT_RAD_LEXUS_RX_450H;
   }
   else if (vehicle_type_string == "JUPITER_SPIRIT")
   {
@@ -60,21 +60,6 @@ bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
   {
     vehicle_type_ = VehicleType::FREIGHTLINER_CASCADIA;
     max_rot_rad_ = MAX_ROT_RAD_FREIGHTLINER_CASCADIA;
-  }
-  else if (vehicle_type_string == "VEHICLE_4")
-  {
-    vehicle_type_ = VehicleType::VEHICLE_4;
-    max_rot_rad_ = MAX_ROT_RAD_VEHICLE4;
-  }
-  else if (vehicle_type_string == "VEHICLE_5")
-  {
-    vehicle_type_ = VehicleType::VEHICLE_5;
-    max_rot_rad_ = MAX_ROT_RAD_VEHICLE5;
-  }
-  else if (vehicle_type_string == "VEHICLE_6")
-  {
-    vehicle_type_ = VehicleType::VEHICLE_6;
-    max_rot_rad_ = MAX_ROT_RAD_VEHICLE6;
   }
   else
   {
