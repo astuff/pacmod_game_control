@@ -2,8 +2,8 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+4.0.0 (2021-10-06)
+------------------
 * Update README (`#103 <https://github.com/astuff/pacmod_game_control/issues/103>`_)
 * Final Refactor/Cleanup for Noetic Release (`#102 <https://github.com/astuff/pacmod_game_control/issues/102>`_)
 * Update to pacmod3_msgs (`#98 <https://github.com/astuff/pacmod_game_control/issues/98>`_)
