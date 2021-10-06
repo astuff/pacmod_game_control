@@ -31,9 +31,6 @@ enum class VehicleType
   LEXUS_RX_450H,
   INTERNATIONAL_PROSTAR,
   FREIGHTLINER_CASCADIA,
-  VEHICLE_4,
-  VEHICLE_5,
-  VEHICLE_6,
   JUPITER_SPIRIT
 };
 
@@ -43,10 +40,7 @@ const float ACCEL_SCALE_FACTOR = 0.6;
 const float ACCEL_OFFSET = 0.21;
 const float STEER_SCALE_FACTOR = 1.5;
 const float STEER_OFFSET = 1.0;
-const float MAX_ROT_RAD_VEHICLE2 = 8.5;
-const float MAX_ROT_RAD_VEHICLE4 = 8.5;
-const float MAX_ROT_RAD_VEHICLE5 = 8.1;
-const float MAX_ROT_RAD_VEHICLE6 = 8.5;
+const float MAX_ROT_RAD_LEXUS_RX_450H = 8.5;
 const float MAX_ROT_RAD_FREIGHTLINER_CASCADIA = 14.0;
 const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
 const float MAX_ROT_RAD_DEFAULT = 10.9956;

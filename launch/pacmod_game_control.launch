@@ -12,9 +12,6 @@
        POLARIS_RANGER
        LEXUS_RX_450H
        INTERNATIONAL_PROSTAR_122
-       VEHICLE_4
-       VEHICLE_5
-       VEHICLE_6
        FREIGHTLINER_CASCADIA
        JUPITER_SPIRIT -->
   <arg name="pacmod_vehicle_type" default="LEXUS_RX_450H" />
