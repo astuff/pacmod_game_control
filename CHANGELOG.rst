@@ -2,6 +2,31 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update README (`#103 <https://github.com/astuff/pacmod_game_control/issues/103>`_)
+* Final Refactor/Cleanup for Noetic Release (`#102 <https://github.com/astuff/pacmod_game_control/issues/102>`_)
+* Update to pacmod3_msgs (`#98 <https://github.com/astuff/pacmod_game_control/issues/98>`_)
+* Remove kinetic and melodic CI testing (`#100 <https://github.com/astuff/pacmod_game_control/issues/100>`_)
+* Remove lexus-specific brake curve (`#97 <https://github.com/astuff/pacmod_game_control/issues/97>`_)
+* Remove some vehicle-specific code in favour of dynamic detection of aux APIs (`#94 <https://github.com/astuff/pacmod_game_control/issues/94>`_)
+* Remove parameter to select which stick does steering (`#91 <https://github.com/astuff/pacmod_game_control/issues/91>`_)
+* Simplify parameter loading (`#95 <https://github.com/astuff/pacmod_game_control/issues/95>`_)
+* Controller Abstraction (`#90 <https://github.com/astuff/pacmod_game_control/issues/90>`_)
+* Refactor (`#87 <https://github.com/astuff/pacmod_game_control/issues/87>`_)
+* Update launch files (`#84 <https://github.com/astuff/pacmod_game_control/issues/84>`_)
+* Consolidate control board code (`#83 <https://github.com/astuff/pacmod_game_control/issues/83>`_)
+* Add supported controllers to the README, add note about X|D switch (`#79 <https://github.com/astuff/pacmod_game_control/issues/79>`_)
+* Remaps FORT remote for ease of use. `#78 <https://github.com/astuff/pacmod_game_control/issues/78>`_ from astuff/fort_remote_improvements
+* Maint/update readme `#74 <https://github.com/astuff/pacmod_game_control/issues/74>`_ from astuff/maint/update_readme
+* removed incorrect info
+* added driver versions used for vehicles
+* Maint/add img `#73 <https://github.com/astuff/pacmod_game_control/issues/73>`_ from astuff/maint/add_img
+* Adding noetic build to CI. `#71 <https://github.com/astuff/pacmod_game_control/issues/71>`_ from astuff/maint/add_noetic_build
+* added controller description
+* fix shift command `#69 <https://github.com/astuff/pacmod_game_control/issues/69>`_ from astuff/maint/p2_shift
+* Contributors: Amruta Mhaske, Sneha Ganesh, amrutamhaske, bjansky, cullenstoneAS, icolwell-as
+
 3.0.1 (2020-02-05)
 ------------------
 * Merge pull request `#68 <https://github.com/astuff/pacmod_game_control/issues/68>`_ from astuff/fix/shift_low_bug
