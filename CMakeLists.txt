@@ -24,7 +24,7 @@ include_directories(include)
 
 add_executable(${PROJECT_NAME}_node
   src/pacmod_game_control_exec.cpp
-  src/pacmod_game_control.cpp
+  src/pacmod_game_control_node.cpp
   src/startup_checks.cpp
   src/controllers.cpp
 )
