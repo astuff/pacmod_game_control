@@ -11,6 +11,7 @@
   <url type="bugtracker">https://github.com/astuff/pacmod_game_control/issues</url>
 
   <maintainer email="software@autonomoustuff.com">AutonomouStuff Software Development Team</maintainer>
+  <author email="jdriscoll@autonomoustuff.com">Joe Driscoll</author>
   <author email="ian.colwell@hexagon.com">Ian Colwell</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
