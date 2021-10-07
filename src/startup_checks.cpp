@@ -13,27 +13,24 @@
 #include <memory>
 #include <string>
 
-bool GameControl::RunStartupChecks()
+bool GameControlNode::RunStartupChecks()
 {
   bool willExit = false;
 
-  ros::NodeHandle pnh("~");
-
   // Run startup checks
-  willExit = willExit || CheckVehicleType(pnh);
-  willExit = willExit || CheckControllerType(pnh);
-  willExit = willExit || CheckScaleValues(pnh);
+  willExit = willExit || CheckVehicleType();
+  willExit = willExit || CheckControllerType();
+  willExit = willExit || CheckScaleValues();
 
   return willExit;
 }
 
-bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
+bool GameControlNode::CheckVehicleType()
 {
   bool exit = false;
-  std::string vehicle_type_string;
 
-  nodeH.param<std::string>("pacmod_vehicle_type", vehicle_type_string, "LEXUS_RX_450H");
-  ROS_INFO("Loaded pacmod_vehicle_type: %s", vehicle_type_string.c_str());
+  std::string vehicle_type_string = this->declare_parameter("pacmod_vehicle_type", "LEXUS_RX_450H");
+  RCLCPP_INFO(this->get_logger(), "Loaded pacmod_vehicle_type: %s", vehicle_type_string.c_str());
   if (vehicle_type_string == "POLARIS_GEM")
   {
     vehicle_type_ = VehicleType::POLARIS_GEM;
@@ -63,20 +60,19 @@ bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
   }
   else
   {
-    ROS_ERROR("pacmod_vehicle_type is invalid");
+    RCLCPP_ERROR(this->get_logger(), "pacmod_vehicle_type is invalid");
     exit = true;
   }
 
   return exit;
 }
 
-bool GameControl::CheckControllerType(const ros::NodeHandle& nodeH)
+bool GameControlNode::CheckControllerType()
 {
-  std::string controller_string;
   bool exit = false;
 
-  nodeH.param<std::string>("controller_type", controller_string, "LOGITECH_F310");
-  ROS_INFO("Loaded controller_type: %s", controller_string.c_str());
+  std::string controller_string = this->declare_parameter("controller_type", "LOGITECH_F310");
+  RCLCPP_INFO(this->get_logger(), "Loaded controller_type: %s", controller_string.c_str());
 
   if (controller_string == "LOGITECH_F310" || controller_string == "XBOX_ONE")
   {
@@ -95,46 +91,46 @@ bool GameControl::CheckControllerType(const ros::NodeHandle& nodeH)
   }
   else
   {
-    ROS_ERROR("Provided controller_type is invalid. Exiting.");
+    RCLCPP_ERROR(this->get_logger(), "Provided controller_type is invalid. Exiting.");
     exit = true;
   }
 
   return exit;
 }
 
-bool GameControl::CheckScaleValues(const ros::NodeHandle& nodeH)
+bool GameControlNode::CheckScaleValues()
 {
   bool exit = false;
 
-  nodeH.param<float>("steering_max_speed", steering_max_speed_, 3.3);
-  ROS_INFO("Loaded steering_max_speed: %f", steering_max_speed_);
+  steering_max_speed_ = this->declare_parameter("steering_max_speed", 3.3);
+  RCLCPP_INFO(this->get_logger(), "Loaded steering_max_speed: %f", steering_max_speed_);
   if (steering_max_speed_ <= 0)
   {
-    ROS_ERROR("Parameter steering_max_speed is invalid. Exiting.");
+    RCLCPP_ERROR(this->get_logger(), "Parameter steering_max_speed is invalid. Exiting.");
     exit = true;
   }
 
-  nodeH.param<float>("max_veh_speed", max_veh_speed_, 11.176);
-  ROS_INFO("Loaded max_veh_speed: %f", max_veh_speed_);
+  max_veh_speed_ = this->declare_parameter("max_veh_speed", 11.176);
+  RCLCPP_INFO(this->get_logger(), "Loaded max_veh_speed: %f", max_veh_speed_);
   if (max_veh_speed_ <= 0)
   {
-    ROS_ERROR("Parameter max_veh_speed is invalid. Exiting.");
+    RCLCPP_ERROR(this->get_logger(), "Parameter max_veh_speed is invalid. Exiting.");
     exit = true;
   }
 
-  nodeH.param<float>("accel_scale_val", accel_scale_val_, 1.0);
-  ROS_INFO("Loaded accel_scale_val: %f", accel_scale_val_);
+  accel_scale_val_ = this->declare_parameter("accel_scale_val", 1.0);
+  RCLCPP_INFO(this->get_logger(), "Loaded accel_scale_val: %f", accel_scale_val_);
   if (accel_scale_val_ <= 0 || accel_scale_val_ > 1.0)
   {
-    ROS_ERROR("Parameter accel_scale_val is invalid. Exiting.");
+    RCLCPP_ERROR(this->get_logger(), "Parameter accel_scale_val is invalid. Exiting.");
     exit = true;
   }
 
-  nodeH.param<float>("brake_scale_val", brake_scale_val_, 1.0);
-  ROS_INFO("Loaded brake_scale_val: %f", brake_scale_val_);
+  brake_scale_val_ = this->declare_parameter("brake_scale_val", 1.0);
+  RCLCPP_INFO(this->get_logger(), "Loaded brake_scale_val: %f", brake_scale_val_);
   if (brake_scale_val_ <= 0 || brake_scale_val_ > 1.0)
   {
-    ROS_ERROR("Parameter brake_scale_val is invalid. Exiting.");
+    RCLCPP_ERROR(this->get_logger(), "Parameter brake_scale_val is invalid. Exiting.");
     exit = true;
   }
 

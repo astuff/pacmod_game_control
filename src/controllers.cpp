@@ -7,7 +7,7 @@
 
 #include "pacmod_game_control/controllers.h"
 
-#include <pacmod3_msgs/SystemCmdInt.h>
+#include <pacmod3_msgs/msg/system_cmd_int.hpp>
 
 namespace controllers
 {
@@ -46,7 +46,7 @@ Controller::~Controller()
 {
 }
 
-void Controller::set_controller_input(const sensor_msgs::Joy& joy_msg)
+void Controller::set_controller_input(const sensor_msgs::msg::Joy& joy_msg)
 {
   prev_input_msg_ = input_msg_;
   input_msg_ = joy_msg;
@@ -74,21 +74,21 @@ int Controller::turn_signal_cmd()
   // Left on directional pad
   if (input_msg_.axes[axes_[JoyAxis::DPAD_LR]] == AXES_MAX)
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_LEFT;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_LEFT;
   }
   // Right on directional pad
   else if (input_msg_.axes[axes_[JoyAxis::DPAD_LR]] == AXES_MIN)
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_RIGHT;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_RIGHT;
   }
   // Down on directional pad
   else if (input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MIN)
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_HAZARDS;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_HAZARDS;
   }
   else
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_NONE;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_NONE;
   }
 }
 
@@ -96,24 +96,24 @@ int Controller::shift_cmd()
 {
   uint8_t desired_gear = 0x0;
   desired_gear |=
-      (input_msg_.buttons[btns_[JoyButton::RIGHT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_REVERSE |
-      (input_msg_.buttons[btns_[JoyButton::BOTTOM_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_HIGH |
-      (input_msg_.buttons[btns_[JoyButton::TOP_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_PARK |
-      (input_msg_.buttons[btns_[JoyButton::LEFT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::SystemCmdInt::SHIFT_NEUTRAL;
+      (input_msg_.buttons[btns_[JoyButton::RIGHT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_REVERSE |
+      (input_msg_.buttons[btns_[JoyButton::BOTTOM_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_HIGH |
+      (input_msg_.buttons[btns_[JoyButton::TOP_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_PARK |
+      (input_msg_.buttons[btns_[JoyButton::LEFT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_NEUTRAL;
 
   switch (desired_gear)
   {
-    case 1 << pacmod3_msgs::SystemCmdInt::SHIFT_REVERSE:
-      return pacmod3_msgs::SystemCmdInt::SHIFT_REVERSE;
-    case 1 << pacmod3_msgs::SystemCmdInt::SHIFT_HIGH:
-      return pacmod3_msgs::SystemCmdInt::SHIFT_HIGH;
-    case 1 << pacmod3_msgs::SystemCmdInt::SHIFT_PARK:
-      return pacmod3_msgs::SystemCmdInt::SHIFT_PARK;
-    case 1 << pacmod3_msgs::SystemCmdInt::SHIFT_NEUTRAL:
-      return pacmod3_msgs::SystemCmdInt::SHIFT_NEUTRAL;
+    case 1 << pacmod3_msgs::msg::SystemCmdInt::SHIFT_REVERSE:
+      return pacmod3_msgs::msg::SystemCmdInt::SHIFT_REVERSE;
+    case 1 << pacmod3_msgs::msg::SystemCmdInt::SHIFT_HIGH:
+      return pacmod3_msgs::msg::SystemCmdInt::SHIFT_HIGH;
+    case 1 << pacmod3_msgs::msg::SystemCmdInt::SHIFT_PARK:
+      return pacmod3_msgs::msg::SystemCmdInt::SHIFT_PARK;
+    case 1 << pacmod3_msgs::msg::SystemCmdInt::SHIFT_NEUTRAL:
+      return pacmod3_msgs::msg::SystemCmdInt::SHIFT_NEUTRAL;
     // Invalid command (or multiple buttons pressed)
     default:
-      return pacmod3_msgs::SystemCmdInt::SHIFT_NONE;
+      return pacmod3_msgs::msg::SystemCmdInt::SHIFT_NONE;
   }
 }
 
@@ -233,19 +233,19 @@ int HriSafeController::turn_signal_cmd()
 {
   if (input_msg_.axes[axes_[JoyAxis::RIGHT_STICK_UD]] < -0.5)
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_HAZARDS;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_HAZARDS;
   }
   else if (input_msg_.axes[axes_[JoyAxis::RIGHT_STICK_LR]] > 0.5)
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_LEFT;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_LEFT;
   }
   else if (input_msg_.axes[axes_[JoyAxis::RIGHT_STICK_LR]] < -0.5)
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_RIGHT;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_RIGHT;
   }
   else
   {
-    return pacmod3_msgs::SystemCmdInt::TURN_NONE;
+    return pacmod3_msgs::msg::SystemCmdInt::TURN_NONE;
   }
 }
 

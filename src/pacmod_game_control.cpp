@@ -9,36 +9,37 @@
 
 #include <unordered_map>
 
-#include <pacmod3_msgs/SteeringCmd.h>
+#include <pacmod3_msgs/msg/steering_cmd.hpp>
 
-void GameControl::Init()
+using std::placeholders::_1;
+
+GameControlNode::GameControlNode() : Node("pacmod_game_control")
 {
   if (RunStartupChecks())
   {
-    ros::shutdown();
+    rclcpp::shutdown();
   }
 
   // Pubs
-  enable_pub_ = nh_.advertise<std_msgs::Bool>("pacmod/enable", 20);
-  turn_signal_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
-  headlight_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
-  horn_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
-  wiper_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
-  shift_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
-  accelerator_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/accel_cmd", 20);
-  steering_cmd_pub_ = nh_.advertise<pacmod3_msgs::SteeringCmd>("pacmod/steering_cmd", 20);
-  brake_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdFloat>("pacmod/brake_cmd", 20);
+  turn_signal_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdInt>("pacmod/turn_cmd", 10);
+  headlight_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdInt>("pacmod/headlight_cmd", 10);
+  horn_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdBool>("pacmod/horn_cmd", 10);
+  wiper_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdInt>("pacmod/wiper_cmd", 10);
+  shift_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdInt>("pacmod/shift_cmd", 10);
+  accelerator_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdFloat>("pacmod/accel_cmd", 10);
+  steering_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SteeringCmd>("pacmod/steering_cmd", 10);
+  brake_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdFloat>("pacmod/brake_cmd", 10);
 
   // Subs
-  joy_sub_ = nh_.subscribe("joy", 1000, &GameControl::GamepadCb, this);
-  speed_sub_ = nh_.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::VehicleSpeedCb, this);
-  enable_sub_ = nh_.subscribe("pacmod/enabled", 20, &GameControl::PacmodEnabledCb, this);
-  lights_sub_ = nh_.subscribe("pacmod/headlight_rpt", 10, &GameControl::LightsRptCb, this);
-  horn_sub_ = nh_.subscribe("pacmod/horn_rpt", 10, &GameControl::HornRptCb, this);
-  wiper_sub_ = nh_.subscribe("pacmod/wiper_rpt", 10, &GameControl::WiperRptCb, this);
+  joy_sub_ = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&GameControlNode::GamepadCb, this, _1));
+  speed_sub_ = this->create_subscription<pacmod3_msgs::msg::VehicleSpeedRpt>("pacmod/vehicle_speed_rpt", 10, std::bind(&GameControlNode::VehicleSpeedCb, this, _1));
+  enable_sub_ = this->create_subscription<std_msgs::msg::Bool>("pacmod/enabled", 10, std::bind(&GameControlNode::PacmodEnabledCb, this, _1));
+  lights_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptInt>("pacmod/headlight_rpt", 10, std::bind(&GameControlNode::LightsRptCb, this, _1));
+  horn_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptBool>("pacmod/horn_rpt", 10, std::bind(&GameControlNode::HornRptCb, this, _1));
+  wiper_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptInt>("pacmod/wiper_rpt", 10, std::bind(&GameControlNode::WiperRptCb, this, _1));
 }
 
-void GameControl::GamepadCb(const sensor_msgs::Joy::ConstPtr& msg)
+void GameControlNode::GamepadCb(const sensor_msgs::msg::Joy::SharedPtr msg)
 {
   if (controller_ == nullptr)
   {
@@ -70,11 +71,11 @@ void GameControl::GamepadCb(const sensor_msgs::Joy::ConstPtr& msg)
   }
   catch (const std::out_of_range& oor)
   {
-    ROS_ERROR("An out-of-range exception was caught. This probably means you selected the wrong controller_type type.");
+    RCLCPP_ERROR(this->get_logger(), "An out-of-range exception was caught. This probably means you selected the wrong controller_type type.");
   }
 }
 
-void GameControl::PacmodEnabledCb(const std_msgs::Bool::ConstPtr& msg)
+void GameControlNode::PacmodEnabledCb(const std_msgs::msg::Bool::SharedPtr msg)
 {
   if (controller_ == nullptr)
   {
@@ -93,40 +94,40 @@ void GameControl::PacmodEnabledCb(const std_msgs::Bool::ConstPtr& msg)
 }
 
 // Feedback callbacks
-void GameControl::VehicleSpeedCb(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg)
+void GameControlNode::VehicleSpeedCb(const pacmod3_msgs::msg::VehicleSpeedRpt::SharedPtr msg)
 {
   veh_speed_rpt_ = msg;
 }
 
-void GameControl::LightsRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControlNode::LightsRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg)
 {
   if (!lights_api_available_)
   {
     lights_api_available_ = true;
-    ROS_INFO("Headlights API detected");
+    RCLCPP_INFO(this->get_logger(), "Headlights API detected");
   }
 }
 
-void GameControl::HornRptCb(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
+void GameControlNode::HornRptCb(const pacmod3_msgs::msg::SystemRptBool::SharedPtr msg)
 {
   if (!horn_api_available_)
   {
     horn_api_available_ = true;
-    ROS_INFO("Horn API detected");
+    RCLCPP_INFO(this->get_logger(), "Horn API detected");
   }
 }
 
-void GameControl::WiperRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
+void GameControlNode::WiperRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg)
 {
   if (!wiper_api_available_)
   {
     wiper_api_available_ = true;
-    ROS_INFO("Wiper API detected");
+    RCLCPP_INFO(this->get_logger(), "Wiper API detected");
   }
 }
 
 // Publishing
-void GameControl::PublishCommands()
+void GameControlNode::PublishCommands()
 {
   PublishAccelerator();
   PublishBrake();
@@ -138,9 +139,9 @@ void GameControl::PublishCommands()
   PublishWipers();
 }
 
-void GameControl::PublishAccelerator()
+void GameControlNode::PublishAccelerator()
 {
-  pacmod3_msgs::SystemCmdFloat accelerator_cmd_pub_msg;
+  pacmod3_msgs::msg::SystemCmdFloat accelerator_cmd_pub_msg;
 
   accelerator_cmd_pub_msg.enable = enable_cmd_;
   accelerator_cmd_pub_msg.clear_override = clear_override_cmd_;
@@ -156,12 +157,12 @@ void GameControl::PublishAccelerator()
     accelerator_cmd_pub_msg.command = accel_scale_val_ * controller_->accelerator_value();
   }
 
-  accelerator_cmd_pub_.publish(accelerator_cmd_pub_msg);
+  accelerator_cmd_pub_->publish(accelerator_cmd_pub_msg);
 }
 
-void GameControl::PublishBrake()
+void GameControlNode::PublishBrake()
 {
-  pacmod3_msgs::SystemCmdFloat brake_msg;
+  pacmod3_msgs::msg::SystemCmdFloat brake_msg;
 
   brake_msg.enable = enable_cmd_;
   brake_msg.clear_override = clear_override_cmd_;
@@ -169,12 +170,12 @@ void GameControl::PublishBrake()
 
   brake_msg.command = brake_scale_val_ * controller_->brake_value();
   last_brake_cmd_ = brake_msg.command;
-  brake_cmd_pub_.publish(brake_msg);
+  brake_cmd_pub_->publish(brake_msg);
 }
 
-void GameControl::PublishSteering()
+void GameControlNode::PublishSteering()
 {
-  pacmod3_msgs::SteeringCmd steer_msg;
+  pacmod3_msgs::msg::SteeringCmd steer_msg;
 
   steer_msg.enable = enable_cmd_;
   steer_msg.clear_override = clear_override_cmd_;
@@ -210,17 +211,17 @@ void GameControl::PublishSteering()
 
   steer_msg.command = (range_scale * max_rot_rad_) * controller_->steering_value();
   steer_msg.rotation_rate = steering_max_speed_ * speed_based_damping;
-  steering_cmd_pub_.publish(steer_msg);
+  steering_cmd_pub_->publish(steer_msg);
 }
 
-void GameControl::PublishShifting()
+void GameControlNode::PublishShifting()
 {
-  pacmod3_msgs::SystemCmdInt shift_cmd_pub_msg;
+  pacmod3_msgs::msg::SystemCmdInt shift_cmd_pub_msg;
   shift_cmd_pub_msg.enable = enable_cmd_;
   shift_cmd_pub_msg.clear_override = clear_override_cmd_;
   shift_cmd_pub_msg.ignore_overrides = false;
 
-  int shift_cmd = pacmod3_msgs::SystemCmdInt::SHIFT_NONE;
+  int shift_cmd = pacmod3_msgs::msg::SystemCmdInt::SHIFT_NONE;
 
   // Only shift if brake command is higher than 25%
   if (last_brake_cmd_ > 0.5)
@@ -229,12 +230,12 @@ void GameControl::PublishShifting()
   }
 
   shift_cmd_pub_msg.command = shift_cmd;
-  shift_cmd_pub_.publish(shift_cmd_pub_msg);
+  shift_cmd_pub_->publish(shift_cmd_pub_msg);
 }
 
-void GameControl::PublishTurnSignal()
+void GameControlNode::PublishTurnSignal()
 {
-  pacmod3_msgs::SystemCmdInt turn_signal_cmd_pub_msg;
+  pacmod3_msgs::msg::SystemCmdInt turn_signal_cmd_pub_msg;
 
   turn_signal_cmd_pub_msg.enable = enable_cmd_;
   turn_signal_cmd_pub_msg.clear_override = clear_override_cmd_;
@@ -243,17 +244,17 @@ void GameControl::PublishTurnSignal()
   int turn_signal_cmd = controller_->turn_signal_cmd();
 
   turn_signal_cmd_pub_msg.command = turn_signal_cmd;
-  turn_signal_cmd_pub_.publish(turn_signal_cmd_pub_msg);
+  turn_signal_cmd_pub_->publish(turn_signal_cmd_pub_msg);
 }
 
-void GameControl::PublishLights()
+void GameControlNode::PublishLights()
 {
   if (!lights_api_available_)
   {
     return;
   }
 
-  pacmod3_msgs::SystemCmdInt headlight_cmd_pub_msg;
+  pacmod3_msgs::msg::SystemCmdInt headlight_cmd_pub_msg;
   headlight_cmd_pub_msg.enable = enable_cmd_;
   headlight_cmd_pub_msg.clear_override = clear_override_cmd_;
   headlight_cmd_pub_msg.ignore_overrides = false;
@@ -277,33 +278,33 @@ void GameControl::PublishLights()
   }
 
   headlight_cmd_pub_msg.command = headlight_cmd_;
-  headlight_cmd_pub_.publish(headlight_cmd_pub_msg);
+  headlight_cmd_pub_->publish(headlight_cmd_pub_msg);
 }
 
-void GameControl::PublishHorn()
+void GameControlNode::PublishHorn()
 {
   if (!horn_api_available_)
   {
     return;
   }
 
-  pacmod3_msgs::SystemCmdBool horn_cmd_pub_msg;
+  pacmod3_msgs::msg::SystemCmdBool horn_cmd_pub_msg;
   horn_cmd_pub_msg.enable = enable_cmd_;
   horn_cmd_pub_msg.clear_override = clear_override_cmd_;
   horn_cmd_pub_msg.ignore_overrides = false;
 
   horn_cmd_pub_msg.command = controller_->horn_cmd();
-  horn_cmd_pub_.publish(horn_cmd_pub_msg);
+  horn_cmd_pub_->publish(horn_cmd_pub_msg);
 }
 
-void GameControl::PublishWipers()
+void GameControlNode::PublishWipers()
 {
   if (!wiper_api_available_)
   {
     return;
   }
 
-  pacmod3_msgs::SystemCmdInt wiper_cmd_pub_msg;
+  pacmod3_msgs::msg::SystemCmdInt wiper_cmd_pub_msg;
   wiper_cmd_pub_msg.enable = enable_cmd_;
   wiper_cmd_pub_msg.clear_override = clear_override_cmd_;
   wiper_cmd_pub_msg.ignore_overrides = false;
@@ -325,5 +326,5 @@ void GameControl::PublishWipers()
     wiper_cmd_pub_msg.command = wiper_cmd_;
   }
 
-  wiper_cmd_pub_.publish(wiper_cmd_pub_msg);
+  wiper_cmd_pub_->publish(wiper_cmd_pub_msg);
 }

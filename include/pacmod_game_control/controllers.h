@@ -10,7 +10,7 @@
 
 #include <unordered_map>
 
-#include <sensor_msgs/Joy.h>
+#include <sensor_msgs/msg/joy.hpp>
 
 namespace controllers
 {
@@ -61,7 +61,7 @@ class Controller
 public:
   Controller();
   virtual ~Controller();
-  void set_controller_input(const sensor_msgs::Joy& joy_msg);
+  void set_controller_input(const sensor_msgs::msg::Joy& joy_msg);
   virtual float accelerator_value();
   virtual float brake_value();
   virtual float steering_value();
@@ -74,8 +74,8 @@ public:
   virtual bool disable();
 
 protected:
-  sensor_msgs::Joy input_msg_;
-  sensor_msgs::Joy prev_input_msg_;
+  sensor_msgs::msg::Joy input_msg_;
+  sensor_msgs::msg::Joy prev_input_msg_;
   std::unordered_map<JoyAxis, int, EnumHash> axes_;
   std::unordered_map<JoyButton, int, EnumHash> btns_;
 };

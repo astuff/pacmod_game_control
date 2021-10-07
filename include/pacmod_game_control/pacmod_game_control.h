@@ -15,14 +15,15 @@
 #include <vector>
 #include <unordered_map>
 
-#include <ros/ros.h>
-#include <pacmod3_msgs/SystemCmdBool.h>
-#include <pacmod3_msgs/SystemCmdFloat.h>
-#include <pacmod3_msgs/SystemCmdInt.h>
-#include <pacmod3_msgs/SystemRptBool.h>
-#include <pacmod3_msgs/SystemRptInt.h>
-#include <pacmod3_msgs/VehicleSpeedRpt.h>
-#include <std_msgs/Bool.h>
+#include <rclcpp/rclcpp.hpp>
+#include <pacmod3_msgs/msg/steering_cmd.hpp>
+#include <pacmod3_msgs/msg/system_cmd_bool.hpp>
+#include <pacmod3_msgs/msg/system_cmd_float.hpp>
+#include <pacmod3_msgs/msg/system_cmd_int.hpp>
+#include <pacmod3_msgs/msg/system_rpt_bool.hpp>
+#include <pacmod3_msgs/msg/system_rpt_int.hpp>
+#include <pacmod3_msgs/msg/vehicle_speed_rpt.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 enum class VehicleType
 {
@@ -50,21 +51,22 @@ const uint16_t NUM_HEADLIGHT_STATES = 3;
 const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
 const uint16_t INVALID = -1;
 
-class GameControl
+class GameControlNode : public rclcpp::Node
 {
 public:
+  GameControlNode();
   void Init();
 
 private:
   // Subscriber callbacks
-  void GamepadCb(const sensor_msgs::Joy::ConstPtr& msg);
-  void VehicleSpeedCb(const pacmod3_msgs::VehicleSpeedRpt::ConstPtr& msg);
-  void PacmodEnabledCb(const std_msgs::Bool::ConstPtr& msg);
-  void ShiftRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
-  void TurnRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
-  void LightsRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
-  void HornRptCb(const pacmod3_msgs::SystemRptBool::ConstPtr& msg);
-  void WiperRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
+  void GamepadCb(const sensor_msgs::msg::Joy::SharedPtr msg);
+  void VehicleSpeedCb(const pacmod3_msgs::msg::VehicleSpeedRpt::SharedPtr msg);
+  void PacmodEnabledCb(const std_msgs::msg::Bool::SharedPtr msg);
+  void ShiftRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
+  void TurnRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
+  void LightsRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
+  void HornRptCb(const pacmod3_msgs::msg::SystemRptBool::SharedPtr msg);
+  void WiperRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
 
   // Command publishing
   void PublishCommands();
@@ -79,28 +81,25 @@ private:
 
   // Startup checks
   bool RunStartupChecks();
-  bool CheckVehicleType(const ros::NodeHandle& nodeH);
-  bool CheckControllerType(const ros::NodeHandle& nodeH);
-  bool CheckScaleValues(const ros::NodeHandle& nodeH);
+  bool CheckVehicleType();
+  bool CheckControllerType();
+  bool CheckScaleValues();
 
-  ros::Publisher turn_signal_cmd_pub_;
-  ros::Publisher headlight_cmd_pub_;
-  ros::Publisher horn_cmd_pub_;
-  ros::Publisher wiper_cmd_pub_;
-  ros::Publisher shift_cmd_pub_;
-  ros::Publisher accelerator_cmd_pub_;
-  ros::Publisher steering_cmd_pub_;
-  ros::Publisher brake_cmd_pub_;
-  ros::Publisher enable_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr turn_signal_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr headlight_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdBool>::SharedPtr horn_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr wiper_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr shift_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdFloat>::SharedPtr accelerator_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SteeringCmd>::SharedPtr steering_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdFloat>::SharedPtr brake_cmd_pub_;
 
-  ros::Subscriber joy_sub_;
-  ros::Subscriber speed_sub_;
-  ros::Subscriber enable_sub_;
-  ros::Subscriber lights_sub_;
-  ros::Subscriber horn_sub_;
-  ros::Subscriber wiper_sub_;
-
-  ros::NodeHandle nh_;
+  rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
+  rclcpp::Subscription<pacmod3_msgs::msg::VehicleSpeedRpt>::SharedPtr speed_sub_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr enable_sub_;
+  rclcpp::Subscription<pacmod3_msgs::msg::SystemRptInt>::SharedPtr lights_sub_;
+  rclcpp::Subscription<pacmod3_msgs::msg::SystemRptBool>::SharedPtr horn_sub_;
+  rclcpp::Subscription<pacmod3_msgs::msg::SystemRptInt>::SharedPtr wiper_sub_;
 
   std::unique_ptr<controllers::Controller> controller_ = nullptr;
 
@@ -125,7 +124,7 @@ private:
 
   // Pacmod status reports
   bool pacmod_enabled_rpt_ = false;
-  pacmod3_msgs::VehicleSpeedRpt::ConstPtr veh_speed_rpt_ = NULL;
+  pacmod3_msgs::msg::VehicleSpeedRpt::SharedPtr veh_speed_rpt_ = NULL;
 };
 
 #endif  // PACMOD_GAME_CONTROL_PACMOD_GAME_CONTROL_H
