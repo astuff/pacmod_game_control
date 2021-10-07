@@ -13,6 +13,7 @@ commands:
           name: Install Dependencies
           command: |
             source /opt/ros/*/setup.bash
+            apt update
             rosdep update
             rosdep install --from-paths . --ignore-src -y
       - run:
