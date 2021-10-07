@@ -31,12 +31,18 @@ GameControlNode::GameControlNode() : Node("pacmod_game_control")
   brake_cmd_pub_ = this->create_publisher<pacmod3_msgs::msg::SystemCmdFloat>("pacmod/brake_cmd", 10);
 
   // Subs
-  joy_sub_ = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&GameControlNode::GamepadCb, this, _1));
-  speed_sub_ = this->create_subscription<pacmod3_msgs::msg::VehicleSpeedRpt>("pacmod/vehicle_speed_rpt", 10, std::bind(&GameControlNode::VehicleSpeedCb, this, _1));
-  enable_sub_ = this->create_subscription<std_msgs::msg::Bool>("pacmod/enabled", 10, std::bind(&GameControlNode::PacmodEnabledCb, this, _1));
-  lights_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptInt>("pacmod/headlight_rpt", 10, std::bind(&GameControlNode::LightsRptCb, this, _1));
-  horn_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptBool>("pacmod/horn_rpt", 10, std::bind(&GameControlNode::HornRptCb, this, _1));
-  wiper_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptInt>("pacmod/wiper_rpt", 10, std::bind(&GameControlNode::WiperRptCb, this, _1));
+  joy_sub_ =
+      this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&GameControlNode::GamepadCb, this, _1));
+  speed_sub_ = this->create_subscription<pacmod3_msgs::msg::VehicleSpeedRpt>(
+      "pacmod/vehicle_speed_rpt", 10, std::bind(&GameControlNode::VehicleSpeedCb, this, _1));
+  enable_sub_ = this->create_subscription<std_msgs::msg::Bool>("pacmod/enabled", 10,
+                                                               std::bind(&GameControlNode::PacmodEnabledCb, this, _1));
+  lights_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptInt>(
+      "pacmod/headlight_rpt", 10, std::bind(&GameControlNode::LightsRptCb, this, _1));
+  horn_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptBool>(
+      "pacmod/horn_rpt", 10, std::bind(&GameControlNode::HornRptCb, this, _1));
+  wiper_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptInt>(
+      "pacmod/wiper_rpt", 10, std::bind(&GameControlNode::WiperRptCb, this, _1));
 }
 
 void GameControlNode::GamepadCb(const sensor_msgs::msg::Joy::SharedPtr msg)
@@ -71,7 +77,8 @@ void GameControlNode::GamepadCb(const sensor_msgs::msg::Joy::SharedPtr msg)
   }
   catch (const std::out_of_range& oor)
   {
-    RCLCPP_ERROR(this->get_logger(), "An out-of-range exception was caught. This probably means you selected the wrong controller_type type.");
+    RCLCPP_ERROR(this->get_logger(), "An out-of-range exception was caught. This probably means you selected the wrong "
+                                     "controller_type type.");
   }
 }
 
@@ -101,6 +108,7 @@ void GameControlNode::VehicleSpeedCb(const pacmod3_msgs::msg::VehicleSpeedRpt::S
 
 void GameControlNode::LightsRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg)
 {
+  (void)msg;
   if (!lights_api_available_)
   {
     lights_api_available_ = true;
@@ -110,6 +118,7 @@ void GameControlNode::LightsRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedP
 
 void GameControlNode::HornRptCb(const pacmod3_msgs::msg::SystemRptBool::SharedPtr msg)
 {
+  (void)msg;
   if (!horn_api_available_)
   {
     horn_api_available_ = true;
@@ -119,6 +128,7 @@ void GameControlNode::HornRptCb(const pacmod3_msgs::msg::SystemRptBool::SharedPt
 
 void GameControlNode::WiperRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg)
 {
+  (void)msg;
   if (!wiper_api_available_)
   {
     wiper_api_available_ = true;
@@ -197,17 +207,27 @@ void GameControlNode::PublishSteering()
   float current_speed = 0.0;
 
   if (veh_speed_rpt_ != NULL)
+  {
     speed_valid = veh_speed_rpt_->vehicle_speed_valid;
+  }
 
   if (speed_valid)
+  {
     current_speed = veh_speed_rpt_->vehicle_speed;
+  }
 
   if (speed_valid)
+  {
     if (current_speed < max_veh_speed_)
+    {
       speed_based_damping =
           STEER_OFFSET - fabs((current_speed / (max_veh_speed_ * STEER_SCALE_FACTOR)));  // this could go negative.
+    }
     else
+    {
       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
+    }
+  }
 
   steer_msg.command = (range_scale * max_rot_rad_) * controller_->steering_value();
   steer_msg.rotation_rate = steering_max_speed_ * speed_based_damping;

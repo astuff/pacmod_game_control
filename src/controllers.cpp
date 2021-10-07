@@ -95,11 +95,14 @@ int Controller::turn_signal_cmd()
 int Controller::shift_cmd()
 {
   uint8_t desired_gear = 0x0;
-  desired_gear |=
-      (input_msg_.buttons[btns_[JoyButton::RIGHT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_REVERSE |
-      (input_msg_.buttons[btns_[JoyButton::BOTTOM_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_HIGH |
-      (input_msg_.buttons[btns_[JoyButton::TOP_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_PARK |
-      (input_msg_.buttons[btns_[JoyButton::LEFT_BTN]] == BUTTON_PRESSED) << pacmod3_msgs::msg::SystemCmdInt::SHIFT_NEUTRAL;
+  desired_gear |= (input_msg_.buttons[btns_[JoyButton::RIGHT_BTN]] == BUTTON_PRESSED)
+                      << pacmod3_msgs::msg::SystemCmdInt::SHIFT_REVERSE |
+                  (input_msg_.buttons[btns_[JoyButton::BOTTOM_BTN]] == BUTTON_PRESSED)
+                      << pacmod3_msgs::msg::SystemCmdInt::SHIFT_HIGH |
+                  (input_msg_.buttons[btns_[JoyButton::TOP_BTN]] == BUTTON_PRESSED)
+                      << pacmod3_msgs::msg::SystemCmdInt::SHIFT_PARK |
+                  (input_msg_.buttons[btns_[JoyButton::LEFT_BTN]] == BUTTON_PRESSED)
+                      << pacmod3_msgs::msg::SystemCmdInt::SHIFT_NEUTRAL;
 
   switch (desired_gear)
   {
