@@ -19,7 +19,6 @@ void GameControl::Init()
   }
 
   // Pubs
-  enable_pub_ = nh_.advertise<std_msgs::Bool>("pacmod/enable", 20);
   turn_signal_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
   headlight_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
   horn_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
