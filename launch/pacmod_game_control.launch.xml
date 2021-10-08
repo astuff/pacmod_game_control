@@ -36,28 +36,29 @@
   <arg name="max_veh_speed" default="11.176" />
 
   <!-- Driver -->
-  <include file="$(find pacmod3)/launch/pacmod3.launch" if="$(arg launch_driver)" ns="pacmod">
-    <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
-    <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
-    <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" unless="$(arg use_socketcan)" />
-    <arg name="kvaser_circuit_id" value="$(arg pacmod_can_circuit_id)" unless="$(arg use_socketcan)" />
-    <arg name="use_socketcan" value="true" if="$(arg use_socketcan)" />
-    <arg name="socketcan_device" value="$(arg pacmod_socketcan_device)" if="$(arg use_socketcan)" />
-  </include>
+  <group if="$(var launch_driver)">
+    <include file="$(find-pkg-share pacmod3)/launch/pacmod3.launch.xml">
+      <arg name="use_kvaser" value="$(eval '\'$(var use_socketcan)\' == \'false\'')" />
+      <arg name="kvaser_hardware_id" value="$(var pacmod_can_hardware_id)" />
+      <arg name="kvaser_circuit_id" value="$(var pacmod_can_circuit_id)" />
+      <arg name="use_socketcan" value="$(eval '\'$(var use_socketcan)\' == \'true\'')" />
+      <arg name="socketcan_device" value="$(var pacmod_socketcan_device)" />
+    </include>
+  </group>
 
   <!-- Game Control -->
-  <node pkg="joy" type="joy_node" name="joy">
-    <param name="coalesce_interval" type="double" value="0.02"/>
+  <node pkg="joy" exec="joy_node" name="joy">
+    <param name="coalesce_interval" value="0.02"/>
     <param name="default_trig_val" value="true"/>
     <param name="deadzone" value="0.0"/>
   </node>
 
-  <node pkg="pacmod_game_control" type="pacmod_game_control_node" name="pacmod_game_control" output="screen">
-    <param name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)"/>
-    <param name="controller_type" value="$(arg controller_type)"/>
-    <param name="steering_max_speed" value="$(arg steering_max_speed)"/>
-    <param name="accel_scale_val" value="$(arg accel_scale_val)"/>
-    <param name="brake_scale_val" value="$(arg brake_scale_val)"/>
-    <param name="max_veh_speed" value="$(arg max_veh_speed)" />
+  <node pkg="pacmod_game_control" exec="pacmod_game_control_node" name="pacmod_game_control" output="screen">
+    <param name="pacmod_vehicle_type" value="$(var pacmod_vehicle_type)"/>
+    <param name="controller_type" value="$(var controller_type)"/>
+    <param name="steering_max_speed" value="$(var steering_max_speed)"/>
+    <param name="accel_scale_val" value="$(var accel_scale_val)"/>
+    <param name="brake_scale_val" value="$(var brake_scale_val)"/>
+    <param name="max_veh_speed" value="$(var max_veh_speed)" />
   </node>
 </launch>

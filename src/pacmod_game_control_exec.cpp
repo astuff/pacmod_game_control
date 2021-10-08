@@ -11,12 +11,9 @@
 
 int main(int argc, char* argv[])
 {
-  ros::init(argc, argv, "pacmod_game_control");
-
-  GameControl pub_control;
-  pub_control.Init();
-
-  ros::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<GameControlNode>();
+  rclcpp::spin(node);
 
   return 0;
 }

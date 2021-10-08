@@ -1,56 +1,57 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(pacmod_game_control)
 
-add_definitions(-std=c++14)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  roslint
-  roscpp
-  std_msgs
-  sensor_msgs
-  pacmod3_msgs
-  joy
-)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-catkin_package(CATKIN_DEPENDS
-  std_msgs
-  sensor_msgs
-  pacmod3_msgs
-  joy
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
-include_directories(include
-  ${catkin_INCLUDE_DIRS}
-)
+find_package(pacmod3_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
-add_executable(pacmod_game_control_node
-  src/pacmod_game_control_node.cpp
+include_directories(include)
+
+# Build
+
+add_executable(${PROJECT_NAME}_node
+  src/pacmod_game_control_exec.cpp
   src/pacmod_game_control.cpp
   src/startup_checks.cpp
   src/controllers.cpp
 )
-
-add_dependencies(pacmod_game_control_node
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
+ament_target_dependencies(${PROJECT_NAME}_node
+  "rclcpp"
+  "rclcpp_components"
+  "rclcpp_lifecycle"
+  "pacmod3_msgs"
+  "sensor_msgs"
+  "std_msgs"
 )
-target_link_libraries(pacmod_game_control_node
-  ${catkin_LIBRARIES}
-)
 
-set(ROSLINT_CPP_OPTS "--filter=-build/namespaces,-build/c++11")
-roslint_cpp()
+ament_export_include_directories(include)
 
-install(TARGETS pacmod_game_control_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# Install
+
+install(
+  TARGETS ${PROJECT_NAME}_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 install(FILES README.md
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}/
 )
+
+ament_package()
