@@ -14,7 +14,7 @@
   <author email="jdriscoll@autonomoustuff.com">Joe Driscoll</author>
   <author email="ian.colwell@hexagon.com">Ian Colwell</author>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
