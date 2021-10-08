@@ -8,7 +8,7 @@
  * Series of startup checks for the pacmod game control node.
  */
 
-#include "pacmod_game_control/pacmod_game_control.h"
+#include "pacmod_game_control/pacmod_game_control_node.h"
 
 #include <memory>
 #include <string>
