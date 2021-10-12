@@ -91,7 +91,6 @@ private:
   ros::Publisher accelerator_cmd_pub_;
   ros::Publisher steering_cmd_pub_;
   ros::Publisher brake_cmd_pub_;
-  ros::Publisher enable_pub_;
 
   ros::Subscriber joy_sub_;
   ros::Subscriber speed_sub_;
