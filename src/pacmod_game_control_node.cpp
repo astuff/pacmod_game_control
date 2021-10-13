@@ -35,8 +35,8 @@ GameControlNode::GameControlNode() : Node("pacmod_game_control")
       this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&GameControlNode::GamepadCb, this, _1));
   speed_sub_ = this->create_subscription<pacmod3_msgs::msg::VehicleSpeedRpt>(
       "pacmod/vehicle_speed_rpt", 10, std::bind(&GameControlNode::VehicleSpeedCb, this, _1));
-  enable_sub_ = this->create_subscription<std_msgs::msg::Bool>("pacmod/enabled", 10,
-                                                               std::bind(&GameControlNode::PacmodEnabledCb, this, _1));
+  global_sub_ = this->create_subscription<pacmod3_msgs::msg::GlobalRpt>("pacmod/global_rpt", 10,
+                                                               std::bind(&GameControlNode::PacmodGlobalRptCb, this, _1));
   lights_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptInt>(
       "pacmod/headlight_rpt", 10, std::bind(&GameControlNode::LightsRptCb, this, _1));
   horn_sub_ = this->create_subscription<pacmod3_msgs::msg::SystemRptBool>(
@@ -82,7 +82,7 @@ void GameControlNode::GamepadCb(const sensor_msgs::msg::Joy::SharedPtr msg)
   }
 }
 
-void GameControlNode::PacmodEnabledCb(const std_msgs::msg::Bool::SharedPtr msg)
+void GameControlNode::PacmodGlobalRptCb(const pacmod3_msgs::msg::GlobalRpt::SharedPtr msg)
 {
   if (controller_ == nullptr)
   {
@@ -90,10 +90,10 @@ void GameControlNode::PacmodEnabledCb(const std_msgs::msg::Bool::SharedPtr msg)
   }
 
   bool prev_pacmod_enabled_rpt = pacmod_enabled_rpt_;
-  pacmod_enabled_rpt_ = msg->data;
+  pacmod_enabled_rpt_ = msg->enabled;
 
   // Stop trying to enable if pacmod just disabled from an override or something
-  if (prev_pacmod_enabled_rpt && !pacmod_enabled_rpt_)
+  if ((prev_pacmod_enabled_rpt && !pacmod_enabled_rpt_) || msg->override_active)
   {
     enable_cmd_ = false;
     PublishCommands();

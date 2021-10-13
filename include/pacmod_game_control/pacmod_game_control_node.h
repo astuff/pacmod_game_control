@@ -23,7 +23,7 @@
 #include <pacmod3_msgs/msg/system_rpt_bool.hpp>
 #include <pacmod3_msgs/msg/system_rpt_int.hpp>
 #include <pacmod3_msgs/msg/vehicle_speed_rpt.hpp>
-#include <std_msgs/msg/bool.hpp>
+#include <pacmod3_msgs/msg/global_rpt.hpp>
 
 enum class VehicleType
 {
@@ -61,7 +61,7 @@ private:
   // Subscriber callbacks
   void GamepadCb(const sensor_msgs::msg::Joy::SharedPtr msg);
   void VehicleSpeedCb(const pacmod3_msgs::msg::VehicleSpeedRpt::SharedPtr msg);
-  void PacmodEnabledCb(const std_msgs::msg::Bool::SharedPtr msg);
+  void PacmodGlobalRptCb(const pacmod3_msgs::msg::GlobalRpt::SharedPtr msg);
   void ShiftRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
   void TurnRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
   void LightsRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
@@ -96,7 +96,7 @@ private:
 
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
   rclcpp::Subscription<pacmod3_msgs::msg::VehicleSpeedRpt>::SharedPtr speed_sub_;
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr enable_sub_;
+  rclcpp::Subscription<pacmod3_msgs::msg::GlobalRpt>::SharedPtr global_sub_;
   rclcpp::Subscription<pacmod3_msgs::msg::SystemRptInt>::SharedPtr lights_sub_;
   rclcpp::Subscription<pacmod3_msgs::msg::SystemRptBool>::SharedPtr horn_sub_;
   rclcpp::Subscription<pacmod3_msgs::msg::SystemRptInt>::SharedPtr wiper_sub_;
