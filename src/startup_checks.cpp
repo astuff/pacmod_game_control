@@ -64,6 +64,7 @@ bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
   else if (vehicle_type_string == "HONDA_CRV")
   {
     vehicle_type_ = VehicleType::HONDA_CRV;
+    max_rot_rad_ = MAX_ROT_RAD_HONDA_CRV;
   }
   else
   {
