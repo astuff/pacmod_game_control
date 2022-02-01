@@ -61,6 +61,10 @@ bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
     vehicle_type_ = VehicleType::FREIGHTLINER_CASCADIA;
     max_rot_rad_ = MAX_ROT_RAD_FREIGHTLINER_CASCADIA;
   }
+  else if (vehicle_type_string == "HONDA_CRV")
+  {
+    vehicle_type_ = VehicleType::HONDA_CRV;
+  }
   else
   {
     ROS_ERROR("pacmod_vehicle_type is invalid");
