@@ -61,6 +61,21 @@ bool GameControl::CheckVehicleType(const ros::NodeHandle& nodeH)
     vehicle_type_ = VehicleType::FREIGHTLINER_CASCADIA;
     max_rot_rad_ = MAX_ROT_RAD_FREIGHTLINER_CASCADIA;
   }
+  else if (vehicle_type_string == "HONDA_CRV")
+  {
+    vehicle_type_ = VehicleType::HONDA_CRV;
+    max_rot_rad_ = MAX_ROT_RAD_HONDA_CRV;
+  }
+  else if (vehicle_type_string == "FORD_RANGER")
+  {
+    vehicle_type_ = VehicleType::FORD_RANGER;
+    max_rot_rad_ = MAX_ROT_RAD_FORD_RANGER;
+  }
+  else if (vehicle_type_string == "FORD_TRANSIT")
+  {
+    vehicle_type_ = VehicleType::FORD_TRANSIT;
+    max_rot_rad_ = MAX_ROT_RAD_FORD_TRANSIT;
+  }
   else
   {
     ROS_ERROR("pacmod_vehicle_type is invalid");

@@ -26,29 +26,37 @@
 
 enum class VehicleType
 {
+  FORD_RANGER,
+  FORD_TRANSIT,
+  FREIGHTLINER_CASCADIA,
+  HONDA_CRV,
+  INTERNATIONAL_PROSTAR,
+  JUPITER_SPIRIT,
+  LEXUS_RX_450H,
   POLARIS_GEM,
   POLARIS_RANGER,
-  LEXUS_RX_450H,
-  INTERNATIONAL_PROSTAR,
-  FREIGHTLINER_CASCADIA,
-  JUPITER_SPIRIT
 };
 
-// constants
+// Constants
 const float ROT_RANGE_SCALER_LB = 0.05;
 const float ACCEL_SCALE_FACTOR = 0.6;
 const float ACCEL_OFFSET = 0.21;
 const float STEER_SCALE_FACTOR = 1.5;
 const float STEER_OFFSET = 1.0;
-const float MAX_ROT_RAD_LEXUS_RX_450H = 8.5;
-const float MAX_ROT_RAD_FREIGHTLINER_CASCADIA = 14.0;
-const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
-const float MAX_ROT_RAD_DEFAULT = 10.9956;
 const uint16_t NUM_WIPER_STATES = 8;
 const uint16_t WIPER_STATE_START_VALUE = 0;
 const uint16_t NUM_HEADLIGHT_STATES = 3;
 const uint16_t HEADLIGHT_STATE_START_VALUE = 0;
 const uint16_t INVALID = -1;
+
+// Steering wheel maximums
+const float MAX_ROT_RAD_DEFAULT = 10.9956;
+const float MAX_ROT_RAD_FORD_RANGER = 10.29;
+const float MAX_ROT_RAD_FORD_TRANSIT = 10.21;
+const float MAX_ROT_RAD_FREIGHTLINER_CASCADIA = 14.0;
+const float MAX_ROT_RAD_HONDA_CRV = 7.4;
+const float MAX_ROT_RAD_JUPITER_SPIRIT = 8.5;
+const float MAX_ROT_RAD_LEXUS_RX_450H = 8.5;
 
 class GameControl
 {
