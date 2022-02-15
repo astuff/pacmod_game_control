@@ -40,7 +40,6 @@
 
   <!-- Driver -->
   <include file="$(find pacmod3)/launch/pacmod3.launch" if="$(arg launch_driver)">
-    <arg name="pacmod_vehicle_type" value="$(arg pacmod_vehicle_type)" />
     <arg name="use_kvaser" value="true" unless="$(arg use_socketcan)" />
     <arg name="kvaser_hardware_id" value="$(arg pacmod_can_hardware_id)" unless="$(arg use_socketcan)" />
     <arg name="kvaser_circuit_id" value="$(arg pacmod_can_circuit_id)" unless="$(arg use_socketcan)" />
