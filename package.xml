@@ -22,7 +22,7 @@
 
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>pacmod3_msgs</depend>
+  <depend version_gte="1.0.0" version_lt="1.1.0">pacmod3_msgs</depend>
 
   <exec_depend>joy</exec_depend>
 
