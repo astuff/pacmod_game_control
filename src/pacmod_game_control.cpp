@@ -202,10 +202,14 @@ void GameControl::PublishSteering()
 
   if (speed_valid)
     if (current_speed < max_veh_speed_)
+    {
       speed_based_damping =
           STEER_OFFSET - fabs((current_speed / (max_veh_speed_ * STEER_SCALE_FACTOR)));  // this could go negative.
+    }
     else
+    {
       speed_based_damping = 0.33333;  // clips the equation assuming 1 offset and 1.5 scale_factor
+    }
 
   steer_msg.command = (range_scale * max_rot_rad_) * controller_->steering_value();
   steer_msg.rotation_rate = steering_max_speed_ * speed_based_damping;
