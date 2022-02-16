@@ -63,12 +63,10 @@ protected:
   sensor_msgs::Joy prev_input_msg_;
 
   // --- Generic gamepad controller (Logitech F310, XBOX)
-  std::unordered_map<JoyAxis, int> axes_ = {
-    { JoyAxis::LEFT_STICK_LR, 0 },     { JoyAxis::LEFT_STICK_UD, 1 },
-    { JoyAxis::RIGHT_STICK_LR, 3 },    { JoyAxis::RIGHT_STICK_UD, 4 },
-    { JoyAxis::LEFT_TRIGGER_AXIS, 2 }, { JoyAxis::RIGHT_TRIGGER_AXIS, 5 },
-    { JoyAxis::DPAD_LR, 6 },           { JoyAxis::DPAD_UD, 7 }
-  };
+  std::unordered_map<JoyAxis, int> axes_ = { { JoyAxis::LEFT_STICK_LR, 0 },     { JoyAxis::LEFT_STICK_UD, 1 },
+                                             { JoyAxis::RIGHT_STICK_LR, 3 },    { JoyAxis::RIGHT_STICK_UD, 4 },
+                                             { JoyAxis::LEFT_TRIGGER_AXIS, 2 }, { JoyAxis::RIGHT_TRIGGER_AXIS, 5 },
+                                             { JoyAxis::DPAD_LR, 6 },           { JoyAxis::DPAD_UD, 7 } };
 
   std::unordered_map<JoyButton, int> btns_ = {
     { JoyButton::BOTTOM_BTN, 0 },        { JoyButton::RIGHT_BTN, 1 },   { JoyButton::LEFT_BTN, 2 },
