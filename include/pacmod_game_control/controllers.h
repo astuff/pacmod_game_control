@@ -14,10 +14,6 @@
 
 namespace controllers
 {
-const uint16_t BUTTON_PRESSED = 1;
-const uint16_t BUTTON_DEPRESSED = 0;
-const float AXES_MIN = -1.0;
-const float AXES_MAX = 1.0;
 
 enum class JoyAxis
 {
@@ -47,20 +43,10 @@ enum class JoyButton
   RIGHT_STICK_PUSH
 };
 
-struct EnumHash
-{
-  template <typename T>
-  std::size_t operator()(T t) const
-  {
-    return static_cast<std::size_t>(t);
-  }
-};
-
 class Controller
 {
 public:
-  Controller();
-  virtual ~Controller();
+  virtual ~Controller() = default;
   void set_controller_input(const sensor_msgs::msg::Joy& joy_msg);
   virtual float accelerator_value();
   virtual float brake_value();
@@ -76,8 +62,21 @@ public:
 protected:
   sensor_msgs::msg::Joy input_msg_;
   sensor_msgs::msg::Joy prev_input_msg_;
-  std::unordered_map<JoyAxis, int, EnumHash> axes_;
-  std::unordered_map<JoyButton, int, EnumHash> btns_;
+
+  // --- Generic gamepad controller (Logitech F310, XBOX)
+  std::unordered_map<JoyAxis, int> axes_ = {                                // NOLINT
+    { JoyAxis::LEFT_STICK_LR, 0 },     { JoyAxis::LEFT_STICK_UD, 1 },       // NOLINT
+    { JoyAxis::RIGHT_STICK_LR, 3 },    { JoyAxis::RIGHT_STICK_UD, 4 },      // NOLINT
+    { JoyAxis::LEFT_TRIGGER_AXIS, 2 }, { JoyAxis::RIGHT_TRIGGER_AXIS, 5 },  // NOLINT
+    { JoyAxis::DPAD_LR, 6 },           { JoyAxis::DPAD_UD, 7 }              // NOLINT
+  };
+                                                                          // NOLINT
+  std::unordered_map<JoyButton, int> btns_ = {                                                              // NOLINT
+    { JoyButton::BOTTOM_BTN, 0 },        { JoyButton::RIGHT_BTN, 1 },   { JoyButton::LEFT_BTN, 2 },         // NOLINT
+    { JoyButton::TOP_BTN, 3 },           { JoyButton::LEFT_BUMPER, 4 }, { JoyButton::RIGHT_BUMPER, 5 },     // NOLINT
+    { JoyButton::BACK_SELECT_MINUS, 6 }, { JoyButton::START_PLUS, 7 },  { JoyButton::LEFT_STICK_PUSH, 9 },  // NOLINT
+    { JoyButton::RIGHT_STICK_PUSH, 10 }                                                                     // NOLINT
+  };
 };
 
 class LogitechG29Controller : public Controller
