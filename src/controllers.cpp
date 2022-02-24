@@ -11,40 +11,14 @@
 
 namespace controllers
 {
-// --- Generic gamepad controller (Logitech F310, XBOX)
-Controller::Controller()
+namespace
 {
-  axes_[JoyAxis::LEFT_STICK_LR] = 0;
-  axes_[JoyAxis::LEFT_STICK_UD] = 1;
+const uint16_t BUTTON_PRESSED = 1;
+const uint16_t BUTTON_DEPRESSED = 0;
+const float AXES_MIN = -1.0;
+const float AXES_MAX = 1.0;
 
-  axes_[JoyAxis::RIGHT_STICK_LR] = 3;
-  axes_[JoyAxis::RIGHT_STICK_UD] = 4;
-
-  axes_[JoyAxis::LEFT_TRIGGER_AXIS] = 2;
-  axes_[JoyAxis::RIGHT_TRIGGER_AXIS] = 5;
-
-  axes_[JoyAxis::DPAD_LR] = 6;
-  axes_[JoyAxis::DPAD_UD] = 7;
-
-  btns_[JoyButton::BOTTOM_BTN] = 0;
-  btns_[JoyButton::RIGHT_BTN] = 1;
-  btns_[JoyButton::LEFT_BTN] = 2;
-  btns_[JoyButton::TOP_BTN] = 3;
-
-  btns_[JoyButton::LEFT_BUMPER] = 4;
-  btns_[JoyButton::RIGHT_BUMPER] = 5;
-
-  btns_[JoyButton::BACK_SELECT_MINUS] = 6;
-  btns_[JoyButton::START_PLUS] = 7;
-
-  // Currently unused
-  btns_[JoyButton::LEFT_STICK_PUSH] = 9;
-  btns_[JoyButton::RIGHT_STICK_PUSH] = 10;
-}
-
-Controller::~Controller()
-{
-}
+}  // namespace
 
 void Controller::set_controller_input(const sensor_msgs::Joy& joy_msg)
 {
@@ -151,6 +125,8 @@ bool Controller::disable()
 // --- Logitech G29, racing wheel with pedals
 LogitechG29Controller::LogitechG29Controller()
 {
+  axes_.clear();
+  btns_.clear();
   // steering wheel, not right stick
   axes_[JoyAxis::RIGHT_STICK_LR] = 0;
   // throttle pedal, not right trigger
@@ -188,6 +164,9 @@ float LogitechG29Controller::brake_value()
 // --- HRI Safe Remote Controller
 HriSafeController::HriSafeController()
 {
+  axes_.clear();
+  btns_.clear();
+
   axes_[JoyAxis::LEFT_STICK_LR] = 0;
   axes_[JoyAxis::LEFT_STICK_UD] = 1;
 
