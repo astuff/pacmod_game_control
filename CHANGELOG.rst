@@ -2,8 +2,8 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+4.1.0 (2022-02-25)
+------------------
 * [`#124 <https://github.com/astuff/pacmod_game_control/issues/124>`_] Clear the axes and buttons map in the derived controller first (`#126 <https://github.com/astuff/pacmod_game_control/issues/126>`_)
   * [`#124 <https://github.com/astuff/pacmod_game_control/issues/124>`_] Clear axes and button map in derived controller's constructor first
   - Remove user defined constructor for Controller.
