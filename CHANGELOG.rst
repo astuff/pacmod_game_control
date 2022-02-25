@@ -2,25 +2,13 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.1.0 (2022-02-25)
+4.1.0 (2022-02-28)
 ------------------
-* [`#124 <https://github.com/astuff/pacmod_game_control/issues/124>`_] Clear the axes and buttons map in the derived controller first (`#126 <https://github.com/astuff/pacmod_game_control/issues/126>`_)
-  * [`#124 <https://github.com/astuff/pacmod_game_control/issues/124>`_] Clear axes and button map in derived controller's constructor first
-  - Remove user defined constructor for Controller.
-  - Remove Enumhash for unordered_map since the standard lib provides it.
-  - Move some const variables into an anonymous namespace.
-  - Add curly bracket for a one-liner if-else statement.
-  * [`#124 <https://github.com/astuff/pacmod_game_control/issues/124>`_] Format controller.h
-  * [`#124 <https://github.com/astuff/pacmod_game_control/issues/124>`_] format controller.cc
-  * [`#124 <https://github.com/astuff/pacmod_game_control/issues/124>`_] Format controller.h to pass roslint
+* Clear the axes and buttons map in the derived controller first (`#126 <https://github.com/astuff/pacmod_game_control/issues/126>`_)
 * Remove need to specify vehicle type to pacmod3 driver (`#121 <https://github.com/astuff/pacmod_game_control/issues/121>`_)
 * Strictly depend on specific pacmod3 msgs version (`#119 <https://github.com/astuff/pacmod_game_control/issues/119>`_)
 * Fix pacmod3 driver namespace bug (`#122 <https://github.com/astuff/pacmod_game_control/issues/122>`_)
 * Add support for Honda CRV, Ford Transit, Ford Ranger (`#118 <https://github.com/astuff/pacmod_game_control/issues/118>`_)
-  * Add support for Honda CRV
-  * Add max rotation of steering wheel for CRV
-  * Fix enum
-  * Add Ford Ranger and Ford Transit
 * Remove enable publisher, no longer used (`#111 <https://github.com/astuff/pacmod_game_control/issues/111>`_)
 * Contributors: icolwell-as, jilinzhouas
 
