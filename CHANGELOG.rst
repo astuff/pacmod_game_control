@@ -2,6 +2,16 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.1.0 (2022-02-28)
+------------------
+* Clear the axes and buttons map in the derived controller first (`#126 <https://github.com/astuff/pacmod_game_control/issues/126>`_)
+* Remove need to specify vehicle type to pacmod3 driver (`#121 <https://github.com/astuff/pacmod_game_control/issues/121>`_)
+* Strictly depend on specific pacmod3 msgs version (`#119 <https://github.com/astuff/pacmod_game_control/issues/119>`_)
+* Fix pacmod3 driver namespace bug (`#122 <https://github.com/astuff/pacmod_game_control/issues/122>`_)
+* Add support for Honda CRV, Ford Transit, Ford Ranger (`#118 <https://github.com/astuff/pacmod_game_control/issues/118>`_)
+* Remove enable publisher, no longer used (`#111 <https://github.com/astuff/pacmod_game_control/issues/111>`_)
+* Contributors: icolwell-as, jilinzhouas
+
 4.0.0 (2021-10-06)
 ------------------
 * Update README (`#103 <https://github.com/astuff/pacmod_game_control/issues/103>`_)
