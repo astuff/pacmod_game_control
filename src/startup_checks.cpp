@@ -123,7 +123,7 @@ bool GameControl::CheckScaleValues(const ros::NodeHandle& nodeH)
 
   nodeH.param<float>("steering_max_speed", steering_max_speed_, 3.3);
   ROS_INFO("Loaded steering_max_speed: %f", steering_max_speed_);
-  if (steering_max_speed_ <= 0)
+  if (steering_max_speed_ < 0)
   {
     ROS_ERROR("Parameter steering_max_speed is invalid. Exiting.");
     exit = true;
