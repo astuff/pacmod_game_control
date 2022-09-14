@@ -71,6 +71,7 @@ private:
   void ShiftRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
   void TurnRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
   void LightsRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
+  void HazardsRptCb(const pacmod3_msgs::SystemRptBool::ConstPtr& msg);
   void HornRptCb(const pacmod3_msgs::SystemRptBool::ConstPtr& msg);
   void WiperRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg);
 
@@ -106,6 +107,7 @@ private:
   ros::Subscriber speed_sub_;
   ros::Subscriber enable_sub_;
   ros::Subscriber lights_sub_;
+  ros::Subscriber hazards_sub_;
   ros::Subscriber horn_sub_;
   ros::Subscriber wiper_sub_;
 
@@ -114,7 +116,7 @@ private:
   std::unique_ptr<controllers::Controller> controller_ = nullptr;
 
   bool lights_api_available_ = false;
-  bool hazards_available_ = false;
+  bool hazards_api_available_ = false;
   bool horn_api_available_ = false;
   bool wiper_api_available_ = false;
 
