@@ -21,6 +21,7 @@ void GameControl::Init()
   // Pubs
   turn_signal_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
   headlight_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
+  hazards_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/hazard_lights_cmd", 20);
   horn_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
   wiper_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
   shift_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
@@ -133,6 +134,7 @@ void GameControl::PublishCommands()
   PublishShifting();
   PublishTurnSignal();
   PublishLights();
+  PublishHazards();
   PublishHorn();
   PublishWipers();
 }
@@ -281,6 +283,22 @@ void GameControl::PublishLights()
 
   headlight_cmd_pub_msg.command = headlight_cmd_;
   headlight_cmd_pub_.publish(headlight_cmd_pub_msg);
+}
+
+void GameControl::PublishHazards()
+{
+  if (!hazards_available_)
+  {
+    return;
+  }
+
+  pacmod3_msgs::SystemCmdBool hazards_cmd_pub_msg;
+  hazards_cmd_pub_msg.enable = enable_cmd_;
+  hazards_cmd_pub_msg.clear_override = clear_override_cmd_;
+  hazards_cmd_pub_msg.ignore_overrides = false;
+
+  hazards_cmd_pub_msg.command = controller_->hazards_cmd();
+  hazards_cmd_pub_.publish(hazards_cmd_pub_msg);
 }
 
 void GameControl::PublishHorn()

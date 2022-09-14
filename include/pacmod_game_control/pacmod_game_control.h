@@ -82,6 +82,7 @@ private:
   void PublishShifting();
   void PublishTurnSignal();
   void PublishLights();
+  void PublishHazards();
   void PublishHorn();
   void PublishWipers();
 
@@ -93,6 +94,7 @@ private:
 
   ros::Publisher turn_signal_cmd_pub_;
   ros::Publisher headlight_cmd_pub_;
+  ros::Publisher hazards_cmd_pub_;
   ros::Publisher horn_cmd_pub_;
   ros::Publisher wiper_cmd_pub_;
   ros::Publisher shift_cmd_pub_;
@@ -112,6 +114,7 @@ private:
   std::unique_ptr<controllers::Controller> controller_ = nullptr;
 
   bool lights_api_available_ = false;
+  bool hazards_available_ = false;
   bool horn_api_available_ = false;
   bool wiper_api_available_ = false;
 
