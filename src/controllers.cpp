@@ -105,6 +105,13 @@ bool Controller::headlight_change()
           input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MAX);
 }
 
+bool Controller::hazards_cmd()
+{
+  // Down on directional pad. Only register a change when changing from depressed to pressed.
+  return (prev_input_msg_.axes[axes_[JoyAxis::DPAD_UD]] > AXES_MIN &&
+          input_msg_.axes[axes_[JoyAxis::DPAD_UD]] == AXES_MIN);
+}
+
 bool Controller::wiper_change()
 {
   // Only register a change when changing from depressed to pressed.

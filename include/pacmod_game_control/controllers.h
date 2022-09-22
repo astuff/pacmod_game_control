@@ -55,6 +55,7 @@ public:
   virtual int shift_cmd();
   virtual bool horn_cmd();
   virtual bool headlight_change();
+  virtual bool hazards_cmd();
   virtual bool wiper_change();
   virtual bool enable();
   virtual bool disable();
