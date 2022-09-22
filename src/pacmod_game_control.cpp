@@ -21,6 +21,7 @@ void GameControl::Init()
   // Pubs
   turn_signal_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/turn_cmd", 20);
   headlight_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/headlight_cmd", 20);
+  hazards_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/hazard_lights_cmd", 20);
   horn_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdBool>("pacmod/horn_cmd", 20);
   wiper_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/wiper_cmd", 20);
   shift_cmd_pub_ = nh_.advertise<pacmod3_msgs::SystemCmdInt>("pacmod/shift_cmd", 20);
@@ -33,6 +34,7 @@ void GameControl::Init()
   speed_sub_ = nh_.subscribe("pacmod/vehicle_speed_rpt", 20, &GameControl::VehicleSpeedCb, this);
   enable_sub_ = nh_.subscribe("pacmod/enabled", 20, &GameControl::PacmodEnabledCb, this);
   lights_sub_ = nh_.subscribe("pacmod/headlight_rpt", 10, &GameControl::LightsRptCb, this);
+  hazards_sub_ = nh_.subscribe("pacmod/hazard_lights_rpt", 10, &GameControl::HazardsRptCb, this);
   horn_sub_ = nh_.subscribe("pacmod/horn_rpt", 10, &GameControl::HornRptCb, this);
   wiper_sub_ = nh_.subscribe("pacmod/wiper_rpt", 10, &GameControl::WiperRptCb, this);
 }
@@ -106,6 +108,15 @@ void GameControl::LightsRptCb(const pacmod3_msgs::SystemRptInt::ConstPtr& msg)
   }
 }
 
+void GameControl::HazardsRptCb(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
+{
+  if (!hazards_api_available_)
+  {
+    hazards_api_available_ = true;
+    ROS_INFO("Hazard Lights API detected");
+  }
+}
+
 void GameControl::HornRptCb(const pacmod3_msgs::SystemRptBool::ConstPtr& msg)
 {
   if (!horn_api_available_)
@@ -133,6 +144,7 @@ void GameControl::PublishCommands()
   PublishShifting();
   PublishTurnSignal();
   PublishLights();
+  PublishHazards();
   PublishHorn();
   PublishWipers();
 }
@@ -281,6 +293,22 @@ void GameControl::PublishLights()
 
   headlight_cmd_pub_msg.command = headlight_cmd_;
   headlight_cmd_pub_.publish(headlight_cmd_pub_msg);
+}
+
+void GameControl::PublishHazards()
+{
+  if (!hazards_api_available_)
+  {
+    return;
+  }
+
+  pacmod3_msgs::SystemCmdBool hazards_cmd_pub_msg;
+  hazards_cmd_pub_msg.enable = enable_cmd_;
+  hazards_cmd_pub_msg.clear_override = clear_override_cmd_;
+  hazards_cmd_pub_msg.ignore_overrides = false;
+
+  hazards_cmd_pub_msg.command = controller_->hazards_cmd();
+  hazards_cmd_pub_.publish(hazards_cmd_pub_msg);
 }
 
 void GameControl::PublishHorn()
