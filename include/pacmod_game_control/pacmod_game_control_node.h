@@ -65,6 +65,7 @@ private:
   void ShiftRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
   void TurnRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
   void LightsRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
+  void HazardsRptCb(const pacmod3_msgs::msg::SystemRptBool::SharedPtr msg);
   void HornRptCb(const pacmod3_msgs::msg::SystemRptBool::SharedPtr msg);
   void WiperRptCb(const pacmod3_msgs::msg::SystemRptInt::SharedPtr msg);
 
@@ -76,6 +77,7 @@ private:
   void PublishShifting();
   void PublishTurnSignal();
   void PublishLights();
+  void PublishHazards();
   void PublishHorn();
   void PublishWipers();
 
@@ -87,6 +89,7 @@ private:
 
   rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr turn_signal_cmd_pub_;
   rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr headlight_cmd_pub_;
+  rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdBool>::SharedPtr hazards_cmd_pub_;
   rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdBool>::SharedPtr horn_cmd_pub_;
   rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr wiper_cmd_pub_;
   rclcpp::Publisher<pacmod3_msgs::msg::SystemCmdInt>::SharedPtr shift_cmd_pub_;
@@ -98,12 +101,14 @@ private:
   rclcpp::Subscription<pacmod3_msgs::msg::VehicleSpeedRpt>::SharedPtr speed_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr enable_sub_;
   rclcpp::Subscription<pacmod3_msgs::msg::SystemRptInt>::SharedPtr lights_sub_;
+  rclcpp::Subscription<pacmod3_msgs::msg::SystemRptBool>::SharedPtr hazards_sub_;
   rclcpp::Subscription<pacmod3_msgs::msg::SystemRptBool>::SharedPtr horn_sub_;
   rclcpp::Subscription<pacmod3_msgs::msg::SystemRptInt>::SharedPtr wiper_sub_;
 
   std::unique_ptr<controllers::Controller> controller_ = nullptr;
 
   bool lights_api_available_ = false;
+  bool hazards_api_available_ = false;
   bool horn_api_available_ = false;
   bool wiper_api_available_ = false;
 
