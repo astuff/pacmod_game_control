@@ -2,6 +2,12 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.2.0 (2023-01-10)
+------------------
+* New Hazard Lights Command (`#131 <https://github.com/astuff/pacmod_game_control/issues/131>`_)
+* Allow zero steering rotation rate (`#129 <https://github.com/astuff/pacmod_game_control/issues/129>`_)
+* Contributors: Ian Colwell, cullenstoneAS
+
 4.1.0 (2022-02-28)
 ------------------
 * Clear the axes and buttons map in the derived controller first (`#126 <https://github.com/astuff/pacmod_game_control/issues/126>`_)
