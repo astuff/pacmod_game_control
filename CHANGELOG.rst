@@ -2,8 +2,8 @@
 Changelog for package pacmod_game_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2004.1.0 (2023-01-10)
+---------------------
 * Add dedicated hazard command message/publisher (`#132 <https://github.com/astuff/pacmod_game_control/issues/132>`_)
 * Clear axes and button map in derived controller's constructor first (`#125 <https://github.com/astuff/pacmod_game_control/issues/125>`_)
 * Strictly depend on specific pacmod3_msgs version (`#120 <https://github.com/astuff/pacmod_game_control/issues/120>`_)
